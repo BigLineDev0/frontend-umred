@@ -1,0 +1,238 @@
+<app-auth-layout>
+
+  <h2 class="text-3xl font-bold text-text mb-2">
+    Créer un compte
+  </h2>
+
+  <p class="text-text-secondary mb-8">
+    Rejoignez UMRED Labo pour gérer votre laboratoire efficacement
+  </p>
+
+
+  <!-- Erreur API -->
+  @if (errorMessage()) {
+
+  <div class="p-3 mb-3 rounded-lg bg-danger/5 border border-danger/20">
+
+    <p class="text-sm text-danger">
+      {{ errorMessage() }}
+    </p>
+
+  </div>
+
+  }
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+    <!-- Prénom + Nom -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+      <!-- Prénom -->
+      <div>
+
+        <label for="prenom" class="block text-sm font-semibold text-text mb-2">
+          Prénom
+        </label>
+
+        <p-iconfield class="w-full">
+
+          <p-inputicon class="pi pi-user" />
+
+          <input id="prenom" type="text" pInputText formControlName="prenom" placeholder="Jean"
+            class="w-full !py-3 !rounded-lg" />
+
+        </p-iconfield>
+
+        @if (prenom.invalid && (prenom.touched || submitted)) {
+
+        <small class="text-danger text-xs mt-1 block">
+
+          @if (prenom.errors?.['required']) {
+          Le prénom est obligatoire.
+          }
+
+          @if (prenom.errors?.['minlength']) {
+          Le prénom doit contenir au moins 2 caractères.
+          }
+
+        </small>
+
+        }
+
+      </div>
+
+
+      <!-- Nom -->
+      <div>
+
+        <label for="nom" class="block text-sm font-semibold text-text mb-2">
+          Nom
+        </label>
+
+        <p-iconfield class="w-full">
+
+          <p-inputicon class="pi pi-user" />
+
+          <input id="nom" type="text" pInputText formControlName="nom" placeholder="Diop"
+            class="w-full !py-3 !rounded-lg" />
+
+        </p-iconfield>
+
+        @if (nom.invalid && (nom.touched || submitted)) {
+
+        <small class="text-danger text-xs mt-1 block">
+
+          @if (nom.errors?.['required']) {
+          Le nom est obligatoire.
+          }
+
+          @if (nom.errors?.['minlength']) {
+          Le nom doit contenir au moins 2 caractères.
+          }
+
+        </small>
+
+        }
+
+      </div>
+
+    </div>
+
+
+    <!-- Email -->
+    <div>
+
+      <label for="email" class="block text-sm font-semibold text-text mb-2">
+        Adresse email
+      </label>
+
+      <p-iconfield class="w-full">
+
+        <p-inputicon class="pi pi-envelope" />
+
+        <input id="email" type="email" pInputText formControlName="email" placeholder="j.diop@umred.sn"
+          class="w-full !py-3 !rounded-lg" />
+
+      </p-iconfield>
+
+      @if (email.invalid && (email.touched || submitted)) {
+
+      <small class="text-danger text-xs mt-1 block">
+
+        @if (email.errors?.['required']) {
+        L'adresse email est obligatoire.
+        }
+
+        @if (email.errors?.['email']) {
+        Veuillez saisir une adresse email valide.
+        }
+
+      </small>
+
+      }
+
+    </div>
+
+
+    <!-- Mot de passe -->
+    <div>
+
+      <label for="password" class="block text-sm font-semibold text-text mb-2">
+        Mot de passe
+      </label>
+
+      <p-password inputId="password" formControlName="password" placeholder="********" [feedback]="false"
+        [toggleMask]="true" fluid inputStyleClass="w-full !py-3 !rounded-lg" />
+
+      @if (password.invalid && (password.touched || submitted)) {
+
+      <small class="text-danger text-xs mt-1 block">
+
+        @if (password.errors?.['required']) {
+        Le mot de passe est obligatoire.
+        }
+
+        @if (password.errors?.['minlength']) {
+        Le mot de passe doit contenir au moins 8 caractères.
+        }
+
+      </small>
+
+      }
+
+    </div>
+
+
+    <!-- Confirmation mot de passe -->
+    <div>
+
+      <label for="passwordConfirmation" class="block text-sm font-semibold text-text mb-2">
+        Confirmer le mot de passe
+      </label>
+
+      <p-password inputId="passwordConfirmation" formControlName="passwordConfirmation"
+        placeholder="********" [feedback]="false" [toggleMask]="true" fluid
+        inputStyleClass="w-full !py-3 !rounded-lg" />
+
+      @if (
+      passwordConfirmation.invalid &&
+      (passwordConfirmation.touched || submitted)
+      ) {
+
+      <small class="text-danger text-xs mt-1 block">
+
+        Le mot de passe doit être confirmé.
+
+      </small>
+
+      }
+
+      @if (
+      passwordConfirmation.value &&
+      !passwordsMatch() &&
+      (passwordConfirmation.touched || submitted)
+      ) {
+
+      <small class="text-danger text-xs mt-1 block">
+
+        Les mots de passe ne correspondent pas.
+
+      </small>
+
+      }
+
+    </div>
+
+    <!-- Bouton -->
+    <p-button type="submit" label="S'inscrire" icon="pi pi-arrow-right" iconPos="right" [loading]="loading()"
+      styleClass="w-full !py-3 !text-base" />
+
+
+    <!-- Séparateur -->
+    <div class="relative flex items-center py-2">
+
+      <div class="flex-1 border-t border-border"></div>
+
+      <span class="px-4 text-sm text-text-secondary">
+        ou
+      </span>
+
+      <div class="flex-1 border-t border-border"></div>
+
+    </div>
+
+
+    <!-- Connexion -->
+    <p class="text-center text-sm text-text-secondary">
+
+      Déjà un compte ?
+
+      <a routerLink="/connexion" class="font-semibold text-primary hover:underline">
+        Se connecter
+      </a>
+
+    </p>
+
+  </form>
+
+</app-auth-layout>

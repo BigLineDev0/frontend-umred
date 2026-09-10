@@ -1,0 +1,412 @@
+<div class="min-h-full">
+  <!-- Header -->
+  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <div class="mb-3 flex items-center gap-2 text-sm text-gray-500">
+        <a routerLink="/" class="hover:text-primary transition-colors"> Accueil </a>
+
+        <i class="pi pi-angle-right text-xs"></i>
+
+        <a routerLink="/reservations" class="hover:text-primary transition-colors">
+          Réservations
+        </a>
+
+        <i class="pi pi-angle-right text-xs"></i>
+
+        <span class="text-primary font-medium"> Créer une réservation </span>
+      </div>
+
+      <h1 class="text-2xl font-semibold text-gray-900">Créer une réservation</h1>
+
+      <p class="mt-1 text-sm text-gray-500">
+        Sélectionnez un laboratoire, les équipements et la période souhaitée.
+      </p>
+    </div>
+
+    <a routerLink="/reservations" class="inline-flex">
+      <p-button
+        label="Retour aux réservations"
+        icon="pi pi-arrow-left"
+        [outlined]="true"
+        severity="secondary"
+      />
+    </a>
+  </div>
+
+  <!-- Erreur générale -->
+  @if (error()) {
+    <div
+      class="mx-auto max-w-4xl mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+      role="alert"
+    >
+      <i class="pi pi-exclamation-circle mt-0.5"></i>
+
+      <span>
+        {{ error() }}
+      </span>
+    </div>
+  }
+
+  <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
+    <div
+      class="mx-auto max-w-4xl overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+    >
+      <!-- Ressource à réserver -->
+      <section class="border-b border-gray-200 p-5 sm:p-7">
+        <div class="mb-6 flex items-center gap-3">
+          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-primary">
+            <i class="pi pi-building"></i>
+          </div>
+
+          <div>
+            <h2 class="text-base font-semibold text-gray-900">Ressource à réserver</h2>
+            <p class="mt-0.5 text-xs text-gray-500">Choisissez le laboratoire concerné.</p>
+          </div>
+        </div>
+
+        <div>
+          <label for="laboratoire" class="mb-2 block text-sm font-medium text-gray-800">
+            Laboratoire <span class="text-red-600" aria-hidden="true">*</span>
+          </label>
+
+          <p-select
+            inputId="laboratoire"
+            formControlName="laboratoireId"
+            [options]="laboratoires"
+            optionLabel="nom"
+            optionValue="id"
+            placeholder="Sélectionnez un laboratoire"
+            class="w-full"
+            [showClear]="true"
+            (onChange)="onLaboratoireChange($event.value)"
+          />
+
+          @if (isFieldInvalid('laboratoireId')) {
+            <small class="mt-1 block text-red-600"> Le laboratoire est obligatoire. </small>
+          }
+        </div>
+      </section>
+
+      <!-- Date et horaire -->
+      <section class="border-b border-gray-200 p-5 sm:p-7">
+        <div class="mb-6 flex items-center gap-3">
+          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-primary">
+            <i class="pi pi-clock"></i>
+          </div>
+
+          <h2 class="text-base font-semibold text-gray-900">Date et horaire</h2>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <!-- Date -->
+          <div>
+            <label for="date" class="mb-2 block text-sm font-medium text-gray-800">
+              Date <span class="text-red-600" aria-hidden="true">*</span>
+            </label>
+
+            <p-datepicker
+              inputId="date"
+              formControlName="date"
+              dateFormat="dd/mm/yy"
+              placeholder="jj/mm/aaaa"
+              [showIcon]="true"
+              [minDate]="today"
+              class="w-full"
+              inputStyleClass="w-full"
+            />
+
+            @if (isFieldInvalid('date')) {
+              <small class="mt-1 block text-red-600"> La date est obligatoire. </small>
+            }
+          </div>
+
+          <!-- Heure début -->
+          <div>
+            <label for="heureDebut" class="mb-2 block text-sm font-medium text-gray-800">
+              Heure de début <span class="text-red-600" aria-hidden="true">*</span>
+            </label>
+
+            <input
+              id="heureDebut"
+              type="time"
+              pInputText
+              formControlName="heureDebut"
+              class="w-full"
+            />
+
+            @if (isFieldInvalid('heureDebut')) {
+              <small class="mt-1 block text-red-600"> L'heure de début est obligatoire. </small>
+            }
+          </div>
+
+          <!-- Heure fin -->
+          <div>
+            <label for="heureFin" class="mb-2 block text-sm font-medium text-gray-800">
+              Heure de fin <span class="text-red-600" aria-hidden="true">*</span>
+            </label>
+
+            <input id="heureFin" type="time" pInputText formControlName="heureFin" class="w-full" />
+
+            @if (isFieldInvalid('heureFin')) {
+              <small class="mt-1 block text-red-600"> L'heure de fin est obligatoire. </small>
+            }
+          </div>
+        </div>
+
+        <div class="mt-4 flex items-start gap-2 text-xs text-gray-500">
+          <i class="pi pi-info-circle mt-0.5 text-primary"></i>
+
+          <span>
+            La disponibilité sera vérifiée automatiquement pour la période sélectionnée.
+          </span>
+        </div>
+        @if (checkingAvailability()) {
+          <div
+            class="mt-4 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 text-sm text-primary"
+          >
+            <i class="pi pi-spin pi-spinner"></i>
+
+            <span> Vérification de la disponibilité... </span>
+          </div>
+        }
+
+        @if (availabilitySuccess() && availabilityMessage()) {
+          <div
+            class="mt-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2.5 text-sm text-green-700"
+          >
+            <i class="pi pi-check-circle"></i>
+
+            <span>
+              {{ availabilityMessage() }}
+            </span>
+          </div>
+        }
+      </section>
+
+      <!-- Équipements -->
+      <section class="border-b border-gray-200 p-5 sm:p-7">
+        <div class="mb-5 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div
+              class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-primary"
+            >
+              <i class="pi pi-microchip"></i>
+            </div>
+
+            <div>
+              <h2 class="text-base font-semibold text-gray-900">Équipements</h2>
+
+              <p class="mt-0.5 text-xs text-gray-500">Sélectionnez un ou plusieurs équipements.</p>
+            </div>
+          </div>
+
+          @if (selectedEquipementsCount > 0) {
+            <span class="shrink-0 text-xs font-medium text-primary">
+              {{ selectedEquipementsCount }}
+              {{ selectedEquipementsCount === 1 ? 'sélectionné' : 'sélectionnés' }}
+            </span>
+          }
+        </div>
+
+        <div class="space-y-3">
+          @for (equipement of equipementsDuLaboratoire(); track equipement.id) {
+            <button
+              type="button"
+              class="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors"
+              [class.border-primary]="isEquipementSelected(equipement.id)"
+              [class.bg-blue-50]="isEquipementSelected(equipement.id)"
+              [class.border-gray-200]="!isEquipementSelected(equipement.id)"
+              [class.opacity-60]="!equipement.disponible"
+              [disabled]="!equipement.disponible"
+              (click)="toggleEquipement(equipement)"
+            >
+              <div
+                class="flex h-5 w-5 shrink-0 items-center justify-center rounded border"
+                [class.bg-primary]="isEquipementSelected(equipement.id)"
+                [class.border-primary]="isEquipementSelected(equipement.id)"
+                [class.border-gray-300]="!isEquipementSelected(equipement.id)"
+              >
+                @if (isEquipementSelected(equipement.id)) {
+                  <i class="pi pi-check text-xs text-white"></i>
+                }
+              </div>
+
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-gray-900">
+                  {{ equipement.nom }}
+                </p>
+
+                <p class="text-xs text-gray-500">Réf. {{ equipement.reference }}</p>
+              </div>
+
+              <span
+                class="shrink-0 rounded-full px-3 py-1 text-xs font-medium"
+                [class.bg-green-100]="equipement.disponible"
+                [class.text-green-700]="equipement.disponible"
+                [class.bg-gray-100]="!equipement.disponible"
+                [class.text-gray-500]="!equipement.disponible"
+              >
+                {{ equipement.disponible ? 'Disponible' : 'Indisponible' }}
+              </span>
+            </button>
+          }
+        </div>
+
+        @if (
+          reservationForm.get('equipementIds')?.touched &&
+          reservationForm.get('equipementIds')?.value?.length === 0
+        ) {
+          <small class="mt-2 block text-red-600"> Sélectionnez au moins un équipement. </small>
+        }
+      </section>
+
+      <!-- Motif -->
+      <section class="p-5 sm:p-7">
+        <div class="mb-6 flex items-center gap-3">
+          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-primary">
+            <i class="pi pi-file"></i>
+          </div>
+
+          <h2 class="text-base font-semibold text-gray-900">Motif</h2>
+        </div>
+
+        <div>
+          <label for="motif" class="mb-2 block text-sm font-medium text-gray-800">
+            Motif de la réservation <span class="text-red-600" aria-hidden="true">*</span>
+          </label>
+
+          <textarea
+            pTextarea
+            id="motif"
+            formControlName="motif"
+            rows="4"
+            maxlength="255"
+            placeholder="Ex. Analyse d'échantillons"
+            class="w-full"
+          ></textarea>
+          <div class="mt-1 flex justify-end">
+            <span
+              class="text-xs"
+              [class.text-gray-400]="motifLength < 255"
+              [class.text-red-600]="motifLength >= 255"
+            >
+              {{ motifLength }} / 255
+            </span>
+          </div>
+
+          @if (isFieldInvalid('motif')) {
+            <small class="mt-1 block text-red-600"> Le motif est obligatoire. </small>
+          }
+        </div>
+      </section>
+      <!-- Actions -->
+      <div
+        class="flex flex-col-reverse justify-end gap-3 border-t border-gray-200 bg-gray-50/60 p-5 sm:flex-row sm:p-7"
+      >
+        <a routerLink="/reservations" class="inline-flex">
+          <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" />
+        </a>
+
+        <p-button
+          type="submit"
+          label="Vérifier et continuer"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          [loading]="checkingAvailability()"
+          [disabled]="loading() || checkingAvailability()"
+        />
+      </div>
+    </div>
+  </form>
+
+  <!--DIALOG DE CONFIRMATION -->
+  <p-dialog
+    [(visible)]="showConfirmation"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{
+      width: '520px',
+      maxWidth: 'calc(100vw - 2rem)',
+    }"
+    header="Vérifier votre réservation"
+  >
+    <div class="space-y-5">
+      <!-- Laboratoire -->
+      <div>
+        <p class="mb-1 text-sm text-gray-500">Laboratoire</p>
+
+        <p class="text-lg font-semibold text-gray-900">
+          {{ getLaboratoireName() }}
+        </p>
+      </div>
+
+      <div class="border-t border-gray-200"></div>
+
+      <!-- Équipements -->
+      <div>
+        <p class="mb-1 text-sm text-gray-500">Équipements</p>
+
+        <p class="text-lg font-semibold text-gray-900">
+          {{ getEquipementsNames() }}
+        </p>
+      </div>
+
+      <div class="border-t border-gray-200"></div>
+
+      <!-- Date -->
+      <div>
+        <p class="mb-1 text-sm text-gray-500">Date</p>
+
+        <p class="text-lg font-semibold text-gray-900">
+          {{ getFormattedDate() }}
+        </p>
+      </div>
+
+      <div class="border-t border-gray-200"></div>
+
+      <!-- Horaire -->
+      <div>
+        <p class="mb-1 text-sm text-gray-500">Horaire</p>
+
+        <p class="text-lg font-semibold text-gray-900">
+          {{ getHoraire() }}
+        </p>
+      </div>
+
+      <div class="border-t border-gray-200"></div>
+
+      <!-- Motif -->
+      <div>
+        <p class="mb-1 text-sm text-gray-500">Motif</p>
+
+        <p class="text-lg font-semibold text-gray-900">
+          {{ reservationForm.get('motif')?.value }}
+        </p>
+      </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <div class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+          <!-- Footer dialog -->
+          <p-button
+            type="button"
+            label="Modifier"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="loading()"
+            (onClick)="annulerConfirmation()"
+          />
+
+          <p-button
+            type="button"
+            label="Confirmer la réservation"
+            icon="pi pi-check"
+            [loading]="loading()"
+            [disabled]="loading()"
+            (onClick)="confirmerReservation()"
+          />
+        </div>
+    </ng-template>
+  </p-dialog>
+</div>

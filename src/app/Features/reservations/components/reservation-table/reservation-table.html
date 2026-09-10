@@ -1,0 +1,102 @@
+<div class="hidden lg:block">
+  <p-table
+    [value]="reservations()"
+    [rowHover]="true"
+    stripedRows
+    responsiveLayout="scroll"
+    styleClass="!border-none"
+  >
+    <ng-template pTemplate="header">
+      <tr class="!bg-background !text-xs !font-semibold !text-text-secondary">
+        @if (showUtilisateur()) {
+          <th class="!border-b !border-border !px-5">UTILISATEUR</th>
+        }
+        <th class="!border-b !border-border">LABORATOIRE</th>
+        <th class="!border-b !border-border">ÉQUIPEMENT(S)</th>
+        <th class="!border-b !border-border">DATE</th>
+        <th class="!border-b !border-border">HORAIRE</th>
+        <th class="!border-b !border-border">STATUT</th>
+        <th class="!border-b !border-border !text-center">ACTIONS</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-reservation>
+      <tr class="transition-colors hover:!bg-background">
+        @if (showUtilisateur()) {
+          <td class="!border-b !border-border !px-5 !py-4">
+            <span class="text-sm font-semibold text-text">
+              {{ reservation.utilisateur.prenom }} {{ reservation.utilisateur.nom }}
+            </span>
+          </td>
+        }
+
+        <td class="!border-b !border-border !py-4">
+          <span class="font-medium text-text">{{ reservation.laboratoire.nom }}</span>
+        </td>
+
+        <td class="!border-b !border-border !py-4">
+          <span class="text-sm text-text-secondary">{{ getEquipements(reservation) }}</span>
+        </td>
+
+        <td class="!border-b !border-border !py-4">
+          <span class="text-sm text-text">{{ getDate(reservation) }}</span>
+        </td>
+
+        <td class="!border-b !border-border !py-4">
+          <span class="text-sm text-text">{{ getHoraire(reservation) }}</span>
+        </td>
+
+        <td class="!border-b !border-border !py-4">
+          <app-reservation-status [status]="reservation.statut" />
+        </td>
+
+        <td class="!border-b !border-border !py-4">
+          <div class="flex justify-end gap-1">
+            <p-button
+              icon="pi pi-eye"
+              [text]="true"
+              [rounded]="true"
+              severity="secondary"
+              ariaLabel="Voir"
+              (onClick)="view.emit(reservation)"
+            />
+
+            @if (canEdit(reservation)) {
+              <p-button
+                icon="pi pi-pencil"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                ariaLabel="Modifier"
+                (onClick)="edit.emit(reservation)"
+              />
+            }
+
+            @if (canCancel(reservation)) {
+              <p-button
+                icon="pi pi-trash"
+                [text]="true"
+                [rounded]="true"
+                severity="danger"
+                ariaLabel="Annuler"
+                (onClick)="cancel.emit(reservation)"
+              />
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td [attr.colspan]="showUtilisateur() ? 8 : 7" class="!py-12 text-center">
+          <div class="flex flex-col items-center">
+            <i class="pi pi-calendar-times mb-3 text-3xl text-text-secondary/50"></i>
+            <p class="text-sm font-medium text-text">Aucune réservation trouvée</p>
+            <p class="mt-1 text-sm text-text-secondary">Modifiez vos critères de recherche.</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

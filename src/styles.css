@@ -1,3 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+@import 'primeicons/primeicons.css';
+
+@theme {
+  --font-sans: "Poppins", sans-serif;
+
+  --color-primary: #1848D9;
+  --color-primary-dark: #1540BF;
+  --color-secondary: #147DD9;
+  --color-accent: #F24C27;
+  --color-background: #FAFBFB;
+  --color-text: #111827;
+  --color-text-secondary: #6B7280;
+  --color-border: #E5E7EB;
+  --color-success: #16A34A;
+  --color-danger: #DC2626;
+  --color-sidebar: #0E1B3D;
+  --color-sidebar-border: #26355E;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  margin: 0;
+}

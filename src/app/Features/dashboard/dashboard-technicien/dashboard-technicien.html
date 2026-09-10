@@ -1,0 +1,259 @@
+<div class="max-w-[1400px] mx-auto">
+
+  <!-- En-tête -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-semibold text-text">Bonjour, Cheikh</h1>
+    <p class="text-sm text-text-secondary mt-1">Voici un aperçu de vos activités techniques aujourd'hui</p>
+  </div>
+
+  <!-- Cartes KPI -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+    <div class="bg-white border border-border rounded-xl p-5">
+      <div class="flex justify-between items-start mb-4">
+        <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
+          <i class="pi pi-box text-success"></i>
+        </div>
+        <p-tag value="Disponible" severity="success" styleClass="!text-xs" />
+      </div>
+      <p class="text-3xl font-semibold text-text">14</p>
+      <p class="text-sm text-text-secondary mt-1">Équipements disponibles</p>
+      <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 mt-3 hover:underline">
+        Voir tout <i class="pi pi-arrow-right text-xs"></i>
+      </a>
+    </div>
+
+    <div class="bg-white border border-border rounded-xl p-5">
+      <div class="flex justify-between items-start mb-4">
+        <div class="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+          <i class="pi pi-wrench text-accent"></i>
+        </div>
+        <p-tag value="En cours" severity="warn" styleClass="!text-xs" />
+      </div>
+      <p class="text-3xl font-semibold text-text">3</p>
+      <p class="text-sm text-text-secondary mt-1">En maintenance</p>
+      <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 mt-3 hover:underline">
+        Voir tout <i class="pi pi-arrow-right text-xs"></i>
+      </a>
+    </div>
+
+    <div class="bg-white border border-border rounded-xl p-5">
+      <div class="flex justify-between items-start mb-4">
+        <div class="w-10 h-10 rounded-lg bg-danger/10 flex items-center justify-center">
+          <i class="pi pi-exclamation-triangle text-danger"></i>
+        </div>
+        <p-tag value="2 pannes" severity="danger" styleClass="!text-xs" />
+      </div>
+      <p class="text-3xl font-semibold text-text">2</p>
+      <p class="text-sm text-text-secondary mt-1">Équipements en panne</p>
+      <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 mt-3 hover:underline">
+        Voir tout <i class="pi pi-arrow-right text-xs"></i>
+      </a>
+    </div>
+
+    <div class="bg-white border border-border rounded-xl p-5">
+      <div class="flex justify-between items-start mb-4">
+        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+          <i class="pi pi-calendar text-primary"></i>
+        </div>
+        <p-tag value="Planifiées" severity="info" styleClass="!text-xs" />
+      </div>
+      <p class="text-3xl font-semibold text-text">5</p>
+      <p class="text-sm text-text-secondary mt-1">Maintenances planifiées</p>
+      <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 mt-3 hover:underline">
+        Voir tout <i class="pi pi-arrow-right text-xs"></i>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="mb-8">
+    <p class="text-xs font-medium tracking-wide text-text-secondary mb-3">ACTIONS RAPIDES</p>
+    <div class="flex flex-wrap gap-3">
+      <p-button label="Nouvelle maintenance" icon="pi pi-plus" />
+      <p-button label="Voir les équipements" icon="pi pi-cog" severity="secondary" [outlined]="true"  class="bg-white"/>
+      <p-button label="Voir les demandes" icon="pi pi-calendar" severity="secondary" [outlined]="true"  class="bg-white"/>
+      <p-button label="Déclarer une panne" icon="pi pi-bolt" severity="danger" />
+    </div>
+  </div>
+
+  <!-- Demandes de réservation à valider -->
+  <div class="bg-white border border-border rounded-xl p-6 mb-8">
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h2 class="text-lg font-semibold text-text">Demandes de réservation à valider</h2>
+        <p class="text-sm text-text-secondary mt-0.5">Réservations en attente de validation</p>
+      </div>
+      <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
+        Voir tout <i class="pi pi-arrow-right text-xs"></i>
+      </a>
+    </div>
+
+    <p-table [value]="[
+      { demandeur: 'Fatou NDIAYE', laboratoire: 'Laboratoire biologie', equipement: 'Microscope', date: '12 Sep · 09:00' },
+      { demandeur: 'Moussa SARR', laboratoire: 'Laboratoire chimie', equipement: 'Spectrophotomètre', date: '13 Sep · 14:30' },
+      { demandeur: 'Aïssatou BA', laboratoire: 'Laboratoire biologie', equipement: 'Centrifugeuse', date: '14 Sep · 10:00' }
+    ]" styleClass="!border-none">
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">DEMANDEUR</th>
+          <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">LABORATOIRE</th>
+          <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">ÉQUIPEMENT</th>
+          <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">DATE / HEURE</th>
+          <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">ACTIONS</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-demande>
+        <tr>
+          <td class="!border-b !border-border !text-sm !font-medium !text-text">{{ demande.demandeur }}</td>
+          <td class="!border-b !border-border !text-sm !text-text">{{ demande.laboratoire }}</td>
+          <td class="!border-b !border-border !text-sm !text-text">{{ demande.equipement }}</td>
+          <td class="!border-b !border-border !text-sm !text-text">{{ demande.date }}</td>
+          <td class="!border-b !border-border">
+            <div class="flex gap-2">
+              <p-button label="Valider" size="small" severity="success" [outlined]="true" />
+              <p-button label="Refuser" size="small" severity="danger" [outlined]="true" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Alertes techniques + Prochaines interventions -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+
+    <div class="bg-white border border-border rounded-xl p-6">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h2 class="text-lg font-semibold text-text">Alertes techniques</h2>
+          <p class="text-sm text-text-secondary mt-0.5">Signalements et retards à traiter</p>
+        </div>
+        <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
+          Voir tout <i class="pi pi-arrow-right text-xs"></i>
+        </a>
+      </div>
+
+      <div class="space-y-3">
+        <div class="flex items-center gap-3 bg-danger/5 rounded-lg p-4">
+          <div class="w-8 h-8 rounded-full bg-danger/10 flex items-center justify-center shrink-0">
+            <i class="pi pi-exclamation-triangle text-danger text-sm"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-text">Centrifugeuse C-200</p>
+            <p class="text-xs text-text-secondary mt-0.5">Panne signalée · Laboratoire biologie</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 bg-accent/5 rounded-lg p-4">
+          <div class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+            <i class="pi pi-clock text-accent text-sm"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-text">Spectrophotomètre</p>
+            <p class="text-xs text-text-secondary mt-0.5">Maintenance en retard · Laboratoire chimie</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-border rounded-xl p-6">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h2 class="text-lg font-semibold text-text">Prochaines interventions</h2>
+          <p class="text-sm text-text-secondary mt-0.5">Interventions à venir</p>
+        </div>
+        <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
+          Voir tout <i class="pi pi-arrow-right text-xs"></i>
+        </a>
+      </div>
+
+      <div class="space-y-3">
+        <div class="flex items-center justify-between rounded-lg p-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <i class="pi pi-cog text-primary text-sm"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-text">Étuve E-100</p>
+              <p class="text-xs text-text-secondary mt-0.5">15 Sep · 09:00</p>
+            </div>
+          </div>
+          <p-tag value="Planifiée" severity="info" styleClass="!text-xs" />
+        </div>
+
+        <div class="flex items-center justify-between rounded-lg p-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <i class="pi pi-cog text-primary text-sm"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-text">Balance de précision</p>
+              <p class="text-xs text-text-secondary mt-0.5">16 Sep · 11:30</p>
+            </div>
+          </div>
+          <p-tag value="Planifiée" severity="info" styleClass="!text-xs" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Historique récent des maintenances -->
+  <div class="bg-white border border-border rounded-xl p-6">
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h2 class="text-lg font-semibold text-text">Historique récent des maintenances</h2>
+        <p class="text-sm text-text-secondary mt-0.5">Vos dernières interventions techniques</p>
+      </div>
+      <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
+        Voir tout <i class="pi pi-arrow-right text-xs"></i>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="flex items-center justify-between border border-border rounded-lg p-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+            <i class="pi pi-cog text-accent text-sm"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-text">Microscope M-3</p>
+            <p class="text-xs text-text-secondary mt-0.5">Réparation</p>
+          </div>
+        </div>
+        <p-tag value="En cours" severity="warn" styleClass="!text-xs" />
+      </div>
+
+      <div class="flex items-center justify-between border border-border rounded-lg p-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center shrink-0">
+            <i class="pi pi-cog text-success text-sm"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-text">Autoclave A-1</p>
+            <p class="text-xs text-text-secondary mt-0.5">Entretien</p>
+          </div>
+        </div>
+        <p-tag value="Terminée" severity="success" styleClass="!text-xs" />
+      </div>
+
+      <div class="flex items-center justify-between border border-border rounded-lg p-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center shrink-0">
+            <i class="pi pi-cog text-success text-sm"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-text">Pipette électronique</p>
+            <p class="text-xs text-text-secondary mt-0.5">Calibration</p>
+          </div>
+        </div>
+        <p-tag value="Terminée" severity="success" styleClass="!text-xs" />
+      </div>
+    </div>
+  </div>
+
+ 
+
+</div>

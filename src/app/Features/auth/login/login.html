@@ -1,0 +1,126 @@
+<app-auth-layout>
+
+  <h2 class="text-3xl font-bold text-text mb-2">
+    Connexion
+  </h2>
+
+  <p class="text-text-secondary mb-8">
+    Accédez à votre espace de gestion de laboratoire
+  </p>
+
+   <!-- Erreur -->
+    @if (errorMessage()) {
+
+    <div class="p-3 mb-3 rounded-lg bg-danger/5 border border-danger/20">
+
+      <p class="text-sm text-danger">
+        {{ errorMessage() }}
+      </p>
+
+    </div>
+
+    }
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+    <!-- Email -->
+    <div>
+
+      <label for="email" class="block text-sm font-semibold text-text mb-2">
+        Adresse email
+      </label>
+
+      <p-iconfield class="w-full">
+
+        <p-inputicon class="pi pi-envelope" />
+
+        <input id="email" type="email" pInputText formControlName="email" placeholder="j.diop@umred.sn"
+          class="w-full !py-3 !rounded-lg" />
+
+      </p-iconfield>
+
+      @if (email.invalid && (email.touched || submitted)) {
+
+      <small class="text-danger text-xs mt-1 block">
+        @if (email.errors?.['required']) {
+        L'adresse email est obligatoire.
+        }
+
+        @if (email.errors?.['email']) {
+        Veuillez saisir une adresse email valide.
+        }
+      </small>
+
+      }
+
+    </div>
+
+
+    <!-- Mot de passe -->
+    <div>
+
+      <label for="password" class="block text-sm font-semibold text-text mb-2">
+        Mot de passe
+      </label>
+
+      <p-password inputId="password" formControlName="password" placeholder="**********" [feedback]="false"
+        [toggleMask]="true" fluid inputStyleClass="w-full !py-3 !rounded-lg !text-sm" />
+
+      @if (password.invalid && (password.touched || submitted)) {
+
+      <small class="text-danger text-xs mt-1 block">
+        @if (password.errors?.['required']) {
+          Le mot de passe est obligatoire.
+        }
+
+        @if (password.errors?.['minlength']) {
+          Le mot de passe doit contenir au moins 8 caractères.
+        }
+      </small>
+
+      }
+
+      <div class="text-right mt-2">
+
+        <a routerLink="/mot-de-passe-oublie" class="text-sm font-medium text-primary hover:underline">
+          Mot de passe oublié ?
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <!-- Connexion -->
+    <p-button type="submit" label="Se connecter" icon="pi pi-arrow-right" iconPos="right"
+      styleClass="w-full !py-3 !text-base" [loading]="loading()" />
+
+
+    <!-- Séparateur -->
+    <div class="relative flex items-center py-2">
+
+      <div class="flex-1 border-t border-border"></div>
+
+      <span class="px-4 text-sm text-text-secondary">
+        ou
+      </span>
+
+      <div class="flex-1 border-t border-border"></div>
+
+    </div>
+
+
+    <!-- Inscription -->
+    <p class="text-center text-sm text-text-secondary">
+
+      Pas encore de compte ?
+
+      <a routerLink="/inscription" class="font-semibold text-primary hover:underline">
+        Créer un compte
+      </a>
+
+    </p>
+
+  </form>
+
+</app-auth-layout>

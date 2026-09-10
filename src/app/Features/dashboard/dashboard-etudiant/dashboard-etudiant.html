@@ -1,0 +1,580 @@
+<div class="w-full max-w-[1400px] mx-auto">
+
+  <!-- ========================================================= -->
+  <!-- EN-TÊTE -->
+  <!-- ========================================================= -->
+
+  <div
+    class="mb-7 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between"
+  >
+    <div>
+      <h1 class="text-2xl font-semibold text-text">
+        Bonjour, Moussa
+      </h1>
+
+      <p class="text-sm text-text-secondary mt-1">
+        Voici un aperçu de vos demandes et réservations.
+      </p>
+    </div>
+
+    <p-button
+      label="Nouvelle demande"
+      icon="pi pi-plus"
+      [routerLink]="['/reservations/nouvelle']"
+      styleClass="!bg-primary !border-primary hover:!bg-primary-dark w-full sm:w-auto"
+    />
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- KPI -->
+  <!-- ========================================================= -->
+
+  <div
+    class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6"
+  >
+
+    <!-- Demandes en attente -->
+
+    <div
+      class="bg-white border border-border rounded-xl p-5 min-h-[204px]"
+    >
+      <div class="flex items-start justify-between mb-5">
+
+        <div
+          class="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center"
+        >
+          <i class="pi pi-clock text-accent text-lg"></i>
+        </div>
+
+        <p-tag
+          value="à valider"
+          severity="warn"
+          styleClass="!text-xs !font-medium"
+        />
+
+      </div>
+
+      <p class="text-3xl font-semibold text-text leading-none">
+        3
+      </p>
+
+      <p class="text-sm text-text-secondary mt-3">
+        Demandes en attente
+      </p>
+
+      <a
+        routerLink="/reservations"
+        class="inline-flex items-center text-sm text-primary font-medium mt-4 hover:underline"
+      >
+        Voir tout
+      </a>
+    </div>
+
+
+    <!-- Demandes validées -->
+
+    <div
+      class="bg-white border border-border rounded-xl p-5 min-h-[204px]"
+    >
+      <div class="flex items-start justify-between mb-5">
+
+        <div
+          class="w-11 h-11 rounded-xl bg-success/10 flex items-center justify-center"
+        >
+          <i class="pi pi-check-circle text-success text-lg"></i>
+        </div>
+
+        <p-tag
+          value="validées"
+          severity="success"
+          styleClass="!text-xs !font-medium"
+        />
+
+      </div>
+
+      <p class="text-3xl font-semibold text-text leading-none">
+        7
+      </p>
+
+      <p class="text-sm text-text-secondary mt-3">
+        Demandes validées
+      </p>
+
+      <a
+        routerLink="/reservations"
+        class="inline-flex items-center text-sm text-primary font-medium mt-4 hover:underline"
+      >
+        Voir tout
+      </a>
+    </div>
+
+
+    <!-- Demandes refusées -->
+
+    <div
+      class="bg-white border border-border rounded-xl p-5 min-h-[204px]"
+    >
+      <div class="flex items-start justify-between mb-5">
+
+        <div
+          class="w-11 h-11 rounded-xl bg-danger/10 flex items-center justify-center"
+        >
+          <i class="pi pi-times-circle text-danger text-lg"></i>
+        </div>
+
+        <p-tag
+          value="refusées"
+          severity="danger"
+          styleClass="!text-xs !font-medium"
+        />
+
+      </div>
+
+      <p class="text-3xl font-semibold text-text leading-none">
+        1
+      </p>
+
+      <p class="text-sm text-text-secondary mt-3">
+        Demandes refusées
+      </p>
+
+      <a
+        routerLink="/reservations"
+        class="inline-flex items-center text-sm text-primary font-medium mt-4 hover:underline"
+      >
+        Voir tout
+      </a>
+    </div>
+
+
+    <!-- Prochaines réservations -->
+
+    <div
+      class="bg-white border border-border rounded-xl p-5 min-h-[204px]"
+    >
+      <div class="flex items-start justify-between mb-5">
+
+        <div
+          class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center"
+        >
+          <i class="pi pi-calendar text-primary text-lg"></i>
+        </div>
+
+      </div>
+
+      <p class="text-3xl font-semibold text-text leading-none">
+        2
+      </p>
+
+      <p class="text-sm text-text-secondary mt-3">
+        Prochaines réservations
+      </p>
+
+      <a
+        routerLink="/reservations"
+        class="inline-flex items-center text-sm text-primary font-medium mt-4 hover:underline"
+      >
+        Voir tout
+      </a>
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- INFORMATION -->
+  <!-- ========================================================= -->
+
+  <div
+    class="flex items-center gap-3 bg-secondary/10 border border-secondary/20 rounded-xl px-5 py-4 mb-7"
+  >
+
+    <div
+      class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center shrink-0"
+    >
+      <i class="pi pi-info-circle text-secondary text-sm"></i>
+    </div>
+
+    <p class="text-sm text-[#536B92] leading-relaxed">
+      Une demande étudiant doit être validée par un technicien ou un enseignant-chercheur avant confirmation.
+    </p>
+
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- PROCHAINES RÉSERVATIONS + NOTIFICATIONS -->
+  <!-- ========================================================= -->
+
+  <div
+    class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-7"
+  >
+
+    <!-- ======================================================= -->
+    <!-- MES PROCHAINES RÉSERVATIONS -->
+    <!-- ======================================================= -->
+
+    <div
+      class="bg-white border border-border rounded-xl p-5 sm:p-6"
+    >
+
+      <div
+        class="flex items-start justify-between gap-4 mb-5"
+      >
+
+        <div>
+          <h2 class="text-lg font-semibold text-text">
+            Mes prochaines réservations
+          </h2>
+
+          <p class="text-sm text-text-secondary mt-1">
+            Réservations confirmées ou en attente
+          </p>
+        </div>
+
+        <a
+          routerLink="/reservations"
+          class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline"
+        >
+          Voir tout
+          <i class="pi pi-arrow-right text-xs"></i>
+        </a>
+
+      </div>
+
+
+      <div class="divide-y divide-border">
+
+        <!-- Réservation 1 -->
+
+        <div
+          class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-4 first:pt-0"
+        >
+
+          <div>
+            <p class="text-sm font-semibold text-text">
+              Laboratoire Biochimie
+            </p>
+
+            <p class="text-xs text-text-secondary mt-1">
+              15 Sep · 09:00 - 11:00
+            </p>
+          </div>
+
+          <p-tag
+            value="En attente"
+            severity="warn"
+            styleClass="!text-xs !font-medium self-start sm:self-auto"
+          />
+
+        </div>
+
+
+        <!-- Réservation 2 -->
+
+        <div
+          class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-4 last:pb-0"
+        >
+
+          <div>
+            <p class="text-sm font-semibold text-text">
+              Laboratoire Microbiologie
+            </p>
+
+            <p class="text-xs text-text-secondary mt-1">
+              18 Sep · 14:00 - 16:00
+            </p>
+          </div>
+
+          <p-tag
+            value="Validée"
+            severity="success"
+            styleClass="!text-xs !font-medium self-start sm:self-auto"
+          />
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- NOTIFICATIONS -->
+    <!-- ======================================================= -->
+
+    <div
+      class="bg-white border border-border rounded-xl p-5 sm:p-6"
+    >
+
+      <div
+        class="flex items-start justify-between gap-4 mb-5"
+      >
+
+        <div>
+          <h2 class="text-lg font-semibold text-text">
+            Notifications
+          </h2>
+
+          <p class="text-sm text-text-secondary mt-1">
+            Dernières mises à jour
+          </p>
+        </div>
+
+        <a
+          routerLink="/notifications"
+          class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline"
+        >
+          Voir tout
+          <i class="pi pi-arrow-right text-xs"></i>
+        </a>
+
+      </div>
+
+
+      <div class="divide-y divide-border">
+
+        <!-- Notification 1 -->
+
+        <div
+          class="flex items-center gap-3 py-3 first:pt-0"
+        >
+
+          <div
+            class="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center shrink-0"
+          >
+            <i class="pi pi-clock text-accent text-sm"></i>
+          </div>
+
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-text">
+              Votre demande est en attente de validation
+            </p>
+
+            <p class="text-xs text-text-secondary mt-1">
+              Il y a 2 heures
+            </p>
+          </div>
+
+        </div>
+
+
+        <!-- Notification 2 -->
+
+        <div
+          class="flex items-center gap-3 py-3 last:pb-0"
+        >
+
+          <div
+            class="w-9 h-9 rounded-full bg-success/10 flex items-center justify-center shrink-0"
+          >
+            <i class="pi pi-check text-success text-sm"></i>
+          </div>
+
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-text">
+              Votre demande du 12 Sept a été validée
+            </p>
+
+            <p class="text-xs text-text-secondary mt-1">
+              Il y a 1 jour
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- LABORATOIRES DISPONIBLES -->
+  <!-- ========================================================= -->
+
+  <div
+    class="bg-white border border-border rounded-xl p-5 sm:p-6"
+  >
+
+    <div
+      class="flex items-center justify-between gap-4 mb-5"
+    >
+
+      <h2 class="text-lg font-semibold text-text">
+        Laboratoires disponibles
+      </h2>
+
+      <a
+        routerLink="/laboratoires"
+        class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline"
+      >
+        Voir tout
+        <i class="pi pi-arrow-right text-xs"></i>
+      </a>
+
+    </div>
+
+
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3"
+    >
+
+      <!-- Biochimie -->
+
+      <a
+        routerLink="/laboratoires"
+        class="group border border-border rounded-xl p-4 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors"
+      >
+
+        <div
+          class="flex items-start justify-between gap-3"
+        >
+
+          <div
+            class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"
+          >
+            <i class="pi pi-cog text-primary"></i>
+          </div>
+
+          <span
+            class="inline-flex items-center px-2.5 py-1 rounded-full bg-success/5 text-success border border-success/20 text-[11px] font-medium"
+          >
+            Disponible
+          </span>
+
+        </div>
+
+        <p
+          class="text-sm font-semibold text-text mt-4 group-hover:text-primary transition-colors"
+        >
+          Biochimie
+        </p>
+
+        <p class="text-xs text-text-secondary mt-1">
+          Bâtiment A · Salle 2
+        </p>
+
+      </a>
+
+
+      <!-- Microbiologie -->
+
+      <a
+        routerLink="/laboratoires"
+        class="group border border-border rounded-xl p-4 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors"
+      >
+
+        <div
+          class="flex items-start justify-between gap-3"
+        >
+
+          <div
+            class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"
+          >
+            <i class="pi pi-cog text-primary"></i>
+          </div>
+
+          <span
+            class="inline-flex items-center px-2.5 py-1 rounded-full bg-success/5 text-success border border-success/20 text-[11px] font-medium"
+          >
+            Disponible
+          </span>
+
+        </div>
+
+        <p
+          class="text-sm font-semibold text-text mt-4 group-hover:text-primary transition-colors"
+        >
+          Microbiologie
+        </p>
+
+        <p class="text-xs text-text-secondary mt-1">
+          Bâtiment B · Salle 1
+        </p>
+
+      </a>
+
+
+      <!-- Imagerie -->
+
+      <a
+        routerLink="/laboratoires"
+        class="group border border-border rounded-xl p-4 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors"
+      >
+
+        <div
+          class="flex items-start justify-between gap-3"
+        >
+
+          <div
+            class="w-10 h-10 rounded-lg bg-danger/10 flex items-center justify-center shrink-0"
+          >
+            <i class="pi pi-building text-danger"></i>
+          </div>
+
+          <span
+            class="inline-flex items-center px-2.5 py-1 rounded-full bg-danger/5 text-danger border border-danger/20 text-[11px] font-medium"
+          >
+            Occupé
+          </span>
+
+        </div>
+
+        <p
+          class="text-sm font-semibold text-text mt-4 group-hover:text-primary transition-colors"
+        >
+          Imagerie
+        </p>
+
+        <p class="text-xs text-text-secondary mt-1">
+          Bâtiment C · Salle 3
+        </p>
+
+      </a>
+
+
+      <!-- Biologie moléculaire -->
+
+      <a
+        routerLink="/laboratoires"
+        class="group border border-border rounded-xl p-4 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors"
+      >
+
+        <div
+          class="flex items-start justify-between gap-3"
+        >
+
+          <div
+            class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"
+          >
+            <i class="pi pi-hourglass text-primary"></i>
+          </div>
+
+          <span
+            class="inline-flex items-center px-2.5 py-1 rounded-full bg-success/5 text-success border border-success/20 text-[11px] font-medium"
+          >
+            Disponible
+          </span>
+
+        </div>
+
+        <p
+          class="text-sm font-semibold text-text mt-4 group-hover:text-primary transition-colors"
+        >
+          Biologie Moléculaire
+        </p>
+
+        <p class="text-xs text-text-secondary mt-1">
+          Bâtiment A · Salle 4
+        </p>
+
+      </a>
+
+    </div>
+
+  </div>
+
+</div>

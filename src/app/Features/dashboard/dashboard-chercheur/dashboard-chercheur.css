@@ -1,0 +1,20 @@
+.umred-calendar {
+  width: 100%;
+}
+
+:host ::ng-deep .umred-calendar {
+  width: 100%;
+}
+
+:host ::ng-deep .umred-calendar .p-datepicker {
+  width: 100%;
+}
+
+:host ::ng-deep .umred-calendar .p-datepicker-calendar {
+  width: 100%;
+}
+
+:host ::ng-deep .umred-calendar table {
+  width: 100%;
+  table-layout: fixed;
+}

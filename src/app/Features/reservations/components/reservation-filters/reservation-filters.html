@@ -1,0 +1,47 @@
+<div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[1fr_140px_170px_190px]">
+  <p-iconfield class="w-full">
+    <p-inputicon class="pi pi-search" />
+
+    <input
+      pInputText
+      type="text"
+      [ngModel]="filters().search"
+      (ngModelChange)="updateFilter('search', $event)"
+      placeholder="Rechercher..."
+      class="!h-11 w-full"
+    />
+  </p-iconfield>
+
+  <p-select
+    [ngModel]="filters().status"
+    (ngModelChange)="updateFilter('status', $event)"
+    [options]="statusOptions"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Statut : Tous"
+    fluid
+    class="w-full"
+  />
+
+  <p-datepicker
+    [ngModel]="filters().period"
+    (ngModelChange)="updateFilter('period', $event)"
+    placeholder="Période"
+    dateFormat="dd/mm/yy"
+    [showIcon]="true"
+    [showButtonBar]="true"
+    fluid
+    class="w-full"
+  />
+
+  <p-select
+    [ngModel]="filters().laboratoire"
+    (ngModelChange)="updateFilter('laboratoire', $event)"
+    [options]="laboratoireOptions"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Laboratoire : Tous"
+    fluid
+    class="w-full"
+  />
+</div>

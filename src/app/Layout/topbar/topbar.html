@@ -1,0 +1,110 @@
+<header class="
+    h-16
+    flex items-center
+    gap-3
+    px-4 sm:px-6
+    bg-white
+    border-b border-border
+    shrink-0
+  ">
+
+  <!-- Hamburger mobile -->
+  <p-button icon="pi pi-bars" [text]="true" [rounded]="true" severity="secondary" class="lg:hidden shrink-0"
+    (onClick)="toggleSidebar()" ariaLabel="Ouvrir le menu" />
+
+  <!-- Recherche -->
+  <p-iconfield class="
+      flex-1
+      max-w-xl
+      hidden sm:flex
+    ">
+    <p-inputicon class="pi pi-search" />
+
+    <input pInputText type="text" placeholder="Rechercher un laboratoire, équipement..." class="w-full" />
+  </p-iconfield>
+
+  <!-- Recherche mobile -->
+  <p-button icon="pi pi-search" [text]="true" [rounded]="true" severity="secondary" class="sm:hidden shrink-0"
+    ariaLabel="Rechercher" />
+
+  <!-- Espace -->
+  <div class="flex-1"></div>
+
+  <!-- Notifications -->
+  <div class="relative shrink-0">
+
+    <p-button icon="pi pi-bell" [rounded]="true" [text]="true" size="large" severity="secondary"
+      ariaLabel="Notifications" />
+
+  </div>
+
+  <!-- Profil -->
+  <div class="relative shrink-0">
+
+    <button type="button" (click)="toggleMenu()" class="flex items-center gap-2 cursor-pointer">
+
+      <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" size="large"
+        shape="circle" />
+
+      <!-- Nom masqué sur mobile -->
+      <span class="hidden md:block text-sm font-medium text-text">
+        Cheikh
+      </span>
+
+      <i class="
+          pi pi-chevron-down
+          hidden md:block
+          text-xs
+          text-text-secondary
+          transition-transform
+        " [class.rotate-180]="menuOpen()"></i>
+
+    </button>
+
+    @if (menuOpen()) {
+
+    <div class="
+          absolute
+          right-0
+          top-full
+          mt-2
+          w-48
+          bg-white
+          border border-border
+          rounded-lg
+          shadow-md
+          py-1.5
+          z-50
+        ">
+
+      <a href="#" class="
+            flex items-center gap-2.5
+            px-4 py-2
+            text-sm text-text
+            hover:bg-background
+            transition-colors
+          ">
+        <i class="pi pi-user text-text-secondary"></i>
+        Mon profil
+      </a>
+
+      <div class="my-1 border-t border-border"></div>
+
+      <a href="#" class="
+            flex items-center gap-2.5
+            px-4 py-2
+            text-sm text-danger
+            hover:bg-danger/5
+            transition-colors
+          ">
+        <i class="pi pi-sign-out"></i>
+        Déconnexion
+      </a>
+
+    </div>
+
+    }
+
+  </div>
+
+</header>

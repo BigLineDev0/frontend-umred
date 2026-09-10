@@ -1,0 +1,67 @@
+<div class="space-y-8">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-text">Mes demandes</h1>
+      <p class="mt-1 text-sm text-text-secondary">
+        Consultez et suivez l'état de vos demandes de réservation.
+      </p>
+    </div>
+    <a routerLink="/reservations/nouvelle" pButton type="button" class="w-full sm:w-auto"
+      ><i class="pi pi-plus mr-2"></i>Nouvelle demande</a
+    >
+  </div>
+
+  <app-reservation-stats
+    class="mb-6 block"
+    [labels]="labels"
+    [total]="totalDemandes()"
+    [enAttente]="demandesEnAttente()"
+    [validees]="demandesValidees()"
+    [dernier]="demandesRefusees()"
+  />
+
+  <div class="mb-6 rounded-xl border border-border bg-white p-4 sm:p-5">
+    <app-reservation-filters [(filters)]="filters" />
+  </div>
+
+  @if (loading()) {
+    <div class="rounded-xl border border-border bg-white p-12 text-center">
+      <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+      <p class="mt-3 text-sm text-text-secondary">Chargement de vos demandes...</p>
+    </div>
+  } @else if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-6">
+      <p class="font-medium text-red-800">Une erreur est survenue</p>
+      <p class="mt-1 text-sm text-red-700">{{ error() }}</p>
+      <button
+        pButton
+        type="button"
+        label="Réessayer"
+        icon="pi pi-refresh"
+        severity="danger"
+        text
+        class="mt-3"
+        (click)="reservationService.loadReservations()"
+      ></button>
+    </div>
+  } @else {
+    <div class="rounded-xl border border-border bg-white">
+      <app-reservation-table
+        [reservations]="filteredDemandes()"
+        [editStatuses]="['EN_ATTENTE']"
+        [cancelStatuses]="['EN_ATTENTE', 'VALIDEE']"
+        (view)="voirDemande($event)"
+        (edit)="modifierDemande($event)"
+        (cancel)="annulerDemande($event)"
+      /><app-reservation-card
+        [reservations]="filteredDemandes()"
+        [showMotif]="true"
+        [editStatuses]="['EN_ATTENTE']"
+        [cancelStatuses]="['EN_ATTENTE', 'VALIDEE']"
+        (view)="voirDemande($event)"
+        (edit)="modifierDemande($event)"
+        (cancel)="annulerDemande($event)"
+      />
+    </div>
+  }
+</div>
