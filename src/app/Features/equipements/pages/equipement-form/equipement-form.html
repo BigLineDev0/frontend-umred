@@ -1,0 +1,280 @@
+<div class="min-h-full">
+  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <!-- Breadcrumb -->
+      <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
+        <a routerLink="/" class="transition-colors hover:text-primary"> Accueil </a>
+
+        <i class="pi pi-angle-right text-xs"></i>
+
+        <a routerLink="/equipements" class="transition-colors hover:text-primary"> Équipements </a>
+
+        <i class="pi pi-angle-right text-xs"></i>
+
+        <span class="font-medium text-text">
+          {{ pageTitle }}
+        </span>
+      </div>
+
+      <h1 class="text-2xl font-semibold tracking-tight text-text">
+        {{ pageTitle }}
+      </h1>
+
+      <p class="mt-1 text-sm text-text-secondary">
+        {{ pageDescription }}
+      </p>
+    </div>
+
+    <a routerLink="/equipements" class="shrink-0">
+      <p-button
+        label="Retour aux équipements"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [outlined]="true"
+      />
+    </a>
+  </div>
+
+  @if (error()) {
+    <div
+      class="mx-auto mb-6 max-w-4xl flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+    >
+      <i class="pi pi-exclamation-circle mt-0.5"></i>
+
+      <span>
+        {{ error() }}
+      </span>
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div
+      class="mx-auto max-w-4xl overflow-hidden rounded-xl border border-border bg-white shadow-sm"
+    >
+      <section class="border-b border-border p-5 sm:p-7">
+        <div class="mb-7">
+          <h2 class="text-base font-semibold text-text">Informations générales</h2>
+
+          <p class="mt-1 text-xs text-text-secondary">
+            Les informations de base identifiant l'équipement.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+          <!-- Nom -->
+          <div>
+            <label for="nom" class="mb-2 block text-sm font-medium text-text">
+              Nom de l'équipement
+              <span class="text-red-600">*</span>
+            </label>
+
+            <input
+              id="nom"
+              pInputText
+              type="text"
+              formControlName="nom"
+              placeholder="Ex : Spectrophotomètre UV-1800"
+              class="w-full"
+            />
+
+            @if (isFieldInvalid('nom')) {
+              <small class="mt-1 block text-red-600">
+                {{ getFieldError('nom') }}
+              </small>
+            }
+          </div>
+
+          <!-- Référence -->
+          <div>
+            <label for="numero_serie" class="mb-2 block text-sm font-medium text-text">
+              Numéro de série <span class="text-red-600">*</span>
+            </label>
+            <input
+              id="numero_serie"
+              pInputText
+              type="text"
+              formControlName="numero_serie"
+              placeholder="Ex : SH-UV1800-2024-001"
+              class="w-full"
+            />
+            @if (isFieldInvalid('numero_serie')) {
+              <small class="mt-1 block text-red-600">{{ getFieldError('numero_serie') }}</small>
+            }
+          </div>
+
+          <!-- Marque -->
+          <div>
+            <label for="marque" class="mb-2 block text-sm font-medium text-text"> Marque </label>
+
+            <input
+              id="marque"
+              pInputText
+              type="text"
+              formControlName="marque"
+              placeholder="Ex : Shimadzu"
+              class="w-full"
+            />
+          </div>
+
+          <!-- Modèle -->
+          <div>
+            <label for="modele" class="mb-2 block text-sm font-medium text-text"> Modèle </label>
+
+            <input
+              id="modele"
+              pInputText
+              type="text"
+              formControlName="modele"
+              placeholder="Ex : UV-1800"
+              class="w-full"
+            />
+          </div>
+
+
+        </div>
+      </section>
+
+      <section class="border-b border-border p-5 sm:p-7">
+        <div class="mb-7">
+          <h2 class="text-base font-semibold text-text">Affectation</h2>
+
+          <p class="mt-1 text-xs text-text-secondary">Rattachez cet équipement à un laboratoire.</p>
+        </div>
+
+        <div class="max-w-xl">
+          <label for="laboratoire" class="mb-2 block text-sm font-medium text-text">
+            Laboratoire
+            <span class="text-red-600">*</span>
+          </label>
+
+          <p-select
+            inputId="laboratoire"
+            formControlName="laboratoireId"
+            [options]="laboratoires()"
+            optionLabel="nom"
+            optionValue="id"
+            placeholder="Sélectionnez un laboratoire"
+            [showClear]="true"
+            fluid
+            class="w-full"
+          />
+
+          @if (isFieldInvalid('laboratoireId')) {
+            <small class="mt-1 block text-red-600">
+              {{ getFieldError('laboratoireId') }}
+            </small>
+          }
+        </div>
+      </section>
+
+      <section class="p-5 sm:p-7">
+        <div class="mb-7">
+          <h2 class="text-base font-semibold text-text">Informations complémentaires</h2>
+
+          <p class="mt-1 text-xs text-text-secondary">
+            Détails additionnels et suivi de l'état de l'équipement.
+          </p>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label for="description" class="mb-2 block text-sm font-medium text-text">
+            Description
+          </label>
+
+          <textarea
+            id="description"
+            pTextarea
+            formControlName="description"
+            rows="4"
+            placeholder="Ajoutez une description ou des notes sur cet équipement..."
+            class="w-full"
+          ></textarea>
+
+          @if (isFieldInvalid('description')) {
+            <small class="mt-1 block text-red-600">
+              {{ getFieldError('description') }}
+            </small>
+          }
+        </div>
+
+        <!-- Date + état -->
+        <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+          <!-- Date acquisition -->
+          <div>
+            <label for="dateAcquisition" class="mb-2 block text-sm font-medium text-text">
+              Date d'acquisition
+            </label>
+
+            <p-datepicker
+              inputId="dateAcquisition"
+              formControlName="dateAcquisition"
+              placeholder="jj/mm/aaaa"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              [maxDate]="today"
+              fluid
+              class="w-full"
+            />
+          </div>
+
+          <!-- État -->
+          <div>
+            <label for="statut" class="mb-2 block text-sm font-medium text-text">
+              État
+              <span class="text-red-600">*</span>
+            </label>
+
+            <p-select
+              inputId="statut"
+              formControlName="statut"
+              [options]="statutOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Sélectionnez un état"
+              fluid
+              class="w-full"
+            />
+
+            @if (isFieldInvalid('statut')) {
+              <small class="mt-1 block text-red-600">
+                {{ getFieldError('statut') }}
+              </small>
+            }
+          </div>
+        </div>
+      </section>
+
+      <div
+        class="flex flex-col-reverse justify-between gap-3 border-t border-border bg-background/60 p-5 sm:flex-row sm:p-7"
+      >
+        <div class="flex items-center">
+          <span class="text-xs text-text-secondary">
+            <span class="text-red-600">*</span>
+            Champs obligatoires
+          </span>
+        </div>
+
+        <div class="flex flex-col-reverse gap-3 sm:flex-row">
+          <a routerLink="/equipements" class="inline-flex">
+            <p-button
+              type="button"
+              label="Annuler"
+              severity="secondary"
+              [outlined]="true"
+              [disabled]="loading()"
+              (onClick)="annuler()"
+            />
+          </a>
+
+          <p-button
+            type="submit"
+            [label]="isEditMode() ? 'Enregistrer les modifications' : 'Ajouter un équipement'"
+            icon="pi pi-check"
+            [loading]="loading()"
+          />
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

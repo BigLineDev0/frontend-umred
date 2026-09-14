@@ -1,71 +1,20 @@
 <div class="max-w-[1400px] mx-auto">
-
   <!-- En-tête -->
-  <div class="mb-6">
-    <h1 class="text-2xl font-semibold text-text">Bonjour, Cheikh</h1>
-    <p class="text-sm text-text-secondary mt-1">Voici un aperçu de vos activités techniques aujourd'hui</p>
+   <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/technicien/dashboard' }, { label: 'Tableau de bord' }]"
+    title="Tableau de bord"
+    subtitle="Voici un aperçu de vos activités techniques aujourd'hui.">
+
+  </app-page-header>
+
+  <!-- KPI -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <app-mini-stat-card icon="pi pi-cog" color="primary" value="14" label="Équipements dispo" />
+    <app-mini-stat-card icon="pi pi-wrench" color="danger" value="3" label="En maintenance" />
+    <app-mini-stat-card icon="pi pi-exclamation-triangle" color="danger" value="2" label="En panne" />
+    <app-mini-stat-card icon="pi pi-calendar" color="primary" value="5" label="Maintenances planifiées" />
   </div>
 
-  <!-- Cartes KPI -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-
-    <div class="bg-white border border-border rounded-xl p-5">
-      <div class="flex justify-between items-start mb-4">
-        <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
-          <i class="pi pi-box text-success"></i>
-        </div>
-        <p-tag value="Disponible" severity="success" styleClass="!text-xs" />
-      </div>
-      <p class="text-3xl font-semibold text-text">14</p>
-      <p class="text-sm text-text-secondary mt-1">Équipements disponibles</p>
-      <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 mt-3 hover:underline">
-        Voir tout <i class="pi pi-arrow-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="bg-white border border-border rounded-xl p-5">
-      <div class="flex justify-between items-start mb-4">
-        <div class="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-          <i class="pi pi-wrench text-accent"></i>
-        </div>
-        <p-tag value="En cours" severity="warn" styleClass="!text-xs" />
-      </div>
-      <p class="text-3xl font-semibold text-text">3</p>
-      <p class="text-sm text-text-secondary mt-1">En maintenance</p>
-      <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 mt-3 hover:underline">
-        Voir tout <i class="pi pi-arrow-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="bg-white border border-border rounded-xl p-5">
-      <div class="flex justify-between items-start mb-4">
-        <div class="w-10 h-10 rounded-lg bg-danger/10 flex items-center justify-center">
-          <i class="pi pi-exclamation-triangle text-danger"></i>
-        </div>
-        <p-tag value="2 pannes" severity="danger" styleClass="!text-xs" />
-      </div>
-      <p class="text-3xl font-semibold text-text">2</p>
-      <p class="text-sm text-text-secondary mt-1">Équipements en panne</p>
-      <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 mt-3 hover:underline">
-        Voir tout <i class="pi pi-arrow-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="bg-white border border-border rounded-xl p-5">
-      <div class="flex justify-between items-start mb-4">
-        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-          <i class="pi pi-calendar text-primary"></i>
-        </div>
-        <p-tag value="Planifiées" severity="info" styleClass="!text-xs" />
-      </div>
-      <p class="text-3xl font-semibold text-text">5</p>
-      <p class="text-sm text-text-secondary mt-1">Maintenances planifiées</p>
-      <a href="#" class="text-sm text-primary font-medium inline-flex items-center gap-1 mt-3 hover:underline">
-        Voir tout <i class="pi pi-arrow-right text-xs"></i>
-      </a>
-    </div>
-
-  </div>
 
   <!-- Actions rapides -->
   <div class="mb-8">
@@ -253,7 +202,5 @@
       </div>
     </div>
   </div>
-
- 
 
 </div>

@@ -1,63 +1,43 @@
 import { Routes } from '@angular/router';
 import { MainLayout } from './Layout/main-layout/main-layout';
-import { DashboardTechnicien } from './Features/dashboard/dashboard-technicien/dashboard-technicien';
 import { Home } from './home/home';
-import { DashboardChercheur } from './Features/dashboard/dashboard-chercheur/dashboard-chercheur';
-import { DashboardEtudiant } from './Features/dashboard/dashboard-etudiant/dashboard-etudiant';
-import { DashboardAdmin } from './Features/dashboard/dashboard-admin/dashboard-admin';
-import { Login } from './Features/auth/login/login';
-import { Register } from './Features/auth/register/register';
-import { MesReservations } from './Features/reservations/pages/mes-reservations/mes-reservations';
-import { MesDemandes } from './Features/reservations/pages/mes-demandes/mes-demandes';
-import { AdminReservation } from './Features/reservations/pages/admin-reservation/admin-reservation';
-import { ReservationForm } from './Features/reservations/pages/reservation-form/reservation-form';
+import { authGuard } from './Core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
-  { path: 'connexion', component: Login },
-  { path: 'inscription', component: Register },
+
+  {
+    path: '',
+    loadChildren: () => import('./Features/auth/auth.routes').then(m => m.AUTH_ROUTES)
+  },
 
   {
     path: '',
     component: MainLayout,
+    canActivate: [authGuard],
     children: [
       {
-        path: 'reservations/nouvelle',
-        component: ReservationForm,
-      },
-
-      {
-        path: 'technicien/dashboard',
-        component: DashboardTechnicien,
-      },
-
-      {
-        path: 'chercheur/dashboard',
-        component: DashboardChercheur,
+        path: '',
+        loadChildren: () => import('./Features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
       },
       {
-        path: 'chercheur/dashboard/reservations',
-        component: MesReservations,
+        path: 'reservations',
+        loadChildren: () => import('./Features/reservations/reservations.routes').then(m => m.RESERVATIONS_ROUTES)
       },
       {
-        path: 'etudiant/dashboard',
-        component: DashboardEtudiant,
+        path: 'laboratoires',
+        loadChildren: () => import('./Features/laboratoires/laboratoires.routes').then(m => m.LABORATOIRES_ROUTES)
       },
       {
-        path: 'etudiant/dashboard/mes-demandes',
-        component: MesDemandes,
+        path: 'equipements',
+        loadChildren: () => import('./Features/equipements/equipements.routes').then(m => m.EQUIPEMENTS_ROUTES)
       },
       {
-        path: 'admin/dashboard',
-        component: DashboardAdmin,
+        path: 'maintenances',
+        loadChildren: () => import('./Features/maintenances/maintenances.routes').then(m => m.MAINTENANCES_ROUTES)
       },
-      {
-        path: 'admin/dashboard/reservations',
-        component: AdminReservation,
-      },
-    ],
+    ]
   },
 
-  // fallback: redirige vers l'accueil si la route n'existe pas
-  { path: '**', redirectTo: '', pathMatch: 'full' },
+  { path: '**', redirectTo: '' }
 ];

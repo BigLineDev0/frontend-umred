@@ -1,0 +1,38 @@
+<p-table
+  [value]="data()"
+  [lazy]="lazy()"
+  [paginator]="true"
+  [rows]="rows()"
+  [rowHover]="true"
+  [totalRecords]="totalRecords() ?? data().length"
+  (onLazyLoad)="onLazyLoad($event)"
+  styleClass="!border-none"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      @for (col of columns(); track col.field) {
+        <th class="!bg-background !text-xs !text-text-secondary !font-medium !border-b !border-border" [style.width]="col.width">
+          {{ col.header }}
+        </th>
+      }
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-row>
+    <tr>
+      @for (col of columns(); track col.field) {
+        <td class="!border-b !border-border !text-sm !text-text">
+          @if (hasTemplate(col.field)) {
+            <ng-container *ngTemplateOutlet="getTemplate(col.field)!; context: { $implicit: row }" />
+          } @else {
+            {{ row[col.field] }}
+          }
+        </td>
+      }
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="paginatorleft">
+    <span class="text-sm text-text-secondary">{{ totalRecords() ?? data().length }} éléments</span>
+  </ng-template>
+</p-table>

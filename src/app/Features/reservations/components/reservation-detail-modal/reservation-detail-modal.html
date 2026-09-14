@@ -1,0 +1,74 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '480px', maxWidth: 'calc(100vw - 2rem)' }"
+  header="Détail de la réservation">
+  @if (reservation(); as r) {
+    <div class="space-y-5">
+
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-text-secondary">Statut</span>
+        <app-status-badge [statut]="r.statut" />
+      </div>
+
+      <div class="border-t border-border"></div>
+
+      <div>
+        <p class="text-sm text-text-secondary mb-1">Laboratoire</p>
+        <p class="text-base font-semibold text-text">{{ r.laboratoire_nom }}</p>
+      </div>
+
+      <div>
+        <p class="text-sm text-text-secondary mb-1">Équipement(s)</p>
+        @if (r.equipements_noms.length === 0) {
+          <p class="text-base text-text">Salle uniquement, aucun équipement réservé</p>
+        } @else {
+          <ul class="flex flex-wrap gap-2 mt-1">
+            @for (nom of r.equipements_noms; track nom) {
+              <li class="text-sm bg-primary/10 text-primary px-2.5 py-1 rounded-full">{{ nom }}</li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="border-t border-border"></div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <p class="text-sm text-text-secondary mb-1">Date</p>
+          <p class="text-base font-medium text-text">{{ r.date | date: 'dd/MM/yyyy' }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-text-secondary mb-1">Horaire</p>
+          <p class="text-base font-medium text-text">{{ r.heure_debut.slice(0,5) }} – {{ r.heure_fin.slice(0,5) }}</p>
+        </div>
+      </div>
+
+      <div class="border-t border-border"></div>
+
+      <div>
+        <p class="text-sm text-text-secondary mb-1">Motif</p>
+        <p class="text-sm text-text leading-relaxed">{{ r.motif }}</p>
+      </div>
+
+      @if (r.date_validation) {
+        <div class="border-t border-border"></div>
+        <div>
+          <p class="text-sm text-text-secondary mb-1">
+            {{ r.statut === 'REFUSEE' ? 'Refusée le' : 'Validée le' }}
+          </p>
+          <p class="text-sm text-text">{{ r.date_validation | date: 'dd/MM/yyyy à HH:mm' }}</p>
+        </div>
+      }
+
+      <div class="border-t border-border"></div>
+
+      <p class="text-xs text-text-secondary">
+        Demande créée le {{ r.date_creation | date: 'dd/MM/yyyy à HH:mm' }}
+      </p>
+
+    </div>
+  }
+</p-dialog>

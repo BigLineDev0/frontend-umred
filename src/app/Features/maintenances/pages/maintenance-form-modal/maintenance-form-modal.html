@@ -1,0 +1,46 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '480px', maxWidth: 'calc(100vw - 2rem)' }"
+  header="Nouvelle maintenance">
+
+  <div class="space-y-5">
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Équipement <span class="text-danger">*</span></label>
+      <p-select [options]="equipementOptions" optionLabel="label" optionValue="value"
+        placeholder="Sélectionnez un équipement" class="w-full" [showClear]="true" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Technicien <span class="text-danger">*</span></label>
+      <p-select [options]="technicienOptions" optionLabel="label" optionValue="value"
+        placeholder="Assigner un technicien" class="w-full" [showClear]="true" />
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-text mb-2">Type <span class="text-danger">*</span></label>
+        <p-select [options]="typeOptions" optionLabel="label" optionValue="value"
+          placeholder="Type" class="w-full" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-text mb-2">Date planifiée <span class="text-danger">*</span></label>
+        <p-datepicker dateFormat="dd/mm/yy" placeholder="jj/mm/aaaa" [showIcon]="true" class="w-full" inputStyleClass="w-full" />
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Description</label>
+      <textarea pTextarea rows="3" placeholder="Détail de l'intervention à réaliser..." class="w-full"></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-3">
+      <p-button label="Annuler" severity="secondary" [outlined]="true" (onClick)="onAnnuler()" />
+      <p-button label="Planifier" icon="pi pi-check" (onClick)="onPlanifier()" />
+    </div>
+  </ng-template>
+</p-dialog>

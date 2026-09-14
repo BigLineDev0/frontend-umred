@@ -5,12 +5,11 @@
 
 <aside
   class="fixed lg:static inset-y-0 left-0 z-50 w-64 h-screen flex flex-col bg-sidebar text-white shrink-0 transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 overflow-hidden"
-  [class.translate-x-0]="layoutService.sidebarOpen()"
->
+  [class.translate-x-0]="layoutService.sidebarOpen()">
+  
   <!-- Logo -->
   <div class="px-6 py-3 shrink-0">
     <h1 class="text-xl font-bold tracking-tight">UMRED</h1>
-
     <p class="text-[10px] uppercase tracking-wide text-white/50 leading-tight mt-1">
       Unité Mixte de Recherche<br />
       d'Exploration et de Diagnostic
@@ -24,104 +23,32 @@
     <p class="px-3 text-[11px] font-medium tracking-wide text-white/40 mb-2">MENU</p>
 
     <ul class="space-y-1">
-      <li>
-        <a
-          href="#"
-          (click)="closeSidebar()"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm bg-white/10 text-white"
-        >
-          <i class="pi pi-table"></i>
-          <span>Tableau de bord</span>
-        </a>
-      </li>
+      @for (item of navItems(); track item.route) {
+        <li>
+          @if (item.disabled) {
+            <span
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/30 cursor-not-allowed"
+              title="Bientôt disponible"
+            >
+              <i [class]="item.icon"></i>
+              <span class="flex-1">{{ item.label }}</span>
+              <span class="text-[9px] uppercase bg-white/10 px-1.5 py-0.5 rounded">Bientôt</span>
+            </span>
+          } @else {
 
-      <li>
-        <a
-          routerLink="/admin/dashboard/reservations"
-          (click)="closeSidebar()"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-        >
-          <i class="pi pi-file-edit"></i>
-          <span>Réservations</span>
-        </a>
-      </li>
-
-      <li>
-        <a
-          href="#"
-          (click)="closeSidebar()"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-        >
-          <i class="pi pi-building"></i>
-          <span>Laboratoires</span>
-        </a>
-      </li>
-
-      <li>
-        <a
-          href="#"
-          (click)="closeSidebar()"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-        >
-          <i class="pi pi-cog"></i>
-          <span>Équipements</span>
-        </a>
-      </li>
-
-      <li>
-        <a
-          href="#"
-          (click)="closeSidebar()"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-        >
-          <i class="pi pi-wrench"></i>
-          <span>Maintenances</span>
-        </a>
-      </li>
-
-      <li>
-        <a
-          href="#"
-          (click)="closeSidebar()"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-        >
-          <i class="pi pi-users"></i>
-          <span>Utilisateurs</span>
-        </a>
-      </li>
-
-      <li>
-        <a
-          href="#"
-          (click)="closeSidebar()"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-        >
-          <i class="pi pi-chart-line"></i>
-          <span>Rapports</span>
-        </a>
-      </li>
-
-      <li>
-        <a
-          href="#"
-          (click)="closeSidebar()"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-        >
-          <i class="pi pi-clock"></i>
-          <span>Journal Activité</span>
-        </a>
-      </li>
-
-      <li>
-        <a
-          href="#"
-          (click)="closeSidebar()"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-        >
-          <i class="pi pi-bell"></i>
-          <span>Notifications</span>
-        </a>
-      </li>
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="bg-white/10 !text-white"
+              [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+              (click)="closeSidebar()"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
+            >
+              <i [class]="item.icon"></i>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </li>
+      }
     </ul>
   </nav>
 
@@ -129,17 +56,16 @@
 
   <!-- Profil -->
   <div class="flex items-center gap-3 px-4 py-4 shrink-0">
-    <p-avatar label="CS" shape="circle" styleClass="!bg-white/10 !text-white shrink-0" />
+    <p-avatar [label]="initials()" shape="circle" styleClass="!bg-white/10 !text-white shrink-0" />
 
     <div class="flex-1 min-w-0">
-      <p class="text-sm font-medium truncate">Cheikh SALL</p>
-
-      <p class="text-xs text-white/50 truncate">Technicien de laboratoire</p>
+      <p class="text-sm font-medium truncate">{{ user()?.prenom }} {{ user()?.nom }}</p>
+      <p class="text-xs text-white/50 truncate">{{ roleLabel() }}</p>
     </div>
 
     <button
       type="button"
-      (click)="closeSidebar()"
+      (click)="onLogout()"
       class="text-white/50 hover:text-white transition-colors"
       title="Déconnexion"
     >

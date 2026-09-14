@@ -1,0 +1,50 @@
+<div class="space-y-8">
+
+  <app-page-header [breadcrumbs]="[{ label: 'Accueil', link: '/technicien/dashboard' }, { label: 'Maintenance' }]"
+    title="Maintenance" subtitle="Planifiez, suivez et consultez les interventions de maintenance des équipements.">
+    <p-button actions label="Nouvelle maintenance" icon="pi pi-plus" (onClick)="formModalVisible.set(true)" />
+  </app-page-header>
+
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <app-mini-stat-card icon="pi pi-calendar" color="primary" value="56" label="Total" />
+    <app-mini-stat-card icon="pi pi-flag" color="primary" value="18" label="Planifiées" />
+    <app-mini-stat-card icon="pi pi-hourglass" color="accent" value="6" label="En cours" />
+    <app-mini-stat-card icon="pi pi-check-circle" color="success" value="29" label="Terminées" />
+  </div>
+
+  <app-filter-bar searchPlaceholder="Rechercher une maintenance..." (searchChange)="onSearch($event)">
+    <p-select [options]="statutOptions" optionLabel="label" optionValue="value" placeholder="Statut : Tous" />
+    <p-select [options]="typeOptions" optionLabel="label" optionValue="value" placeholder="Type : Tous" />
+    <p-select [options]="[{ label: 'Tous les équipements', value: null }]" optionLabel="label" optionValue="value"
+      placeholder="Tous les équipements" />
+  </app-filter-bar>
+
+  <div class="bg-white border border-border rounded-xl overflow-hidden mt-4">
+    <app-data-table [columns]="columns" [data]="maintenances()" [rows]="5" [totalRecords]="56" [lazy]="true"
+      (lazyLoad)="onLazyLoad($event)">
+
+      <ng-template appColumnTemplate="equipement" let-row>
+        <span class="font-medium text-text">{{ row.equipement }}</span>
+      </ng-template>
+
+      <ng-template appColumnTemplate="type" let-row>
+        <app-dot-label [color]="row.type === 'Préventive' ? 'primary' : 'accent'" [label]="row.type" />
+      </ng-template>
+
+      <ng-template appColumnTemplate="statut" let-row>
+        <app-status-badge [statut]="row.statut" />
+      </ng-template>
+
+      <ng-template appColumnTemplate="actions" let-row>
+        <app-row-actions (view)="onVoir(row)" (edit)="onModifier(row)" (delete)="onSupprimer(row)">
+        <p-button icon="pi pi-check-circle" [text]="true" [rounded]="true" severity="success" size="small" (onClick)="onOuvrirCloture(row)" />
+      </app-row-actions>
+      </ng-template>
+
+    </app-data-table>
+  </div>
+
+</div>
+<app-maintenance-form-modal [(visible)]="formModalVisible" />
+<app-maintenance-cloture-modal [(visible)]="clotureModalVisible" [maintenance]="maintenanceSelectionnee()" />

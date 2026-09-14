@@ -1,0 +1,46 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '480px', maxWidth: 'calc(100vw - 2rem)' }"
+  header="Clôturer la maintenance">
+
+  @if (maintenance(); as m) {
+    <div class="bg-background rounded-lg p-4 mb-5 space-y-2">
+      <div class="flex justify-between text-sm">
+        <span class="text-text-secondary">Équipement</span>
+        <span class="font-medium text-text">{{ m.equipement }}</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-text-secondary">Technicien</span>
+        <span class="font-medium text-text">{{ m.technicien }}</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-text-secondary">Date planifiée</span>
+        <span class="font-medium text-text">{{ m.datePlanifiee }}</span>
+      </div>
+    </div>
+  }
+
+  <div class="space-y-5">
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Date de clôture</label>
+      <p-datepicker dateFormat="dd/mm/yy" placeholder="jj/mm/aaaa" [showIcon]="true" class="w-full" inputStyleClass="w-full" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">
+        Compte-rendu d'intervention <span class="text-danger">*</span>
+      </label>
+      <textarea pTextarea rows="4" placeholder="Décrivez l'intervention réalisée, les pièces changées, l'état final de l'équipement..." class="w-full"></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-3">
+      <p-button label="Annuler" severity="secondary" [outlined]="true" (onClick)="onAnnuler()" />
+      <p-button label="Clôturer" icon="pi pi-check-circle" (onClick)="onCloturer()" />
+    </div>
+  </ng-template>
+</p-dialog>

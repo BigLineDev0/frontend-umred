@@ -35,7 +35,7 @@
         <p-inputicon class="pi pi-envelope" />
 
         <input id="email" type="email" pInputText formControlName="email" placeholder="j.diop@umred.sn"
-          class="w-full !py-3 !rounded-lg" />
+          class="w-full" />
 
       </p-iconfield>
 
@@ -64,7 +64,7 @@
       </label>
 
       <p-password inputId="password" formControlName="password" placeholder="**********" [feedback]="false"
-        [toggleMask]="true" fluid inputStyleClass="w-full !py-3 !rounded-lg !text-sm" />
+        [toggleMask]="true" fluid inputStyleClass="w-full" />
 
       @if (password.invalid && (password.touched || submitted)) {
 
@@ -93,7 +93,7 @@
 
     <!-- Connexion -->
     <p-button type="submit" label="Se connecter" icon="pi pi-arrow-right" iconPos="right"
-      styleClass="w-full !py-3 !text-base" [loading]="loading()" />
+      styleClass="w-full" [loading]="loading()" />
 
 
     <!-- Séparateur -->

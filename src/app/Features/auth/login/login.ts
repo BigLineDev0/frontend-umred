@@ -7,6 +7,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
+import { AuthService } from '../../../Core/services/auth.service';
 
 
 @Component({
@@ -17,6 +18,7 @@ import { InputText } from 'primeng/inputtext';
 })
 export class Login {
   private fb = inject(FormBuilder);
+  private authService = inject(AuthService)
 
   loading = signal(false);
   submitted = false;
@@ -24,7 +26,6 @@ export class Login {
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-
     password: ['', [Validators.required, Validators.minLength(8)]]
   });
 
@@ -41,14 +42,25 @@ export class Login {
   onSubmit() {
 
     this.submitted = true;
+    this.errorMessage.set('');
 
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
-    const credentials = this.loginForm.getRawValue();
+    const { email, password } = this.loginForm.getRawValue();
+    this.loading.set(true);
 
-    console.log(credentials);
+    this.authService.login(email, password).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.authService.redirigerSelonRole();
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.errorMessage.set(err.error?.detail ?? 'Identifiants incorrects.');
+      }
+    });
   }
 }

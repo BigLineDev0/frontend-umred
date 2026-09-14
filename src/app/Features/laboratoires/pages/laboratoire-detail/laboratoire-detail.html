@@ -1,0 +1,186 @@
+@if (loading()) {
+  <div class="flex min-h-96 items-center justify-center rounded-2xl border border-border bg-white">
+    <div class="flex flex-col items-center gap-3">
+      <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+      <p class="text-sm text-text-secondary">Chargement du laboratoire...</p>
+    </div>
+  </div>
+} @else if (laboratoire(); as labo) {
+  <div class="space-y-8">
+    <div>
+      <div class="mb-4 flex items-center gap-2 text-sm text-text-secondary">
+        <a routerLink="/laboratoires" class="transition-colors hover:text-primary">Laboratoires</a>
+        <i class="pi pi-angle-right text-xs"></i>
+        <span class="font-medium text-text">{{ labo.nom }}</span>
+      </div>
+
+      <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div class="max-w-3xl">
+          <div class="flex flex-wrap items-center gap-3">
+            <h1 class="text-3xl font-semibold tracking-tight text-text">{{ labo.nom }}</h1>
+            <p-tag
+              [value]="getStatusLabel(labo.statut)"
+              [severity]="getStatusSeverity(labo.statut)"
+              [rounded]="true"
+            />
+          </div>
+          <p class="mt-3 text-sm leading-6 text-text-secondary">{{ labo.description }}</p>
+          <p class="mt-3 text-sm font-medium text-text-secondary">
+            {{ labo.nombre_equipements }} équipement{{ labo.nombre_equipements > 1 ? 's' : '' }} au
+            total
+          </p>
+        </div>
+
+        <p-button
+          label="Réserver ce laboratoire"
+          icon="pi pi-calendar-plus"
+          [disabled]="labo.statut === 'INDISPONIBLE'"
+          (onClick)="reserver()"
+        />
+      </div>
+    </div>
+
+    <section>
+      <h2 class="mb-4 text-lg font-semibold text-text">Informations du laboratoire</h2>
+      <div class="rounded-2xl border border-border bg-white p-6">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div class="flex items-start gap-4">
+            <div
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"
+            >
+              <i class="pi pi-map-marker text-lg"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-text">Localisation</p>
+              <p class="mt-1 text-sm text-text-secondary">{{ labo.localisation }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"
+            >
+              <i class="pi pi-users text-lg"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-text">Capacité</p>
+              <p class="mt-1 text-sm text-text-secondary">
+                {{ labo.capacite ? "Jusqu'à " + labo.capacite + ' personnes' : 'Non renseignée' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"
+            >
+              <i class="pi pi-user text-lg"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-text">Responsable</p>
+              <p class="mt-1 text-sm text-text-secondary">{{ 'Non renseigné' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="mb-4 flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-text">Équipements</h2>
+        <span
+          class="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/10 px-2 text-xs font-semibold text-primary"
+        >
+          {{ equipementsAffiches().length }}
+        </span>
+      </div>
+
+      @if (equipementService.loading()) {
+        <p class="text-sm text-text-secondary">Chargement des équipements...</p>
+      } @else if (equipementsAffiches().length === 0) {
+        <p class="text-sm text-text-secondary">Aucun équipement enregistré pour ce laboratoire.</p>
+      } @else {
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+          @for (equipement of equipementsAffiches(); track equipement.id) {
+            <article class="rounded-2xl border border-border bg-white p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div
+                  class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary"
+                >
+                  <i class="pi pi-cog text-lg"></i>
+                </div>
+                <p-tag
+                  [value]="equipement.statutLabel"
+                  [severity]="equipement.statutSeverity"
+                  [rounded]="true"
+                />
+              </div>
+              <div class="mt-5">
+                <h3 class="font-semibold text-text">{{ equipement.nom }}</h3>
+                <p class="mt-1 text-sm text-text-secondary">
+                  Référence : {{ equipement.numero_serie }}
+                </p>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+    <section>
+  <h2 class="mb-4 text-lg font-semibold text-text">Disponibilité</h2>
+  <div class="rounded-2xl border border-border bg-white p-6">
+    <h3 class="font-semibold text-text">Réservations à venir sur ce laboratoire</h3>
+
+    @if (reservationService.loading()) {
+      <p class="mt-4 text-sm text-text-secondary">Chargement...</p>
+    } @else if (reservationService.reservations().length === 0) {
+      <p class="mt-4 text-sm text-text-secondary">Aucune réservation à venir sur ce laboratoire.</p>
+    } @else {
+      <div class="mt-5 space-y-3">
+        @for (r of reservationService.reservations(); track r.id) {
+          <div class="flex flex-col gap-4 rounded-xl bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-start gap-4">
+              <div class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center text-primary">
+                <i class="pi pi-calendar"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-text">
+                  {{ r.date | date: 'dd/MM/yyyy' }} · {{ r.heure_debut.slice(0,5) }}–{{ r.heure_fin.slice(0,5) }}
+                </p>
+                <p class="mt-1 text-sm text-text-secondary">Demandeur : {{ r.demandeur_nom }}</p>
+              </div>
+            </div>
+            <p-tag [value]="getReservationStatusLabel(r.statut)" [severity]="getReservationStatusSeverity(r.statut)" [rounded]="true" />
+          </div>
+        }
+      </div>
+    }
+
+    <p class="mt-5 text-xs leading-6 text-text-secondary">
+      Choisissez librement une date et une plage horaire lors de votre réservation — le système vérifie
+      automatiquement les chevauchements avec les réservations confirmées.
+    </p>
+  </div>
+</section>
+  </div>
+} @else {
+  <div class="flex min-h-96 items-center justify-center rounded-2xl border border-border bg-white">
+    <div class="text-center">
+      <div
+        class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-gray-500"
+      >
+        <i class="pi pi-building text-xl"></i>
+      </div>
+      <h2 class="mt-4 text-lg font-semibold text-text">Laboratoire introuvable</h2>
+      <p class="mt-2 text-sm text-text-secondary">{{ error() }}</p>
+      <p-button
+        label="Retour aux laboratoires"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [outlined]="true"
+        styleClass="mt-5"
+        routerLink="/laboratoires"
+      />
+    </div>
+  </div>
+}

@@ -1,0 +1,188 @@
+<div class="space-y-8">
+  <div>
+    <div class="mb-4 flex items-center gap-2 text-sm text-text-secondary">
+      <a routerLink="/laboratoires" class="transition-colors hover:text-primary"> Accueil </a>
+
+      <i class="pi pi-angle-right text-xs"></i>
+
+      <a routerLink="/laboratoires" class="transition-colors hover:text-primary"> Laboratoires </a>
+
+      <i class="pi pi-angle-right text-xs"></i>
+
+      <span class="font-medium text-text">
+        {{ isEditMode() ? 'Modifier' : 'Nouveau laboratoire' }}
+      </span>
+    </div>
+
+    <h1 class="text-3xl font-semibold tracking-tight text-text">
+      {{ isEditMode() ? 'Modifier le laboratoire' : 'Ajouter un laboratoire' }}
+    </h1>
+
+    <p class="mt-2 text-sm text-text-secondary">
+      {{
+        isEditMode()
+          ? 'Modifiez les informations du laboratoire.'
+          : 'Renseignez les informations du laboratoire à ajouter à la plateforme.'
+      }}
+    </p>
+  </div>
+
+  <!-- Erreur globale -->
+  @if (error()) {
+    <div class="mx-auto max-w-4xl overflow-hidden rounded-xl border border-red-200 bg-red-50 p-4">
+      <div class="flex items-start gap-3">
+        <i class="pi pi-exclamation-circle mt-0.5 text-red-600"></i>
+
+        <div>
+          <p class="font-medium text-red-800">Une erreur est survenue</p>
+
+          <p class="mt-1 text-sm text-red-700">
+            {{ error() }}
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Formulaire -->
+  <form [formGroup]="laboratoireForm" (ngSubmit)="onSubmit()">
+    <div
+      class="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-border bg-white shaodow-sm"
+    >
+      <!-- Section informations générales -->
+      <div class="p-6 sm:p-8">
+        <div class="mb-6">
+          <h2 class="text-lg font-semibold text-text">Informations du laboratoire</h2>
+
+          <p class="mt-1 text-sm text-text-secondary">
+            Renseignez les informations principales du laboratoire.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 mb-6">
+          <!-- Nom -->
+          <div>
+            <label for="nom" class="mb-2 block text-sm font-medium text-text">
+              Nom du laboratoire
+              <span class="text-red-500">*</span>
+            </label>
+
+            <input
+              id="nom"
+              pInputText
+              type="text"
+              formControlName="nom"
+              placeholder="Ex. Laboratoire de Biochimie"
+              class="w-full"
+            />
+
+            @if (isFieldInvalid('nom')) {
+              <small class="mt-1 block text-sm text-red-600">
+                @if (laboratoireForm.get('nom')?.hasError('required')) {
+                  Le nom du laboratoire est obligatoire.
+                } @else if (laboratoireForm.get('nom')?.hasError('minlength')) {
+                  Le nom doit contenir au moins 3 caractères.
+                }
+              </small>
+            }
+          </div>
+
+          <!-- Localisation -->
+          <div>
+            <label for="localisation" class="mb-2 block text-sm font-medium text-text">
+              Localisation
+              <span class="text-red-500">*</span>
+            </label>
+
+            <input
+              id="localisation"
+              pInputText
+              type="text"
+              formControlName="localisation"
+              placeholder="Ex. Bâtiment A, Salle 2, RDC"
+              class="w-full"
+            />
+
+            @if (isFieldInvalid('localisation')) {
+              <small class="mt-1 block text-sm text-red-600">
+                La localisation est obligatoire.
+              </small>
+            }
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-6">
+          <div class="mb-2 flex items-center justify-between">
+            <label for="description" class="block text-sm font-medium text-text">
+              Description
+              <span class="text-red-500">*</span>
+            </label>
+
+            <span class="text-xs text-text-secondary"> {{ descriptionLength }}/500 </span>
+          </div>
+
+          <textarea
+            id="description"
+            pTextarea
+            formControlName="description"
+            rows="4"
+            maxlength="500"
+            placeholder="Décrivez les activités et les principales utilisations du laboratoire..."
+            class="w-full resize-none"
+          ></textarea>
+
+          @if (isFieldInvalid('description')) {
+            <small class="mt-1 block text-sm text-red-600">
+              @if (laboratoireForm.get('description')?.hasError('required')) {
+                La description est obligatoire.
+              } @else if (laboratoireForm.get('description')?.hasError('minlength')) {
+                La description doit contenir au moins 10 caractères.
+              }
+            </small>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div>
+            <label for="capacite" class="mb-2 block text-sm font-medium text-text">Capacité</label>
+            <input id="capacite" pInputText type="number" formControlName="capacite" placeholder="Ex. 15" min="1" max="1000" class="w-full" />
+            @if (isFieldInvalid('capacite')) {
+              <small class="mt-1 block text-sm text-red-600">La capacité doit être supérieure à 0.</small>
+            }
+          </div>
+
+          <div>
+            <label for="statut" class="mb-2 block text-sm font-medium text-text">
+              Statut <span class="text-red-500">*</span>
+            </label>
+            <p-select inputId="statut" [options]="statutOptions" optionLabel="label" optionValue="value"
+              formControlName="statut" class="w-full" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Séparateur -->
+      <div class="border-t border-border"></div>
+
+      <!-- Actions -->
+      <div class="flex flex-col-reverse gap-3 p-6 sm:flex-row sm:justify-end sm:p-8">
+        <p-button
+          type="button"
+          label="Annuler"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="loading()"
+          (onClick)="annuler()"
+        />
+
+        <p-button
+          type="submit"
+          [label]="isEditMode() ? 'Enregistrer les modifications' : 'Créer le laboratoire'"
+          icon="pi pi-check"
+          [loading]="loading()"
+        />
+      </div>
+    </div>
+  </form>
+</div>

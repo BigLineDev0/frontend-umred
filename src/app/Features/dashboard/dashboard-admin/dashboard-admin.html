@@ -1,127 +1,22 @@
 <div class="max-w-[1400px] mx-auto">
 
   <!-- En-tête -->
-  <div class="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <div class="flex items-center gap-2 text-sm text-text-secondary mb-2">
-        <span>Accueil</span>
-        <i class="pi pi-angle-right text-xs"></i>
-        <span class="text-primary font-medium">Tableau de bord</span>
-      </div>
+   <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/admin/dashboard' }, { label: 'Tableau de bord' }]"
+    title="Tableau de bord"
+    subtitle="Vue d'ensemble de l'activité du laboratoire.">
+    <p-button actions label="Gérer les utilisateurs" icon="pi pi-users" routerLink="/utilisateurs/ajouter" />
+  </app-page-header>
 
-      <h1 class="text-2xl sm:text-[26px] font-semibold text-text leading-tight">
-        Tableau de bord
-      </h1>
-
-      <p class="text-sm text-text-secondary mt-1.5">
-        Vue d'ensemble de l'activité du laboratoire
-      </p>
-    </div>
-
-    <p-button label="Gérer les utilisateurs" icon="pi pi-users" />
+  <!-- Statistiques -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <app-mini-stat-card icon="pi pi-users" color="primary" value="56" label="Utilisateurs" />
+    <app-mini-stat-card icon="pi pi-building" color="primary" value="4" label="Laboratoires" />
+    <app-mini-stat-card icon="pi pi-cog" color="accent" value="140" label="Équipements" />
+    <app-mini-stat-card icon="pi pi-calendar" color="success" value="279" label="Réservations" />
   </div>
 
-
-  <!-- =========================
-       KPI
-  ========================== -->
-
-  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-
-    <!-- Utilisateurs -->
-    <div class="bg-white border border-border rounded-xl p-5
-             transition-all duration-200
-             hover:-translate-y-0.5 hover:shadow-sm">
-      <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
-        <i class="pi pi-users text-primary"></i>
-      </div>
-
-      <p class="text-3xl leading-none font-semibold text-text">
-        128
-      </p>
-
-      <p class="text-sm text-text-secondary mt-2">
-        Utilisateurs
-      </p>
-
-      <p class="text-sm text-primary font-medium mt-3">
-        Ce mois-ci
-      </p>
-    </div>
-
-
-    <!-- Laboratoires -->
-    <div class="bg-white border border-border rounded-xl p-5
-             transition-all duration-200
-             hover:-translate-y-0.5 hover:shadow-sm">
-      <div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center mb-5">
-        <i class="pi pi-building text-secondary"></i>
-      </div>
-
-      <p class="text-3xl leading-none font-semibold text-text">
-        6
-      </p>
-
-      <p class="text-sm text-text-secondary mt-2">
-        Laboratoires
-      </p>
-
-      <p class="text-sm text-primary font-medium mt-3">
-        5 actifs
-      </p>
-    </div>
-
-
-    <!-- Équipements -->
-    <div class="bg-white border border-border rounded-xl p-5
-             transition-all duration-200
-             hover:-translate-y-0.5 hover:shadow-sm">
-      <div class="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mb-5">
-        <i class="pi pi-cog text-accent"></i>
-      </div>
-
-      <p class="text-3xl leading-none font-semibold text-text">
-        47
-      </p>
-
-      <p class="text-sm text-text-secondary mt-2">
-        Équipements
-      </p>
-
-      <p class="text-sm text-primary font-medium mt-3">
-        41 disponibles
-      </p>
-    </div>
-
-
-    <!-- Réservations -->
-    <div class="bg-white border border-border rounded-xl p-5
-             transition-all duration-200
-             hover:-translate-y-0.5 hover:shadow-sm">
-      <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
-        <i class="pi pi-calendar text-primary"></i>
-      </div>
-
-      <p class="text-3xl leading-none font-semibold text-text">
-        186
-      </p>
-
-      <p class="text-sm text-text-secondary mt-2">
-        Réservations
-      </p>
-
-      <p class="text-sm text-primary font-medium mt-3">
-        Ce mois-ci
-      </p>
-    </div>
-
-  </div>
-
-
-  <!-- =========================
-       ÉTAT + ALERTES
-  ========================== -->
-
+    <!-- ÉTAT + ALERTES -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
 
     <!-- État des équipements -->
@@ -298,10 +193,7 @@
 
   </div>
 
-
-  <!-- =========================
-       GRAPHIQUES
-  ========================== -->
+  <!-- GRAPHIQUES -->
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
 
@@ -520,10 +412,7 @@
 
   </div>
 
-
-  <!-- =========================
-       MAINTENANCE
-  ========================== -->
+  <!-- MAINTENANCE -->
 
   <div class="bg-white border border-border rounded-xl p-5 sm:p-6 mb-6">
 
@@ -617,10 +506,7 @@
 
   </div>
 
-
-  <!-- =========================
-       RÉSERVATIONS RÉCENTES
-  ========================== -->
+  <!-- RÉSERVATIONS RÉCENTES -->
 
   <div class="bg-white border border-border rounded-xl p-5 sm:p-6 mb-6">
 
@@ -870,10 +756,7 @@
 
   </div>
 
-
-  <!-- =========================
-       ACTIVITÉ RÉCENTE
-  ========================== -->
+  <!-- ACTIVITÉ RÉCENTE -->
 
   <div class="bg-white border border-border rounded-xl p-5 sm:p-6 mb-6">
 
@@ -1020,10 +903,7 @@
 
   </div>
 
-
-  <!-- =========================
-       ACTIONS RAPIDES
-  ========================== -->
+  <!-- ACTIONS RAPIDES -->
 
   <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
 

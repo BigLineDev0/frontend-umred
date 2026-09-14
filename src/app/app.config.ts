@@ -5,6 +5,9 @@ import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
 
 import { routes } from './app.routes';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './Core/interceptors/auth.interceptor';
+import { MessageService } from 'primeng/api';
 
 const UmredPreset = definePreset(Aura, {
   semantic: {
@@ -36,6 +39,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
+    provideHttpClient(withInterceptors([authInterceptor])),
+    MessageService,
     providePrimeNG({
       theme: {
           preset: UmredPreset,

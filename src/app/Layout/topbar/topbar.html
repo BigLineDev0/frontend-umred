@@ -1,110 +1,114 @@
-<header class="
-    h-16
-    flex items-center
-    gap-3
-    px-4 sm:px-6
-    bg-white
-    border-b border-border
-    shrink-0
-  ">
+<header class="h-16 flex items-center gap-3 px-4 sm:px-6 bg-white border-b border-border shrink-0">
+  <p-button
+    icon="pi pi-bars"
+    [text]="true"
+    [rounded]="true"
+    severity="secondary"
+    class="lg:hidden shrink-0"
+    (onClick)="toggleSidebar()"
+    ariaLabel="Ouvrir le menu"
+  />
 
-  <!-- Hamburger mobile -->
-  <p-button icon="pi pi-bars" [text]="true" [rounded]="true" severity="secondary" class="lg:hidden shrink-0"
-    (onClick)="toggleSidebar()" ariaLabel="Ouvrir le menu" />
-
-  <!-- Recherche -->
-  <p-iconfield class="
-      flex-1
-      max-w-xl
-      hidden sm:flex
-    ">
+  <p-iconfield class="flex-1 max-w-xl hidden sm:flex">
     <p-inputicon class="pi pi-search" />
-
     <input pInputText type="text" placeholder="Rechercher un laboratoire, équipement..." class="w-full" />
   </p-iconfield>
 
-  <!-- Recherche mobile -->
-  <p-button icon="pi pi-search" [text]="true" [rounded]="true" severity="secondary" class="sm:hidden shrink-0"
-    ariaLabel="Rechercher" />
+  <p-button
+    icon="pi pi-search"
+    [text]="true"
+    [rounded]="true"
+    severity="secondary"
+    class="sm:hidden shrink-0"
+    ariaLabel="Rechercher"
+  />
 
-  <!-- Espace -->
   <div class="flex-1"></div>
 
   <!-- Notifications -->
   <div class="relative shrink-0">
+    <button type="button" (click)="toggleNotifPanel()" class="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-background transition-colors" aria-label="Notifications">
+      <i class="pi pi-bell text-lg text-text-secondary"></i>
+      @if (unreadCount() > 0) {
+        <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-danger text-white text-[10px] font-semibold leading-none">
+          {{ unreadCountLabel() }}
+        </span>
+      }
+    </button>
 
-    <p-button icon="pi pi-bell" [rounded]="true" [text]="true" size="large" severity="secondary"
-      ariaLabel="Notifications" />
+    @if (notifPanelOpen()) {
+      <div class="absolute right-0 top-full mt-2 w-[360px] max-w-[90vw] bg-white border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+          <p class="text-lg font-bold text-text">Notifications</p>
+          <button type="button" (click)="marquerToutesLues()" class="text-sm text-text-secondary hover:text-primary transition-colors">
+            Tout marquer comme lu
+          </button>
+        </div>
 
+        <div class="max-h-[360px] overflow-y-auto">
+          @for (notif of notifications(); track notif.id) {
+            <div class="flex gap-3 px-5 py-4 border-b border-border last:border-b-0" [class.bg-background]="!notif.lu">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" [class]="styleFor(notif.type).bg">
+                <i [ngClass]="styleFor(notif.type).color"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="text-sm font-semibold text-text">{{ notif.titre }}</p>
+                  <span class="text-xs text-text-secondary whitespace-nowrap shrink-0">{{ notif.tempsEcoule }}</span>
+                </div>
+                <p class="text-sm text-text-secondary mt-0.5">{{ notif.message }}</p>
+                @if (!notif.lu) {
+                  <span class="inline-block w-2 h-2 rounded-full bg-danger mt-2"></span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (notifications().length === 0) {
+            <p class="text-center text-sm text-text-secondary py-8">Aucune notification pour le moment.</p>
+          }
+        </div>
+
+        <a routerLink="/notifications" (click)="notifPanelOpen.set(false)"
+           class="flex items-center justify-center gap-2 px-5 py-3 bg-background text-sm font-medium text-text hover:bg-border/40 transition-colors">
+          Voir toutes les notifications
+          <i class="pi pi-chevron-right text-xs"></i>
+        </a>
+      </div>
+    }
   </div>
+
+  <!-- Séparateur vertical -->
+  <div class="w-px h-6 bg-border shrink-0"></div>
 
   <!-- Profil -->
   <div class="relative shrink-0">
-
-    <button type="button" (click)="toggleMenu()" class="flex items-center gap-2 cursor-pointer">
-
-      <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" size="large"
-        shape="circle" />
-
-      <!-- Nom masqué sur mobile -->
-      <span class="hidden md:block text-sm font-medium text-text">
-        Cheikh
-      </span>
-
-      <i class="
-          pi pi-chevron-down
-          hidden md:block
-          text-xs
-          text-text-secondary
-          transition-transform
-        " [class.rotate-180]="menuOpen()"></i>
-
+    <button type="button" (click)="toggleProfileMenu()" class="flex items-center gap-2 cursor-pointer">
+      <p-avatar [label]="initials()" shape="circle" styleClass="!bg-primary/10 !text-primary" size="large" />
+      <span class="hidden md:block text-sm font-medium text-text">{{ user()?.prenom }}</span>
+      <i class="pi pi-chevron-down hidden md:block text-xs text-text-secondary transition-transform" [class.rotate-180]="profileMenuOpen()"></i>
     </button>
 
-    @if (menuOpen()) {
+    @if (profileMenuOpen()) {
+      <div class="absolute right-0 top-full mt-2 w-52 bg-white border border-border rounded-lg shadow-md py-1.5 z-50">
+        <div class="px-4 py-2 border-b border-border">
+          <p class="text-sm font-medium text-text truncate">{{ user()?.prenom }} {{ user()?.nom }}</p>
+        </div>
 
-    <div class="
-          absolute
-          right-0
-          top-full
-          mt-2
-          w-48
-          bg-white
-          border border-border
-          rounded-lg
-          shadow-md
-          py-1.5
-          z-50
-        ">
+        <a routerLink="/profil" (click)="profileMenuOpen.set(false)"
+           class="flex items-center gap-2.5 px-4 py-2 text-sm text-text hover:bg-background transition-colors">
+          <i class="pi pi-user text-text-secondary"></i>
+          Mon profil
+        </a>
 
-      <a href="#" class="
-            flex items-center gap-2.5
-            px-4 py-2
-            text-sm text-text
-            hover:bg-background
-            transition-colors
-          ">
-        <i class="pi pi-user text-text-secondary"></i>
-        Mon profil
-      </a>
+        <div class="my-1 border-t border-border"></div>
 
-      <div class="my-1 border-t border-border"></div>
-
-      <a href="#" class="
-            flex items-center gap-2.5
-            px-4 py-2
-            text-sm text-danger
-            hover:bg-danger/5
-            transition-colors
-          ">
-        <i class="pi pi-sign-out"></i>
-        Déconnexion
-      </a>
-
-    </div>
-
+        <button type="button" (click)="onLogout()"
+                class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5 transition-colors text-left">
+          <i class="pi pi-sign-out"></i>
+          Déconnexion
+        </button>
+      </div>
     }
-
   </div>
-
 </header>

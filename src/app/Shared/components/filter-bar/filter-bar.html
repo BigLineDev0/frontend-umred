@@ -1,0 +1,15 @@
+<div class="rounded-xl border border-border bg-white mb-6 p-4 sm:p-5">
+  <div class="flex flex-wrap gap-3">
+    <p-iconfield class="flex-1 min-w-[240px]">
+      <p-inputicon class="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        [placeholder]="searchPlaceholder()"
+        (input)="searchChange.emit($any($event.target).value)"
+        class="w-full"
+      />
+    </p-iconfield>
+    <ng-content />
+  </div>
+</div>

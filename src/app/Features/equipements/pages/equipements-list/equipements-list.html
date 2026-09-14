@@ -1,0 +1,47 @@
+<div class="space-y-8">
+
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Équipements' }]"
+    title="Équipements"
+    subtitle="Consultez, gérez et suivez les équipements du laboratoire.">
+    @if (canManage()) {
+      <p-button actions label="Nouvel équipement" icon="pi pi-plus" routerLink="/equipements/ajouter" />
+    }
+  </app-page-header>
+
+  <app-filter-bar searchPlaceholder="Rechercher un équipement..." (searchChange)="onSearch($event)">
+    <p-select [options]="statutOptions" optionLabel="label" optionValue="value" placeholder="Statut : Tous"
+      [ngModel]="selectedStatut()" (ngModelChange)="selectedStatut.set($event)" />
+    <p-select [options]="laboratoireOptions()" optionLabel="label" optionValue="value" placeholder="Laboratoire : Tous"
+      [ngModel]="selectedLaboratoire()" (ngModelChange)="selectedLaboratoire.set($event)" />
+  </app-filter-bar>
+
+  @if (loading()) {
+    <div class="rounded-xl border border-border bg-white p-12 text-center">
+      <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+      <p class="mt-3 text-sm text-text-secondary">Chargement des équipements...</p>
+    </div>
+  } @else if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-6">
+      <p class="font-medium text-red-800">Une erreur est survenue</p>
+      <p class="mt-1 text-sm text-red-700">{{ error() }}</p>
+    </div>
+  } @else {
+    <div class="bg-white border border-border rounded-xl overflow-hidden">
+      <app-data-table [columns]="columns" [data]="filteredEquipements()" [rows]="10">
+        <ng-template appColumnTemplate="nom" let-row>
+          <span class="font-medium text-text">{{ row.nom }}</span>
+        </ng-template>
+        <ng-template appColumnTemplate="laboratoire_nom" let-row>{{ row.laboratoire_nom }}</ng-template>
+        <ng-template appColumnTemplate="statut" let-row><app-status-badge [statut]="row.statut" /></ng-template>
+        <ng-template appColumnTemplate="actions" let-row>
+          <app-row-actions
+            [showEdit]="canManage()" [showDelete]="canManage()"
+            (view)="voirEquipement(row)" (edit)="modifierEquipement(row)" (delete)="supprimerEquipement(row)" />
+        </ng-template>
+      </app-data-table>
+    </div>
+  }
+
+  <p-confirmDialog [style]="{ width: '25rem' }" />
+</div>

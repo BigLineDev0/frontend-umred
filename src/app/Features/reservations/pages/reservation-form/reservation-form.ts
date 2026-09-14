@@ -1,6 +1,7 @@
-import { Component, computed, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
 
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
@@ -9,19 +10,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DialogModule } from 'primeng/dialog';
 
-import { CreateReservationRequest } from '../../models/reservation.model';
-
-interface LaboratoireOption {
-  id: number;
-  nom: string;
-}
-
-interface EquipementOption {
-  id: number;
-  nom: string;
-  reference: string;
-  disponible: boolean;
-}
+import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
+import { EquipementService } from '../../../../Core/services/equipement.service';
+import { ReservationPayload } from '../../../../Core/models/reservation.model';
+import { ReservationService } from '../../../../Core/services/reservatiom.service';
 
 @Component({
   standalone: true,
@@ -40,388 +32,218 @@ interface EquipementOption {
   ],
 })
 export class ReservationForm {
-  private readonly fb = new FormBuilder();
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
 
-  // ---------------------------------------------------------
-  // Date du jour
-  // ---------------------------------------------------------
+  readonly laboratoireService = inject(LaboratoireService);
+  readonly equipementService = inject(EquipementService);
+  private readonly reservationService = inject(ReservationService);
 
   readonly today = new Date();
 
-  // ---------------------------------------------------------
-  // Formulaire
-  // ---------------------------------------------------------
-
-  reservationForm: FormGroup = this.fb.group({
-    laboratoireId: [null, Validators.required],
-
+  readonly reservationForm = this.fb.nonNullable.group({
+    laboratoireId: [null as number | null, Validators.required],
     date: [this.today, Validators.required],
-
     heureDebut: ['', Validators.required],
-
     heureFin: ['', Validators.required],
-
-    equipementIds: [[], [Validators.required, Validators.minLength(1)]],
-
+    // Pas de Validators.required ici : une réservation peut ne concerner
+    // que la salle, sans équipement précis (décision métier assumée).
+    equipementIds: [[] as number[]],
     motif: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
   });
 
-  // ---------------------------------------------------------
-  // États UI
-  // ---------------------------------------------------------
+  // --- États UI ---
+  readonly showConfirmation = signal(false);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
 
-  showConfirmation = signal(false);
+  readonly laboratoires = computed(() => this.laboratoireService.laboratoires());
 
-  loading = signal(false);
+  readonly equipementsDuLaboratoire = computed(() =>
+    this.equipementService.equipements().map((e) => ({
+      ...e,
+      disponible: e.statut === 'DISPONIBLE',
+    })),
+  );
 
-  checkingAvailability = signal(false);
+  ngOnInit(): void {
+    this.laboratoireService.charger();
+  }
 
-  error = signal<string | null>(null);
-
-  // Résultat de la vérification de disponibilité
-  availabilityMessage = signal<string | null>(null);
-
-  availabilitySuccess = signal(false);
-
-  // ---------------------------------------------------------
-  // Données mockées
-  // ---------------------------------------------------------
-
-  laboratoires: LaboratoireOption[] = [
-    {
-      id: 1,
-      nom: 'Laboratoire de Biochimie',
-    },
-    {
-      id: 2,
-      nom: 'Laboratoire de Microbiologie',
-    },
-    {
-      id: 3,
-      nom: 'Laboratoire de Biologie Moléculaire',
-    },
-    {
-      id: 4,
-      nom: 'Laboratoire de Physique',
-    },
-    {
-      id: 5,
-      nom: 'Laboratoire de Chimie Organique',
-    },
-  ];
-
-  equipements: EquipementOption[] = [
-    {
-      id: 1,
-      nom: 'Spectrophotomètre',
-      reference: 'SP-2024-001',
-      disponible: true,
-    },
-    {
-      id: 2,
-      nom: 'Microscope',
-      reference: 'MI-2024-014',
-      disponible: true,
-    },
-    {
-      id: 3,
-      nom: 'Centrifugeuse',
-      reference: 'CF-2024-003',
-      disponible: true,
-    },
-    {
-      id: 4,
-      nom: 'PCR',
-      reference: 'PC-2024-007',
-      disponible: false,
-    },
-  ];
-
-  // ---------------------------------------------------------
-  // Équipements affichés
-  // ---------------------------------------------------------
-
-  selectedLaboratoireId = signal<number | null>(null);
-
-  equipementsDuLaboratoire = computed(() => {
-    /*
-     * Pour le moment, les équipements sont mockés.
-     *
-     * Plus tard :
-     * this.equipementService.getByLaboratoire(...)
-     */
-
-    return this.equipements;
-  });
-
-  // ---------------------------------------------------------
-  // Résumé
-  // ---------------------------------------------------------
-
-  resume = signal<CreateReservationRequest | null>(null);
-
-  // ---------------------------------------------------------
-  // Changement de laboratoire
-  // ---------------------------------------------------------
+  // --- Sélection du laboratoire ---
 
   onLaboratoireChange(laboratoireId: number | null): void {
-    this.selectedLaboratoireId.set(laboratoireId);
+    // On repart d'une sélection d'équipements vierge : les équipements du
+    // labo précédent n'ont plus de sens une fois qu'on en change.
+    this.reservationForm.patchValue({ equipementIds: [] });
 
-    // Réinitialiser les équipements
-    // lorsqu'on change de laboratoire.
-    this.reservationForm.patchValue({
-      equipementIds: [],
-    });
-
-    this.clearAvailability();
-  }
-
-  // ---------------------------------------------------------
-  // Sélection équipement
-  // ---------------------------------------------------------
-
-  isEquipementSelected(equipementId: number): boolean {
-    const selectedIds = this.reservationForm.get('equipementIds')?.value ?? [];
-
-    return selectedIds.includes(equipementId);
-  }
-
-  toggleEquipement(equipement: EquipementOption): void {
-    if (!equipement.disponible) {
-      return;
+    if (laboratoireId) {
+      this.equipementService.chargerParLaboratoire(laboratoireId);
+    } else {
+      this.equipementService.vider();
     }
+  }
+
+  // --- Sélection des équipements ---
+
+  isEquipementSelected(id: number): boolean {
+    return (this.reservationForm.get('equipementIds')?.value ?? []).includes(id);
+  }
+
+  toggleEquipement(equipement: { id: number; disponible: boolean }): void {
+    if (!equipement.disponible) return;
 
     const control = this.reservationForm.get('equipementIds');
+    const selection: number[] = control?.value ?? [];
 
-    const selectedIds: number[] = control?.value ?? [];
-
-    if (selectedIds.includes(equipement.id)) {
-      control?.setValue(selectedIds.filter((id) => id !== equipement.id));
-    } else {
-      control?.setValue([...selectedIds, equipement.id]);
-    }
-
-    control?.markAsTouched();
-
-    this.clearAvailability();
+    control?.setValue(
+      selection.includes(equipement.id)
+        ? selection.filter((id) => id !== equipement.id)
+        : [...selection, equipement.id],
+    );
   }
-
-  // ---------------------------------------------------------
-  // Nombre d'équipements sélectionnés
-  // ---------------------------------------------------------
 
   get selectedEquipementsCount(): number {
-    const selectedIds = this.reservationForm.get('equipementIds')?.value ?? [];
-
-    return selectedIds.length;
+    return (this.reservationForm.get('equipementIds')?.value ?? []).length;
   }
-
-  // ---------------------------------------------------------
-  // Motif
-  // ---------------------------------------------------------
 
   get motifLength(): number {
-    const motif = this.reservationForm.get('motif')?.value ?? '';
-
-    return motif.length;
+    return (this.reservationForm.get('motif')?.value ?? '').length;
   }
-
-  // ---------------------------------------------------------
-  // Validation champ
-  // ---------------------------------------------------------
 
   isFieldInvalid(fieldName: string): boolean {
     const field = this.reservationForm.get(fieldName);
-
     return !!(field && field.invalid && (field.touched || field.dirty));
   }
 
-  // ---------------------------------------------------------
-  // Soumission
-  // ---------------------------------------------------------
+  // --- Soumission : validations locales, puis ouverture du récapitulatif ---
+  // La vraie vérification de disponibilité (chevauchement de créneau) n'a
+  // lieu qu'à la confirmation, côté serveur — c'est lui qui a la donnée à
+  // jour, un contrôle uniquement local pourrait mentir entre deux instants.
 
   onSubmit(): void {
     this.error.set(null);
 
-    this.clearAvailability();
-
-    // Validation Angular
     if (this.reservationForm.invalid) {
       this.reservationForm.markAllAsTouched();
-
       this.error.set('Veuillez vérifier les informations saisies.');
-
       return;
     }
 
-    // Validation horaire
     if (!this.isHoraireValide()) {
-      this.error.set('L’heure de fin doit être supérieure à l’heure de début.');
-
+      this.error.set("L'heure de fin doit être postérieure à l'heure de début.");
       return;
     }
 
-    // Vérification date / heure passée
     if (this.isReservationDansLePasse()) {
-      this.error.set('La date ou l’horaire sélectionné est déjà passé.');
-
+      this.error.set("La date ou l'horaire sélectionné est déjà passé.");
       return;
     }
 
-    // Pour l'instant, on simule la disponibilité.
-    this.checkAvailability();
+    this.showConfirmation.set(true);
   }
-
-  // ---------------------------------------------------------
-  // Vérification disponibilité
-  // ---------------------------------------------------------
-
-  private checkAvailability(): void {
-    this.checkingAvailability.set(true);
-
-    this.error.set(null);
-
-    /*
-     * Simulation temporaire.
-     *
-     * Plus tard cette méthode appellera :
-     *
-     * reservationService.checkAvailability(...)
-     */
-
-    setTimeout(() => {
-      this.checkingAvailability.set(false);
-
-      this.availabilitySuccess.set(true);
-
-      this.availabilityMessage.set(
-        'Les équipements sélectionnés sont disponibles pour cette période.',
-      );
-
-      const request = this.buildReservationRequest();
-
-      this.resume.set(request);
-
-      this.showConfirmation.set(true);
-    }, 600);
-  }
-
-  // ---------------------------------------------------------
-  // Validation horaire
-  // ---------------------------------------------------------
 
   private isHoraireValide(): boolean {
-    const heureDebut = this.reservationForm.get('heureDebut')?.value;
+    const debut = this.reservationForm.get('heureDebut')?.value;
+    const fin = this.reservationForm.get('heureFin')?.value;
+    if (!debut || !fin) return false;
 
-    const heureFin = this.reservationForm.get('heureFin')?.value;
-
-    if (!heureDebut || !heureFin) {
-      return false;
-    }
-
-    const [debutHeure, debutMinute] = heureDebut.split(':').map(Number);
-
-    const [finHeure, finMinute] = heureFin.split(':').map(Number);
-
-    const debut = debutHeure * 60 + debutMinute;
-
-    const fin = finHeure * 60 + finMinute;
-
-    return fin > debut;
+    const [hDebut, mDebut] = debut.split(':').map(Number);
+    const [hFin, mFin] = fin.split(':').map(Number);
+    return hFin * 60 + mFin > hDebut * 60 + mDebut;
   }
-
-  // ---------------------------------------------------------
-  // Vérification réservation dans le passé
-  // ---------------------------------------------------------
 
   private isReservationDansLePasse(): boolean {
     const date = this.reservationForm.get('date')?.value;
-
     const heureDebut = this.reservationForm.get('heureDebut')?.value;
-
-    if (!date || !heureDebut) {
-      return false;
-    }
+    if (!date || !heureDebut) return false;
 
     const [heure, minute] = heureDebut.split(':').map(Number);
-
-    const dateReservation = new Date(date);
-
-    dateReservation.setHours(heure, minute, 0, 0);
-
-    return dateReservation < new Date();
+    const dateComplete = new Date(date);
+    dateComplete.setHours(heure, minute, 0, 0);
+    return dateComplete < new Date();
   }
 
-  // ---------------------------------------------------------
-  // Construction réservation
-  // ---------------------------------------------------------
+  // --- Confirmation finale : appel API réel ---
 
-  private buildReservationRequest(): CreateReservationRequest {
-    const value = this.reservationForm.value;
+  confirmerReservation(): void {
+    const value = this.reservationForm.getRawValue();
 
-    const date = this.formatDate(value.date);
-
-    return {
-      laboratoireId: value.laboratoireId,
-
-      equipementIds: value.equipementIds,
-
-      dateDebut: `${date}T${value.heureDebut}:00`,
-
-      dateFin: `${date}T${value.heureFin}:00`,
-
+    const payload: ReservationPayload = {
+      laboratoire: value.laboratoireId!,
+      equipements: value.equipementIds,
+      date: this.formatDate(value.date!),
+      heure_debut: value.heureDebut,
+      heure_fin: value.heureFin,
       motif: value.motif.trim(),
     };
+
+    this.loading.set(true);
+
+    this.reservationService.creer(payload).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.showConfirmation.set(false);
+        this.location.back();
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.showConfirmation.set(false);
+        this.error.set(this.extraireMessageErreur(err));
+      },
+    });
   }
 
-  // ---------------------------------------------------------
-  // Format date
-  // ---------------------------------------------------------
+  // DRF renvoie soit un tableau de messages (nos ValidationError métier,
+  // ex. le conflit de créneau), soit un objet {champ: [messages]} pour les
+  // erreurs de validation de champ classiques.
+  private extraireMessageErreur(err: any): string {
+    const body = err.error;
+    if (Array.isArray(body)) return body[0];
+    if (body?.detail) return body.detail;
+    if (typeof body === 'object') {
+      const premierChamp = Object.values(body)[0];
+      if (Array.isArray(premierChamp)) return premierChamp[0] as string;
+    }
+    return 'Une erreur est survenue lors de la création de la réservation.';
+  }
+
+  annulerConfirmation(): void {
+    this.showConfirmation.set(false);
+  }
+
+  goBack(): void {
+    this.location.back();
+  }
 
   private formatDate(date: Date): string {
     const year = date.getFullYear();
-
     const month = String(date.getMonth() + 1).padStart(2, '0');
-
     const day = String(date.getDate()).padStart(2, '0');
-
     return `${year}-${month}-${day}`;
   }
 
-  // ---------------------------------------------------------
-  // Laboratoire
-  // ---------------------------------------------------------
+  // --- Récapitulatif affiché dans la modale ---
 
   getLaboratoireName(): string {
-    const laboratoireId = this.reservationForm.get('laboratoireId')?.value;
-
-    return this.laboratoires.find((laboratoire) => laboratoire.id === laboratoireId)?.nom ?? '';
+    const id = this.reservationForm.get('laboratoireId')?.value;
+    return this.laboratoires().find((l) => l.id === id)?.nom ?? '';
   }
 
-  // ---------------------------------------------------------
-  // Équipements
-  // ---------------------------------------------------------
-
   getEquipementsNames(): string {
-    const selectedIds: number[] = this.reservationForm.get('equipementIds')?.value ?? [];
-
-    return this.equipements
-      .filter((equipement) => selectedIds.includes(equipement.id))
-      .map((equipement) => equipement.nom)
+    const selection: number[] = this.reservationForm.get('equipementIds')?.value ?? [];
+    if (selection.length === 0) return 'Aucun — salle uniquement';
+    return this.equipementService
+      .equipements()
+      .filter((e) => selection.includes(e.id))
+      .map((e) => e.nom)
       .join(', ');
   }
 
-  // ---------------------------------------------------------
-  // Date formatée
-  // ---------------------------------------------------------
-
   getFormattedDate(): string {
     const date = this.reservationForm.get('date')?.value;
-
-    if (!date) {
-      return '';
-    }
-
+    if (!date) return '';
     return new Intl.DateTimeFormat('fr-FR', {
       day: '2-digit',
       month: 'long',
@@ -429,77 +251,9 @@ export class ReservationForm {
     }).format(date);
   }
 
-  // ---------------------------------------------------------
-  // Horaire
-  // ---------------------------------------------------------
-
   getHoraire(): string {
     const debut = this.reservationForm.get('heureDebut')?.value;
-
     const fin = this.reservationForm.get('heureFin')?.value;
-
     return `${debut} – ${fin}`;
-  }
-
-  // ---------------------------------------------------------
-  // Disponibilité
-  // ---------------------------------------------------------
-
-  private clearAvailability(): void {
-    this.availabilityMessage.set(null);
-
-    this.availabilitySuccess.set(false);
-  }
-
-  // ---------------------------------------------------------
-  // Confirmation
-  // ---------------------------------------------------------
-
-  confirmerReservation(): void {
-    const request = this.resume();
-
-    if (!request) {
-      return;
-    }
-
-    this.loading.set(true);
-
-    /*
-     * Simulation de création.
-     *
-     * Plus tard :
-     *
-     * this.reservationService
-     *   .createReservation(request)
-     */
-
-    setTimeout(() => {
-      console.log('Réservation à créer :', request);
-
-      this.loading.set(false);
-
-      this.showConfirmation.set(false);
-
-      this.reservationForm.reset({
-        laboratoireId: null,
-        date: this.today,
-        heureDebut: '',
-        heureFin: '',
-        equipementIds: [],
-        motif: '',
-      });
-
-      this.selectedLaboratoireId.set(null);
-
-      this.clearAvailability();
-    }, 800);
-  }
-
-  // ---------------------------------------------------------
-  // Retour au formulaire
-  // ---------------------------------------------------------
-
-  annulerConfirmation(): void {
-    this.showConfirmation.set(false);
   }
 }

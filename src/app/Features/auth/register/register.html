@@ -39,7 +39,7 @@
           <p-inputicon class="pi pi-user" />
 
           <input id="prenom" type="text" pInputText formControlName="prenom" placeholder="Jean"
-            class="w-full !py-3 !rounded-lg" />
+            class="w-full" />
 
         </p-iconfield>
 
@@ -74,7 +74,7 @@
           <p-inputicon class="pi pi-user" />
 
           <input id="nom" type="text" pInputText formControlName="nom" placeholder="Diop"
-            class="w-full !py-3 !rounded-lg" />
+            class="w-full" />
 
         </p-iconfield>
 
@@ -111,7 +111,7 @@
         <p-inputicon class="pi pi-envelope" />
 
         <input id="email" type="email" pInputText formControlName="email" placeholder="j.diop@umred.sn"
-          class="w-full !py-3 !rounded-lg" />
+          class="w-full" />
 
       </p-iconfield>
 
@@ -142,7 +142,7 @@
       </label>
 
       <p-password inputId="password" formControlName="password" placeholder="********" [feedback]="false"
-        [toggleMask]="true" fluid inputStyleClass="w-full !py-3 !rounded-lg" />
+        [toggleMask]="true" fluid inputStyleClass="w-full" />
 
       @if (password.invalid && (password.touched || submitted)) {
 
@@ -172,7 +172,7 @@
 
       <p-password inputId="passwordConfirmation" formControlName="passwordConfirmation"
         placeholder="********" [feedback]="false" [toggleMask]="true" fluid
-        inputStyleClass="w-full !py-3 !rounded-lg" />
+        inputStyleClass="w-full" />
 
       @if (
       passwordConfirmation.invalid &&
@@ -205,7 +205,7 @@
 
     <!-- Bouton -->
     <p-button type="submit" label="S'inscrire" icon="pi pi-arrow-right" iconPos="right" [loading]="loading()"
-      styleClass="w-full !py-3 !text-base" />
+      styleClass="w-full" />
 
 
     <!-- Séparateur -->

@@ -1,0 +1,25 @@
+<div class="bg-white border border-border rounded-xl p-5">
+  <div class="flex justify-between items-start mb-4">
+    <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+         [class.bg-primary/10]="color() === 'primary'"
+         [class.bg-success/10]="color() === 'success'"
+         [class.bg-danger/10]="color() === 'danger'"
+         [class.bg-accent/10]="color() === 'accent'">
+      <i [class]="icon()"
+         [class.text-primary]="color() === 'primary'"
+         [class.text-success]="color() === 'success'"
+         [class.text-danger]="color() === 'danger'"
+         [class.text-accent]="color() === 'accent'"></i>
+    </div>
+    @if (tagLabel()) {
+      <p-tag [value]="tagLabel()" [severity]="tagSeverity()" styleClass="!text-xs" />
+    }
+  </div>
+  <p class="text-3xl font-semibold text-text">{{ value() }}</p>
+  <p class="text-sm text-text-secondary mt-1">{{ label() }}</p>
+  @if (link()) {
+    <a [href]="link()" class="text-sm text-primary font-medium inline-flex items-center gap-1 mt-3 hover:underline">
+      Voir tout <i class="pi pi-arrow-right text-xs"></i>
+    </a>
+  }
+</div>

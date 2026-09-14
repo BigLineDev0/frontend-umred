@@ -1,0 +1,230 @@
+<div class="space-y-8">
+  <!-- En-tête -->
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
+        <span>Accueil</span>
+        <i class="pi pi-angle-right text-xs"></i>
+        <span class="font-medium text-text">Laboratoires</span>
+      </div>
+
+      <h1 class="text-3xl font-semibold tracking-tight text-text">Laboratoires</h1>
+
+      <p class="mt-2 text-sm text-text-secondary">
+        Consultez les laboratoires et les équipements disponibles pour vos activités de recherche.
+      </p>
+    </div>
+
+    <!-- Visible pour ADMIN -->
+    @if (isAdmin()) {
+      <a routerLink="/laboratoires/ajouter" class="shrink-0">
+        <p-button label="Ajouter un laboratoire" icon="pi pi-plus" />
+      </a>
+    }
+  </div>
+
+  <!-- Filtres -->
+  <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+    <!-- Recherche -->
+    <div class="flex-1">
+      <p-iconfield class="w-full">
+        <p-inputicon class="pi pi-search" />
+
+        <input
+          pInputText
+          type="text"
+          placeholder="Rechercher un laboratoire..."
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+          class="!h-11 w-full"
+        />
+      </p-iconfield>
+    </div>
+
+    <!-- Statut -->
+    <div class="w-full lg:w-auto">
+      <p-select
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Tous"
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="selectedStatus.set($event)"
+        class="!h-11 w-full lg:min-w-44"
+      />
+    </div>
+  </div>
+
+  <!-- Chargement -->
+  @if (loading()) {
+    <div
+      class="flex min-h-64 items-center justify-center rounded-2xl border border-border bg-white"
+    >
+      <div class="flex flex-col items-center gap-3">
+        <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+
+        <p class="text-sm text-text-secondary">Chargement des laboratoires...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Erreur -->
+  @else if (error()) {
+    <div class="rounded-2xl border border-red-200 bg-red-50 p-6">
+      <div class="flex items-start gap-3">
+        <i class="pi pi-exclamation-circle mt-0.5 text-red-600"></i>
+
+        <div>
+          <p class="font-medium text-red-800">Une erreur est survenue</p>
+
+          <p class="mt-1 text-sm text-red-700">
+            {{ error() }}
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Liste -->
+  @else {
+    @if (filteredLaboratoires().length > 0) {
+
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        @for (laboratoire of filteredLaboratoires(); track laboratoire.id) {
+          <article
+            class="flex min-h-[315px] flex-col rounded-2xl border border-border bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+          >
+            <!-- Ligne supérieure -->
+            <div class="flex items-start justify-between gap-4">
+              <!-- Icône -->
+              <div
+                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"
+              >
+                <i [class]="getLaboratoireIcon(laboratoire)" class="text-xl"></i>
+              </div>
+
+              <!-- Statut -->
+              <p-tag
+                [value]="getStatusLabel(laboratoire.statut)"
+                [severity]="getStatusSeverity(laboratoire.statut)"
+                [rounded]="true"
+              />
+            </div>
+
+            <!-- Informations -->
+            <div class="mt-5">
+              <h2 class="text-lg font-semibold leading-7 text-text">
+                {{ laboratoire.nom }}
+              </h2>
+
+              @if (laboratoire.description) {
+                <p class="mt-2 line-clamp-2 min-h-12 text-sm leading-6 text-text-secondary">
+                  {{ laboratoire.description }}
+                </p>
+              }
+            </div>
+
+            <!-- Métadonnées -->
+            <div class="mt-5 space-y-3">
+              <!-- Localisation -->
+              <div class="flex items-center gap-2 text-sm text-text-secondary">
+                <i class="pi pi-map-marker w-4 text-center"></i>
+
+                <span>
+                  {{ laboratoire.localisation }}
+                </span>
+              </div>
+
+              <!-- Équipements -->
+              <div class="flex items-center gap-2 text-sm text-text-secondary">
+                <i class="pi pi-cog w-4 text-center"></i>
+
+                <span>
+                  {{ laboratoire.nombre_equipements_disponibles }} /
+                  {{ laboratoire.nombre_equipements }} équipements disponibles</span
+                >
+              </div>
+            </div>
+
+            <!-- Actions, remplace le bloc commenté -->
+            <div class="mt-auto flex gap-3 pt-6">
+              <p-button
+                label="Voir les détails"
+                severity="secondary"
+                [outlined]="true"
+                class="flex-1"
+                styleClass="w-full"
+                (onClick)="voirLaboratoire(laboratoire)"
+              />
+
+              @if (isAdmin()) {
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  [outlined]="true"
+                  pTooltip="Modifier"
+                  tooltipPosition="top"
+                  (onClick)="modifierLaboratoire(laboratoire)"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [outlined]="true"
+                  pTooltip="Supprimer"
+                  tooltipPosition="top"
+                  (onClick)="supprimerLaboratoire(laboratoire)"
+                />
+              } @else {
+                <p-button
+                  label="Réserver"
+                  icon="pi pi-calendar-plus"
+                  class="flex-1"
+                  styleClass="w-full"
+                  [disabled]="laboratoire.statut === 'INDISPONIBLE'"
+                  (onClick)="reserverLaboratoire(laboratoire)"
+                />
+              }
+            </div>
+          </article>
+        }
+      </div>
+
+      <!-- Pagination -->
+      <p class="text-sm text-text-secondary border-t border-border pt-5">
+        {{ filteredLaboratoires().length }} laboratoire{{ filteredLaboratoires().length > 1 ? 's' : '' }}
+      </p>
+    }
+
+    <!-- Aucun résultat -->
+    @else {
+      <div
+        class="flex min-h-72 items-center justify-center rounded-2xl border border-border bg-white p-8"
+      >
+        <div class="max-w-md text-center">
+          <div
+            class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"
+          >
+            <i class="pi pi-search text-xl"></i>
+          </div>
+
+          <h2 class="mt-4 text-lg font-semibold text-text">Aucun laboratoire trouvé</h2>
+
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Aucun laboratoire ne correspond aux critères de recherche sélectionnés.
+          </p>
+
+          <p-button
+            label="Réinitialiser les filtres"
+            icon="pi pi-filter-slash"
+            severity="secondary"
+            [outlined]="true"
+            styleClass="mt-5"
+            (onClick)="resetFilters()"
+          />
+        </div>
+      </div>
+    }
+  }
+</div>
+
+<p-confirmDialog [style]="{ width: '25rem' }" />

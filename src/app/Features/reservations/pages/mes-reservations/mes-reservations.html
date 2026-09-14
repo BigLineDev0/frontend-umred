@@ -1,26 +1,65 @@
 <div class="space-y-8">
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-      <h1 class="text-2xl font-semibold text-text">Mes réservations</h1>
-      <p class="mt-1 text-sm text-text-secondary">
-        Consultez et suivez vos réservations de laboratoires et d’équipements.
-      </p>
-    </div>
-    <a routerLink="/reservations/nouvelle" pButton type="button" class="w-full sm:w-auto"
-      ><i class="pi pi-plus mr-2"></i>Nouvelle réservation</a
-    >
-  </div>
-   <app-reservation-stats
-    class="mb-6 block"
-    [total]="totalReservations()"
-    [enAttente]="reservationsEnAttente()"
-    [validees]="reservationsValidees()"
-    [dernier]="reservationsTerminees()"
-  />
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Réservations' }]"
+    title="Mes réservations"
+    subtitle="Consultez et suivez vos réservations de laboratoires et d'équipements."
+  >
+    <p-button
+      actions
+      label="Nouvelle réservation"
+      icon="pi pi-plus"
+      routerLink="/reservations/ajouter"
+    />
+  </app-page-header>
 
-  <div class="mb-6 rounded-xl border border-border bg-white p-4 sm:p-5">
-    <app-reservation-filters [(filters)]="filters" />
+  <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <app-mini-stat-card
+      icon="pi pi-calendar"
+      color="primary"
+      [value]="totalReservations()"
+      label="Total"
+    />
+    <app-mini-stat-card
+      icon="pi pi-clock"
+      color="accent"
+      [value]="reservationsEnAttente()"
+      label="En attente"
+    />
+    <app-mini-stat-card
+      icon="pi pi-check-circle"
+      color="success"
+      [value]="reservationsValidees()"
+      label="Validées"
+    />
+    <app-mini-stat-card
+      icon="pi pi-ban"
+      color="accent"
+      [value]="reservationsTerminees()"
+      label="Annulées"
+    />
   </div>
+
+  <app-filter-bar
+    searchPlaceholder="Rechercher une réservation..."
+    (searchChange)="setFilter('search', $event)"
+  >
+    <p-select
+      [options]="statusOptions"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Statut : Tous"
+      [ngModel]="filters().status"
+      (ngModelChange)="setFilter('status', $event)"
+    />
+    <p-select
+      [options]="laboratoireOptions()"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Laboratoire : Tous"
+      [ngModel]="filters().laboratoire"
+      (ngModelChange)="setFilter('laboratoire', $event)"
+    />
+  </app-filter-bar>
 
   @if (loading()) {
     <div class="rounded-xl border border-border bg-white p-12 text-center">
@@ -39,28 +78,51 @@
         severity="danger"
         text
         class="mt-3"
-        (click)="reservationService.loadReservations()"
+        (click)="reservationService.charger()"
       ></button>
     </div>
   } @else {
-    <div class="rounded-xl border border-border bg-white">
-      
-      <app-reservation-table
-        [reservations]="filteredReservations()"
-        [editStatuses]="['EN_ATTENTE']"
-        [cancelStatuses]="['EN_ATTENTE', 'VALIDEE']"
-        (view)="voirReservation($event)"
-        (edit)="modifierReservation($event)"
-        (cancel)="annulerReservation($event)"
-      /><app-reservation-card
-        [reservations]="filteredReservations()"
-        [showMotif]="true"
-        [editStatuses]="['EN_ATTENTE']"
-        [cancelStatuses]="['EN_ATTENTE', 'VALIDEE']"
-        (view)="voirReservation($event)"
-        (edit)="modifierReservation($event)"
-        (cancel)="annulerReservation($event)"
-      />
+    <div class="bg-white border border-border rounded-xl overflow-hidden">
+      <app-data-table [columns]="columns" [data]="filteredReservations()" [rows]="5">
+        <ng-template appColumnTemplate="laboratoire_nom" let-row>
+          {{ row.laboratoire_nom }}
+        </ng-template>
+
+        <ng-template appColumnTemplate="equipements_noms" let-row>
+          @if (row.equipements_noms.length === 0) {
+            <span class="text-text-secondary">Salle uniquement</span>
+          } @else if (row.equipements_noms.length === 1) {
+            {{ row.equipements_noms[0] }}
+          } @else {
+            {{ row.equipements_noms.length }} équipements
+          }
+        </ng-template>
+
+        <ng-template appColumnTemplate="date" let-row>
+          {{ row.date | date: 'dd/MM/yyyy'}}
+        </ng-template>
+
+        <ng-template appColumnTemplate="creneau" let-row>
+          {{ row.heure_debut.slice(0, 5) }} – {{ row.heure_fin.slice(0, 5) }}
+        </ng-template>
+
+        <ng-template appColumnTemplate="statut" let-row>
+          <app-status-badge [statut]="row.statut"/>
+        </ng-template>
+
+        <ng-template appColumnTemplate="actions" let-row>
+          <app-row-actions
+            [showEdit]="false"
+            [showDelete]="row.statut === 'EN_ATTENTE' || row.statut === 'VALIDEE'"
+            deleteIcon="pi pi-ban"
+            (view)="voirReservation(row)"
+            (delete)="annulerReservation(row)"
+          />
+        </ng-template>
+      </app-data-table>
     </div>
   }
+
+  <app-reservation-detail-modal [(visible)]="detailModalVisible" [reservation]="reservationSelectionnee()" />
+  <p-confirmDialog />
 </div>

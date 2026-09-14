@@ -1,145 +1,22 @@
 <div class="w-full max-w-[1400px] mx-auto">
 
-  <!-- ========================================================= -->
-  <!-- EN-TÊTE DU DASHBOARD -->
-  <!-- ========================================================= -->
+  <!-- En-tête -->
+   <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/chercheur/dashboard' }, { label: 'Tableau de bord' }]"
+    title="Tableau de bord"
+    subtitle="Retrouvez ici vos réservations, notifications et l'accès rapide aux laboratoires.">
+    <p-button actions label="Nouvelle réservation" icon="pi pi-plus" routerLink="/reservations/ajouter" />
+  </app-page-header>
 
-  <div class="mb-7 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-    <div>
-      <h1 class="text-2xl font-semibold text-text">
-        Bonjour Fatou
-      </h1>
-
-      <p class="text-sm text-text-secondary mt-1">
-        Retrouvez ici vos réservations, notifications et l'accès rapide aux laboratoires
-      </p>
-    </div>
-
-    <p-button label="Nouvelle réservation" icon="pi pi-plus" [routerLink]="['/reservations/nouvelle']"
-      styleClass="!bg-primary !border-primary hover:!bg-primary-dark w-full sm:w-auto" />
+  <!-- KPI -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <app-mini-stat-card icon="pi pi-check-circle" color="success" value="10" label="Réservations validées" />
+    <app-mini-stat-card icon="pi pi-clock" color="danger" value="7" label="En attente" />
+    <app-mini-stat-card icon="pi pi-check" color="primary" value="3" label="Terminés" />
+    <app-mini-stat-card icon="pi pi-cog" color="success" value="50" label="Équipements disponibles" />
   </div>
 
-
-  <!-- ========================================================= -->
-  <!-- CARTES KPI -->
-  <!-- ========================================================= -->
-
-  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-7">
-
-    <!-- Réservations à venir -->
-
-    <div class="bg-white border border-border rounded-xl p-5 min-h-[207px]">
-      <div class="flex items-start justify-between mb-5">
-
-        <div class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
-          <i class="pi pi-calendar text-primary text-lg"></i>
-        </div>
-
-      </div>
-
-      <p class="text-3xl font-semibold text-text leading-none">
-        5
-      </p>
-
-      <p class="text-sm text-text-secondary mt-3">
-        Réservations à venir
-      </p>
-
-      <a routerLink="/reservations"
-        class="inline-flex items-center gap-1 text-sm text-primary font-medium mt-4 hover:underline">
-        Voir tout
-        <i class="pi pi-arrow-right text-xs"></i>
-      </a>
-    </div>
-
-
-    <!-- Réservations validées -->
-
-    <div class="bg-white border border-border rounded-xl p-5 min-h-[207px]">
-      <div class="flex items-start justify-between mb-5">
-
-        <div class="w-11 h-11 rounded-xl bg-success/10 flex items-center justify-center">
-          <i class="pi pi-check-circle text-success text-lg"></i>
-        </div>
-
-      </div>
-
-      <p class="text-3xl font-semibold text-text leading-none">
-        12
-      </p>
-
-      <p class="text-sm text-text-secondary mt-3">
-        Réservations validées
-      </p>
-
-      <a routerLink="/reservations"
-        class="inline-flex items-center gap-1 text-sm text-primary font-medium mt-4 hover:underline">
-        Voir tout
-        <i class="pi pi-arrow-right text-xs"></i>
-      </a>
-    </div>
-
-
-    <!-- Réservations en attente -->
-
-    <div class="bg-white border border-border rounded-xl p-5 min-h-[207px]">
-      <div class="flex items-start justify-between mb-5">
-
-        <div class="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center">
-          <i class="pi pi-clock text-accent text-lg"></i>
-        </div>
-
-      </div>
-
-      <p class="text-3xl font-semibold text-text leading-none">
-        2
-      </p>
-
-      <p class="text-sm text-text-secondary mt-3">
-        En attente
-      </p>
-
-      <a routerLink="/reservations"
-        class="inline-flex items-center gap-1 text-sm text-primary font-medium mt-4 hover:underline">
-        Voir tout
-        <i class="pi pi-arrow-right text-xs"></i>
-      </a>
-    </div>
-
-
-    <!-- Équipements disponibles -->
-
-    <div class="bg-white border border-border rounded-xl p-5 min-h-[207px]">
-      <div class="flex items-start justify-between mb-5">
-
-        <div class="w-11 h-11 rounded-xl bg-success/10 flex items-center justify-center">
-          <i class="pi pi-cog text-success text-lg"></i>
-        </div>
-
-        <p-tag value="disponibles" severity="success" styleClass="!text-xs !font-medium" />
-      </div>
-
-      <p class="text-3xl font-semibold text-text leading-none">
-        18
-      </p>
-
-      <p class="text-sm text-text-secondary mt-3">
-        Équipements disponibles
-      </p>
-
-      <a routerLink="/equipements"
-        class="inline-flex items-center gap-1 text-sm text-primary font-medium mt-4 hover:underline">
-        Voir tout
-        <i class="pi pi-arrow-right text-xs"></i>
-      </a>
-    </div>
-
-  </div>
-
-
-  <!-- ========================================================= -->
   <!-- PROCHAINES RÉSERVATIONS + NOTIFICATIONS -->
-  <!-- ========================================================= -->
 
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-7">
 
@@ -279,15 +156,11 @@
   </div>
 
 
-  <!-- ========================================================= -->
   <!-- CALENDRIER + ACCÈS RAPIDE AUX LABORATOIRES -->
-  <!-- ========================================================= -->
 
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
 
-    <!-- ======================================================= -->
     <!-- CALENDRIER -->
-    <!-- ======================================================= -->
 
     <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
 
@@ -307,9 +180,7 @@
 </div>
 
 
-    <!-- ======================================================= -->
     <!-- ACCÈS RAPIDE AUX LABORATOIRES -->
-    <!-- ======================================================= -->
 
     <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
 
