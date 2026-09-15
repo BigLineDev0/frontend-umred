@@ -39,7 +39,8 @@ export class Sidebar {
   private commonItems: NavItem[] = [
     { label: 'Laboratoires', icon: 'pi pi-building', route: '/laboratoires' },
     { label: 'Équipements', icon: 'pi pi-cog', route: '/equipements' },
-    { label: 'Notifications', icon: 'pi pi-bell', route: '/notifications', disabled: true },
+    { label: 'Notifications', icon: 'pi pi-bell', route: '/notifications' },
+    // { label: 'Notifications', icon: 'pi pi-bell', route: '/notifications', disabled: true },
   ];
 
   private reservationsAValiderItem: NavItem = {

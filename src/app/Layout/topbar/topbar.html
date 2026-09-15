@@ -27,56 +27,52 @@
 
   <!-- Notifications -->
   <div class="relative shrink-0">
-    <button type="button" (click)="toggleNotifPanel()" class="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-background transition-colors" aria-label="Notifications">
-      <i class="pi pi-bell text-lg text-text-secondary"></i>
-      @if (unreadCount() > 0) {
-        <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-danger text-white text-[10px] font-semibold leading-none">
-          {{ unreadCountLabel() }}
-        </span>
-      }
-    </button>
-
-    @if (notifPanelOpen()) {
-      <div class="absolute right-0 top-full mt-2 w-[360px] max-w-[90vw] bg-white border border-border rounded-xl shadow-lg z-50 overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-          <p class="text-lg font-bold text-text">Notifications</p>
-          <button type="button" (click)="marquerToutesLues()" class="text-sm text-text-secondary hover:text-primary transition-colors">
-            Tout marquer comme lu
-          </button>
-        </div>
-
-        <div class="max-h-[360px] overflow-y-auto">
-          @for (notif of notifications(); track notif.id) {
-            <div class="flex gap-3 px-5 py-4 border-b border-border last:border-b-0" [class.bg-background]="!notif.lu">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" [class]="styleFor(notif.type).bg">
-                <i [ngClass]="styleFor(notif.type).color"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-2">
-                  <p class="text-sm font-semibold text-text">{{ notif.titre }}</p>
-                  <span class="text-xs text-text-secondary whitespace-nowrap shrink-0">{{ notif.tempsEcoule }}</span>
-                </div>
-                <p class="text-sm text-text-secondary mt-0.5">{{ notif.message }}</p>
-                @if (!notif.lu) {
-                  <span class="inline-block w-2 h-2 rounded-full bg-danger mt-2"></span>
-                }
-              </div>
-            </div>
-          }
-
-          @if (notifications().length === 0) {
-            <p class="text-center text-sm text-text-secondary py-8">Aucune notification pour le moment.</p>
-          }
-        </div>
-
-        <a routerLink="/notifications" (click)="notifPanelOpen.set(false)"
-           class="flex items-center justify-center gap-2 px-5 py-3 bg-background text-sm font-medium text-text hover:bg-border/40 transition-colors">
-          Voir toutes les notifications
-          <i class="pi pi-chevron-right text-xs"></i>
-        </a>
-      </div>
+  <button type="button" (click)="toggleNotifPanel()" class="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-background transition-colors" aria-label="Notifications">
+    <i class="pi pi-bell text-lg text-text-secondary"></i>
+    @if (notificationService.unreadCount() > 0) {
+      <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-danger text-white text-[10px] font-semibold leading-none">
+        {{ notificationService.unreadCount() > 9 ? '9+' : notificationService.unreadCount() }}
+      </span>
     }
-  </div>
+  </button>
+
+  @if (notifPanelOpen()) {
+    <div class="absolute right-0 top-full mt-2 w-[360px] max-w-[90vw] bg-white border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+        <p class="text-lg font-bold text-text">Notifications</p>
+        <button type="button" (click)="marquerToutesLues()" class="text-sm text-text-secondary hover:text-primary transition-colors">Tout marquer comme lu</button>
+      </div>
+
+      <div class="max-h-[360px] overflow-y-auto">
+        @for (notif of notificationService.recentes(); track notif.id) {
+          <button type="button" (click)="ouvrirNotification(notif)"
+            class="w-full text-left flex gap-3 px-5 py-4 border-b border-border last:border-b-0 hover:bg-background transition-colors"
+            [ngClass]="{ 'bg-background': !notif.lu }">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" [ngClass]="styleFor(notif.type).bg">
+              <i [class]="styleFor(notif.type).icon" [ngClass]="styleFor(notif.type).color"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-2">
+                <p class="text-sm font-semibold text-text">{{ notif.titre }}</p>
+                <span class="text-xs text-text-secondary whitespace-nowrap shrink-0">{{ tempsEcoule(notif.date_envoi) }}</span>
+              </div>
+              <p class="text-sm text-text-secondary mt-0.5">{{ notif.message }}</p>
+              @if (!notif.lu) { <span class="inline-block w-2 h-2 rounded-full bg-danger mt-2"></span> }
+            </div>
+          </button>
+        }
+        @if (notificationService.recentes().length === 0) {
+          <p class="text-center text-sm text-text-secondary py-8">Aucune notification pour le moment.</p>
+        }
+      </div>
+
+      <a routerLink="/notifications" (click)="notifPanelOpen.set(false)"
+         class="flex items-center justify-center gap-2 px-5 py-3 bg-background text-sm font-medium text-text hover:bg-border/40 transition-colors">
+        Voir toutes les notifications <i class="pi pi-chevron-right text-xs"></i>
+      </a>
+    </div>
+  }
+</div>
 
   <!-- Séparateur vertical -->
   <div class="w-px h-6 bg-border shrink-0"></div>

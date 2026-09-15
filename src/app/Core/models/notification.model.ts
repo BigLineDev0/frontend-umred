@@ -10,3 +10,8 @@ export interface Notification {
   entite_id: number | null;
   date_envoi: string;
 }
+
+export interface NotificationPage {
+  count: number;
+  results: Notification[];
+}

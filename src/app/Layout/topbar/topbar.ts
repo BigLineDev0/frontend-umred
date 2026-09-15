@@ -1,43 +1,29 @@
-import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, effect, inject, signal } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { RouterLink } from '@angular/router';
+
 import { LayoutService } from '../../Core/services/layout.service';
 import { AuthService } from '../../Core/services/auth.service';
-import { NgClass } from '@angular/common';
+import { NotificationService } from '../../Core/services/notification.service';
+import { Notification, TypeNotification } from '../../Core/models/notification.model';
 
-export type NotificationType = 'RESERVATION' | 'MAINTENANCE' | 'SYSTEME';
-
-export interface NotificationItem {
-  id: number;
-  titre: string;
-  message: string;
-  type: NotificationType;
-  lu: boolean;
-  tempsEcoule: string;
-}
-
-const NOTIF_STYLE: Record<NotificationType, { icon: string; bg: string; color: string }> = {
+const NOTIF_STYLE: Record<TypeNotification, { icon: string; bg: string; color: string }> = {
   RESERVATION: { icon: 'pi pi-calendar', bg: 'bg-primary/10', color: 'text-primary' },
-  MAINTENANCE: { icon: 'pi pi-exclamation-triangle', bg: 'bg-accent/10', color: 'text-accent' },
-  SYSTEME: { icon: 'pi pi-plus', bg: 'bg-success/10', color: 'text-success' },
+  MAINTENANCE: { icon: 'pi pi-wrench', bg: 'bg-accent/10', color: 'text-accent' },
+  VALIDATION:  { icon: 'pi pi-check-circle', bg: 'bg-success/10', color: 'text-success' },
+  RAPPEL:      { icon: 'pi pi-clock', bg: 'bg-accent/10', color: 'text-accent' },
+  SYSTEME:     { icon: 'pi pi-info-circle', bg: 'bg-primary/10', color: 'text-primary' },
 };
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [
-    ButtonModule,
-    AvatarModule,
-    InputTextModule,
-    InputIconModule,
-    IconFieldModule,
-    RouterLink,
-    NgClass,
-  ],
+  imports: [ButtonModule, AvatarModule, InputTextModule, InputIconModule, IconFieldModule, RouterLink, NgClass],
   templateUrl: './topbar.html',
   styleUrl: './topbar.css',
 })
@@ -45,39 +31,10 @@ export class Topbar {
   profileMenuOpen = signal(false);
   notifPanelOpen = signal(false);
 
-  // TODO : remplacer par un appel à GET /api/notifications/ une fois la page branchée sur l'API.
-  notifications = signal<NotificationItem[]>([
-    {
-      id: 1,
-      titre: 'Réservation confirmée',
-      message: 'Votre demande pour le laboratoire de Bio-Tech a été validée pour demain à 14h.',
-      type: 'RESERVATION',
-      lu: false,
-      tempsEcoule: 'Il y a 2 min',
-    },
-    {
-      id: 2,
-      titre: 'Alerte maintenance',
-      message: "Le spectrophotomètre UV-Vis nécessite une maintenance préventive d'ici 3 jours.",
-      type: 'MAINTENANCE',
-      lu: true,
-      tempsEcoule: 'Il y a 3 min',
-    },
-    {
-      id: 3,
-      titre: 'Nouvel équipement',
-      message: "Une nouvelle imprimante 3D résine a été ajoutée à l'inventaire du département.",
-      type: 'SYSTEME',
-      lu: true,
-      tempsEcoule: 'Hier',
-    },
-  ]);
-
-  unreadCount = computed(() => this.notifications().filter((n) => !n.lu).length);
-  unreadCountLabel = computed(() => (this.unreadCount() > 9 ? '9+' : String(this.unreadCount())));
-
   private layoutService = inject(LayoutService);
   private authService = inject(AuthService);
+  private router = inject(Router);
+  readonly notificationService = inject(NotificationService);
 
   user = this.authService.currentUser;
 
@@ -86,24 +43,51 @@ export class Topbar {
     return u ? `${u.prenom[0]}${u.nom[0]}`.toUpperCase() : '';
   });
 
-  constructor(private elementRef: ElementRef) {}
-
-  styleFor(type: NotificationType) {
-    return NOTIF_STYLE[type];
+  constructor(private elementRef: ElementRef) {
+    effect(() => {
+      if (this.notifPanelOpen()) this.notificationService.chargerRecentes();
+    });
   }
 
-  toggleProfileMenu(): void {
+  styleFor(type: TypeNotification) { return NOTIF_STYLE[type]; }
+
+  toggleProfileMenu(): void { this.notifPanelOpen.set(false); this.profileMenuOpen.update(o => !o); }
+  toggleNotifPanel(): void { this.profileMenuOpen.set(false); this.notifPanelOpen.update(o => !o); }
+
+  marquerToutesLues(): void { this.notificationService.marquerToutesLues().subscribe(); }
+
+  ouvrirNotification(n: Notification): void {
+    if (!n.lu) this.notificationService.marquerLue(n.id).subscribe();
     this.notifPanelOpen.set(false);
-    this.profileMenuOpen.update((open) => !open);
+    this.naviguerVersEntite(n);
   }
 
-  toggleNotifPanel(): void {
-    this.profileMenuOpen.set(false);
-    this.notifPanelOpen.update((open) => !open);
+  // Pas de page de détail dédiée pour une réservation (on la consulte via
+  // modale depuis sa liste) — on redirige vers la liste pertinente selon
+  // le rôle, où l'utilisateur retrouve l'élément concerné.
+  private naviguerVersEntite(n: Notification): void {
+    if (n.entite_type_nom === 'maintenance' && n.entite_id) {
+      this.router.navigate(['/maintenances', n.entite_id]);
+      return;
+    }
+    if (n.entite_type_nom === 'reservation') {
+      const role = this.user()?.role;
+      const route = role === 'ETUDIANT' ? '/etudiant/dashboard/mes-demandes'
+        : role === 'CHERCHEUR' ? '/enseignant/dashboard/reservations'
+        : '/reservations/a-valider';
+      this.router.navigate([route]);
+      return;
+    }
+    this.router.navigate(['/notifications']);
   }
 
-  marquerToutesLues(): void {
-    this.notifications.update((list) => list.map((n) => ({ ...n, lu: true })));
+  tempsEcoule(dateIso: string): string {
+    const minutes = Math.floor((Date.now() - new Date(dateIso).getTime()) / 60000);
+    if (minutes < 1) return "À l'instant";
+    if (minutes < 60) return `Il y a ${minutes} min`;
+    const heures = Math.floor(minutes / 60);
+    if (heures < 24) return `Il y a ${heures} h`;
+    return `Il y a ${Math.floor(heures / 24)} j`;
   }
 
   @HostListener('document:click', ['$event'])
@@ -114,12 +98,6 @@ export class Topbar {
     }
   }
 
-  toggleSidebar(): void {
-    this.layoutService.toggleSidebar();
-  }
-
-  onLogout(): void {
-    this.profileMenuOpen.set(false);
-    this.authService.logout();
-  }
+  toggleSidebar(): void { this.layoutService.toggleSidebar(); }
+  onLogout(): void { this.profileMenuOpen.set(false); this.authService.logout(); }
 }

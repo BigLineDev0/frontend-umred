@@ -1,0 +1,51 @@
+<div class="space-y-8">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Notifications' }]"
+    title="Notifications"
+    subtitle="Retrouvez toutes vos notifications.">
+    <p-button actions label="Tout marquer comme lu" icon="pi pi-check" severity="secondary" [outlined]="true" (onClick)="marquerToutesLues()" />
+  </app-page-header>
+
+  <div class="flex flex-wrap gap-3">
+    <p-select [options]="typeOptions" optionLabel="label" optionValue="value" placeholder="Type"
+      [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event); onFiltreChange()" />
+    <p-select [options]="luOptions" optionLabel="label" optionValue="value" placeholder="Statut"
+      [ngModel]="selectedLu()" (ngModelChange)="selectedLu.set($event); onFiltreChange()" />
+  </div>
+
+  <div class="bg-white border border-border rounded-xl overflow-hidden">
+    @if (notificationService.loading()) {
+      <div class="py-12 text-center"><i class="pi pi-spin pi-spinner text-2xl text-primary"></i></div>
+    } @else if (notificationService.entrees().length === 0) {
+      <p class="text-sm text-text-secondary py-12 text-center">Aucune notification ne correspond à ces critères.</p>
+    } @else {
+      <div class="divide-y divide-border">
+        @for (notif of notificationService.entrees(); track notif.id) {
+          <button type="button" (click)="ouvrirNotification(notif)"
+            class="w-full text-left flex gap-4 px-6 py-4 hover:bg-background transition-colors"
+            [ngClass]="{ 'bg-primary/5': !notif.lu }">
+            <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" [ngClass]="styleFor(notif.type).bg">
+              <i [class]="styleFor(notif.type).icon" [ngClass]="styleFor(notif.type).color"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-2">
+                <p class="text-sm font-semibold text-text">{{ notif.titre }}</p>
+                <span class="text-xs text-text-secondary whitespace-nowrap shrink-0">{{ tempsEcoule(notif.date_envoi) }}</span>
+              </div>
+              <p class="text-sm text-text-secondary mt-1">{{ notif.message }}</p>
+            </div>
+            @if (!notif.lu) { <span class="w-2 h-2 rounded-full bg-danger shrink-0 mt-2"></span> }
+          </button>
+        }
+      </div>
+
+      <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-border">
+        <p class="text-sm text-text-secondary">Page {{ page() }} sur {{ totalPages() }}</p>
+        <div class="flex gap-2">
+          <button type="button" (click)="pagePrecedente()" [disabled]="page() === 1" class="px-3 py-1.5 text-sm rounded-lg border border-border disabled:opacity-40 hover:bg-background transition-colors">Précédent</button>
+          <button type="button" (click)="pageSuivante()" [disabled]="page() === totalPages()" class="px-3 py-1.5 text-sm rounded-lg border border-border disabled:opacity-40 hover:bg-background transition-colors">Suivant</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

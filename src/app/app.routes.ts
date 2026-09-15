@@ -49,6 +49,7 @@ export const routes: Routes = [
         path: 'rapports', canActivate: [roleGuard(['ADMIN'])],
         loadComponent: () => import('./Features/rapports/rapports/rapports').then(m => m.Rapports)
       },
+      { path: 'notifications', loadComponent: () => import('./Features/notifications/notifications-list/notifications-list').then(m => m.NotificationsList) },
     ]
   },
 

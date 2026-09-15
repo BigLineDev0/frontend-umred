@@ -42,13 +42,13 @@ export class DashboardChercheur implements OnInit {
   });
 
   readonly laboratoiresFrequents = computed(() => this.laboratoireService.laboratoires().slice(0, 4));
-  readonly notificationsRecentes = computed(() => this.notificationService.notifications().slice(0, 3));
+  readonly notificationsRecentes = computed(() => this.notificationService.recentes().slice(0, 3));
 
   ngOnInit(): void {
     this.reservationService.charger();
     this.laboratoireService.charger();
     this.equipementService.charger();
-    this.notificationService.charger();
+    this.notificationService.chargerRecentes();
   }
 
   statusLabel(s: string) { return { EN_ATTENTE: 'En attente', VALIDEE: 'Validée', REFUSEE: 'Refusée', ANNULEE: 'Annulée', TERMINEE: 'Terminée' }[s] ?? s; }
