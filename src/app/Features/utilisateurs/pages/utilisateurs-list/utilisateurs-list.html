@@ -1,0 +1,63 @@
+<div class="space-y-8">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Utilisateurs' }]"
+    title="Utilisateurs"
+    subtitle="Gérez les comptes et les accès à la plateforme.">
+    <p-button actions label="Nouvel utilisateur" icon="pi pi-plus" (onClick)="ouvrirAjout()" />
+  </app-page-header>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <app-mini-stat-card icon="pi pi-users" color="primary" [value]="total()" label="Total utilisateurs" />
+    <app-mini-stat-card icon="pi pi-check-circle" color="success" [value]="actifs()" label="Actifs" />
+    <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="enAttente()" label="En attente" />
+    <app-mini-stat-card icon="pi pi-ban" color="danger" [value]="inactifs()" label="Inactifs" />
+  </div>
+
+  <app-filter-bar searchPlaceholder="Rechercher un utilisateur..." (searchChange)="search.set($event)">
+    <p-select [options]="roleOptions" optionLabel="label" optionValue="value" placeholder="Rôle : Tous"
+      [ngModel]="selectedRole()" (ngModelChange)="selectedRole.set($event)" />
+    <p-select [options]="statutOptions" optionLabel="label" optionValue="value" placeholder="Statut : Tous"
+      [ngModel]="selectedStatut()" (ngModelChange)="selectedStatut.set($event)" />
+  </app-filter-bar>
+
+  @if (loading()) {
+    <div class="rounded-xl border border-border bg-white p-12 text-center"><i class="pi pi-spin pi-spinner text-2xl text-primary"></i></div>
+  } @else if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-6"><p class="font-medium text-red-800">{{ error() }}</p></div>
+  } @else {
+    <div class="bg-white border border-border rounded-xl overflow-hidden">
+      <app-data-table [columns]="columns" [data]="filteredUtilisateurs()" [rows]="10">
+
+        <ng-template appColumnTemplate="nom" let-row>
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-xs shrink-0">
+              {{ row.prenom[0] }}{{ row.nom[0] }}
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-text truncate">{{ row.prenom }} {{ row.nom }}</p>
+              <p class="text-xs text-text-secondary truncate">{{ roleLabel(row.role) }}</p>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template appColumnTemplate="role" let-row>{{ roleLabel(row.role) }}</ng-template>
+        <ng-template appColumnTemplate="telephone" let-row>{{ row.telephone || '—' }}</ng-template>
+        <ng-template appColumnTemplate="statut_compte" let-row><app-status-badge [statut]="row.statut_compte" /></ng-template>
+
+        <ng-template appColumnTemplate="actions" let-row>
+          <div class="flex gap-1">
+            <p-button icon="pi pi-eye" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="voirUtilisateur(row)" pTooltip="Voir" />
+            <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="ouvrirModification(row)" pTooltip="Modifier" />
+            <p-button [icon]="row.statut_compte === 'INACTIF' ? 'pi pi-check-circle' : 'pi pi-power-off'"
+              [text]="true" [rounded]="true" [severity]="row.statut_compte === 'INACTIF' ? 'success' : 'danger'" size="small"
+              (onClick)="ouvrirStatus(row)" [pTooltip]="row.statut_compte === 'INACTIF' ? 'Activer' : 'Désactiver'" />
+          </div>
+        </ng-template>
+
+      </app-data-table>
+    </div>
+  }
+</div>
+
+<app-utilisateur-form-modal [(visible)]="formModalVisible" [utilisateurAModifier]="utilisateurAModifier()" />
+<app-user-status-modal [(visible)]="statusModalVisible" [utilisateur]="utilisateurStatusCible()" [action]="statusAction()" [loading]="statusLoading()" (confirmed)="confirmerStatus()" />

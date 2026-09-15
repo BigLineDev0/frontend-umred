@@ -1,271 +1,109 @@
 <div class="w-full max-w-[1400px] mx-auto">
 
-  <!-- En-tête -->
-   <app-page-header
-    [breadcrumbs]="[{ label: 'Accueil', link: '/chercheur/dashboard' }, { label: 'Tableau de bord' }]"
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/enseignant/dashboard' }, { label: 'Tableau de bord' }]"
     title="Tableau de bord"
     subtitle="Retrouvez ici vos réservations, notifications et l'accès rapide aux laboratoires.">
     <p-button actions label="Nouvelle réservation" icon="pi pi-plus" routerLink="/reservations/ajouter" />
   </app-page-header>
 
-  <!-- KPI -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <app-mini-stat-card icon="pi pi-check-circle" color="success" value="10" label="Réservations validées" />
-    <app-mini-stat-card icon="pi pi-clock" color="danger" value="7" label="En attente" />
-    <app-mini-stat-card icon="pi pi-check" color="primary" value="3" label="Terminés" />
-    <app-mini-stat-card icon="pi pi-cog" color="success" value="50" label="Équipements disponibles" />
+    <app-mini-stat-card icon="pi pi-check-circle" color="success" [value]="validees()" label="Réservations validées" />
+    <app-mini-stat-card icon="pi pi-ban" color="accent" [value]="annulees()" label="Annulées" />
+    <app-mini-stat-card icon="pi pi-check" color="primary" [value]="terminees()" label="Terminées" />
+    <app-mini-stat-card icon="pi pi-cog" color="success" [value]="equipementsDisponibles()" label="Équipements disponibles" />
   </div>
-
-  <!-- PROCHAINES RÉSERVATIONS + NOTIFICATIONS -->
 
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-7">
 
-    <!-- Prochaines réservations -->
-
     <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
-
       <div class="flex items-start justify-between gap-4 mb-5">
         <div>
-          <h2 class="text-lg font-semibold text-text">
-            Prochaines réservations
-          </h2>
-
-          <p class="text-sm text-text-secondary mt-1">
-            Réservations confirmées à venir
-          </p>
+          <h2 class="text-lg font-semibold text-text">Prochaines réservations</h2>
+          <p class="text-sm text-text-secondary mt-1">Réservations confirmées à venir</p>
         </div>
-
-        <a routerLink="/reservations"
-          class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
-          Voir tout
-          <i class="pi pi-arrow-right text-xs"></i>
+        <a routerLink="/enseignant/reservations" class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
+          Voir tout <i class="pi pi-arrow-right text-xs"></i>
         </a>
       </div>
 
-
-      <div class="divide-y divide-border">
-
-        <!-- Réservation 1 -->
-
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-4 first:pt-0 last:pb-0">
-          <div>
-            <p class="text-sm font-semibold text-text">
-              Laboratoire de Biochimie
-            </p>
-
-            <p class="text-xs text-text-secondary mt-1">
-              15 Sept · 09:30 - 12:15
-            </p>
-          </div>
-
-          <p-tag value="Validée" severity="success" styleClass="!text-xs !font-medium self-start sm:self-auto" />
+      @if (prochainesReservations().length === 0) {
+        <p class="text-sm text-text-secondary py-4">Aucune réservation confirmée à venir.</p>
+      } @else {
+        <div class="divide-y divide-border">
+          @for (r of prochainesReservations(); track r.id) {
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-4 first:pt-0 last:pb-0">
+              <div>
+                <p class="text-sm font-semibold text-text">{{ r.laboratoire_nom }}</p>
+                <p class="text-xs text-text-secondary mt-1">{{ r.date | date: 'dd MMM' }} · {{ r.heure_debut.slice(0,5) }} - {{ r.heure_fin.slice(0,5) }}</p>
+              </div>
+              <p-tag [value]="statusLabel(r.statut)" [severity]="statusSeverity(r.statut)" styleClass="!text-xs !font-medium self-start sm:self-auto" />
+            </div>
+          }
         </div>
-
-
-        <!-- Réservation 2 -->
-
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-4 last:pb-0">
-          <div>
-            <p class="text-sm font-semibold text-text">
-              Laboratoire de Microbiologie
-            </p>
-
-            <p class="text-xs text-text-secondary mt-1">
-              18 Sept · 14:00 - 16:00
-            </p>
-          </div>
-
-          <p-tag value="Validée" severity="success" styleClass="!text-xs !font-medium self-start sm:self-auto" />
-        </div>
-
-      </div>
-
+      }
     </div>
 
-
-    <!-- Notifications récentes -->
-
     <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
-
       <div class="flex items-start justify-between gap-4 mb-5">
         <div>
-          <h2 class="text-lg font-semibold text-text">
-            Notifications récentes
-          </h2>
-
-          <p class="text-sm text-text-secondary mt-1">
-            Dernières alertes reçues
-          </p>
+          <h2 class="text-lg font-semibold text-text">Notifications récentes</h2>
+          <p class="text-sm text-text-secondary mt-1">Dernières alertes reçues</p>
         </div>
-
-        <a routerLink="/notifications"
-          class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
-          Voir tout
-          <i class="pi pi-arrow-right text-xs"></i>
+        <a routerLink="/notifications" class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
+          Voir tout <i class="pi pi-arrow-right text-xs"></i>
         </a>
       </div>
 
-
-      <div class="divide-y divide-border">
-
-        <!-- Notification validation -->
-
-        <div class="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-
-          <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            <i class="pi pi-check-circle text-primary text-sm"></i>
-          </div>
-
-          <div class="min-w-0">
-            <p class="text-sm font-semibold text-text">
-              Votre réservation a été validée
-            </p>
-
-            <p class="text-xs text-text-secondary mt-1">
-              Laboratoire de Biochimie
-            </p>
-          </div>
-
+      @if (notificationsRecentes().length === 0) {
+        <p class="text-sm text-text-secondary py-4">Aucune notification pour le moment.</p>
+      } @else {
+        <div class="divide-y divide-border">
+          @for (n of notificationsRecentes(); track n.id) {
+            <div class="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" [class]="n.lu ? 'bg-background' : 'bg-primary/10'">
+                <i class="pi text-sm"
+                  [class.pi-check-circle]="n.type === 'VALIDATION'" [class.pi-clock]="n.type === 'RESERVATION'"
+                  [class.pi-wrench]="n.type === 'MAINTENANCE'" [class.pi-bell]="n.type === 'RAPPEL' || n.type === 'SYSTEME'"
+                  [class.text-primary]="!n.lu" [class.text-text-secondary]="n.lu"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold text-text truncate">{{ n.titre }}</p>
+                <p class="text-xs text-text-secondary mt-1">{{ tempsEcoule(n.date_envoi) }}</p>
+              </div>
+            </div>
+          }
         </div>
-
-
-        <!-- Notification rappel -->
-
-        <div class="flex items-center gap-3 py-3 last:pb-0">
-
-          <div class="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-            <i class="pi pi-bell text-accent text-sm"></i>
-          </div>
-
-          <div class="min-w-0">
-            <p class="text-sm font-semibold text-text">
-              Rappel : réservation demain à 09:30
-            </p>
-
-            <p class="text-xs text-text-secondary mt-1">
-              Laboratoire de Biochimie
-            </p>
-          </div>
-
-        </div>
-
-      </div>
-
+      }
     </div>
 
   </div>
 
-
-  <!-- CALENDRIER + ACCÈS RAPIDE AUX LABORATOIRES -->
-
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-
-    <!-- CALENDRIER -->
+  <div class="grid grid-cols-1 xl:grid-cols-1 gap-4 mb-7">
 
     <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
+      <h2 class="text-lg font-semibold text-text mb-5">Calendrier des réservations</h2>
+      <app-reservations-calendar [reservations]="reservations()" />
+    </div>
 
-  <div class="flex items-center justify-between mb-5">
-    <h2 class="text-lg font-semibold text-text">
-      Calendrier
-    </h2>
   </div>
 
-  <p-datepicker
-    [inline]="true"
-    [showOtherMonths]="true"
-    [showWeek]="false"
-    styleClass="umred-calendar"
-  />
-
-</div>
-
-
-    <!-- ACCÈS RAPIDE AUX LABORATOIRES -->
-
     <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
-
       <div class="mb-5">
-
-        <h2 class="text-lg font-semibold text-text">
-          Accès rapide aux laboratoires
-        </h2>
-
-        <p class="text-sm text-text-secondary mt-1">
-          Vos laboratoires fréquemment utilisés
-        </p>
-
+        <h2 class="text-lg font-semibold text-text">Accès rapide aux laboratoires</h2>
+        <p class="text-sm text-text-secondary mt-1">Vos laboratoires fréquemment utilisés</p>
       </div>
-
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-        <!-- Biochimie -->
-
-        <a routerLink="/laboratoires"
-          class="group flex items-center gap-3 border border-border rounded-xl p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors">
-
-          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            <i class="pi pi-cog text-primary"></i>
-          </div>
-
-          <span class="text-sm font-semibold text-text group-hover:text-primary transition-colors">
-            Biochimie
-          </span>
-
-        </a>
-
-
-        <!-- Microbiologie -->
-
-        <a routerLink="/laboratoires"
-          class="group flex items-center gap-3 border border-border rounded-xl p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors">
-
-          <div class="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
-            <i class="pi pi-sitemap text-success"></i>
-          </div>
-
-          <span class="text-sm font-semibold text-text group-hover:text-primary transition-colors">
-            Microbiologie
-          </span>
-
-        </a>
-
-
-        <!-- Imagerie -->
-
-        <a routerLink="/laboratoires"
-          class="group flex items-center gap-3 border border-border rounded-xl p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors">
-
-          <div class="w-10 h-10 rounded-lg bg-danger/10 flex items-center justify-center shrink-0">
-            <i class="pi pi-building text-danger"></i>
-          </div>
-
-          <span class="text-sm font-semibold text-text group-hover:text-primary transition-colors">
-            Imagerie
-          </span>
-
-        </a>
-
-
-        <!-- Biologie moléculaire -->
-
-        <a routerLink="/laboratoires"
-          class="group flex items-center gap-3 border border-border rounded-xl p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors">
-
-          <div class="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-            <i class="pi pi-hourglass text-accent"></i>
-          </div>
-
-          <span class="text-sm font-semibold text-text group-hover:text-primary transition-colors">
-            Biologie moléculaire
-          </span>
-
-        </a>
-
+        @for (labo of laboratoiresFrequents(); track labo.id) {
+          <a [routerLink]="['/laboratoires', labo.id]" class="group flex items-center gap-3 border border-border rounded-xl p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <i class="pi pi-cog text-primary"></i>
+            </div>
+            <span class="text-sm font-semibold text-text group-hover:text-primary transition-colors truncate">{{ labo.nom }}</span>
+          </a>
+        }
       </div>
-
     </div>
-
-  </div>
 
 </div>

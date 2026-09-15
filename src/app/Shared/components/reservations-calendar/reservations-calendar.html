@@ -1,0 +1,57 @@
+<div>
+  <div class="flex items-center justify-between mb-4">
+    <button type="button" (click)="moisPrecedent()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background text-text-secondary">
+      <i class="pi pi-chevron-left text-xs"></i>
+    </button>
+    <div class="flex items-center gap-2">
+      <p class="text-sm font-semibold text-text capitalize">{{ libelleMois() }}</p>
+      <button type="button" (click)="aujourdHui()" class="text-xs text-primary font-medium hover:underline">Aujourd'hui</button>
+    </div>
+    <button type="button" (click)="moisSuivant()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background text-text-secondary">
+      <i class="pi pi-chevron-right text-xs"></i>
+    </button>
+  </div>
+
+  <div class="grid grid-cols-7 gap-1 mb-1">
+    @for (j of joursSemaine; track j) {
+      <div class="text-center text-[11px] font-medium text-text-secondary py-1">{{ j }}</div>
+    }
+  </div>
+
+  <div class="grid grid-cols-7 gap-1">
+    @for (jour of jours(); track jour.key) {
+      <button type="button" (click)="selectionnerJour(jour)" [class]="dayClasses(jour)">
+        <span>{{ jour.jour }}</span>
+        @if (jour.reservations.length > 0) {
+          <span class="flex gap-0.5">
+            @for (r of jour.reservations.slice(0, 3); track r.id) {
+              <span class="w-1.5 h-1.5 rounded-full" [class]="jour.key === selectedDate() ? 'bg-white' : dotColor(r.statut)"></span>
+            }
+          </span>
+        } @else {
+          <span class="h-1.5"></span>
+        }
+      </button>
+    }
+  </div>
+
+  <div class="mt-5 pt-5 border-t border-border">
+    <p class="text-sm font-semibold text-text capitalize mb-3">{{ dateSelectionneeLabel() }}</p>
+
+    @if (reservationsDuJourSelectionne().length === 0) {
+      <p class="text-sm text-text-secondary">Aucune réservation ce jour-là.</p>
+    } @else {
+      <div class="space-y-2">
+        @for (r of reservationsDuJourSelectionne(); track r.id) {
+          <div class="flex items-center justify-between gap-3 bg-background rounded-lg px-3 py-2">
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-text truncate">{{ r.laboratoire_nom }}</p>
+              <p class="text-xs text-text-secondary">{{ r.heure_debut.slice(0,5) }}–{{ r.heure_fin.slice(0,5) }} · {{ r.demandeur_nom }}</p>
+            </div>
+            <span class="w-2 h-2 rounded-full shrink-0" [class]="dotColor(r.statut)"></span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

@@ -1,50 +1,66 @@
 <div class="space-y-8">
 
-  <app-page-header [breadcrumbs]="[{ label: 'Accueil', link: '/technicien/dashboard' }, { label: 'Maintenance' }]"
+  <app-page-header [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Maintenance' }]"
     title="Maintenance" subtitle="Planifiez, suivez et consultez les interventions de maintenance des équipements.">
-    <p-button actions label="Nouvelle maintenance" icon="pi pi-plus" (onClick)="formModalVisible.set(true)" />
+    <div actions class="flex gap-2">
+      <p-button label="Équipements en panne" icon="pi pi-exclamation-triangle" severity="danger" [outlined]="true" routerLink="/maintenances/pannes" />
+      <p-button label="Nouvelle maintenance" icon="pi pi-plus" (onClick)="formModalVisible.set(true)" />
+    </div>
   </app-page-header>
 
-
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <app-mini-stat-card icon="pi pi-calendar" color="primary" value="56" label="Total" />
-    <app-mini-stat-card icon="pi pi-flag" color="primary" value="18" label="Planifiées" />
-    <app-mini-stat-card icon="pi pi-hourglass" color="accent" value="6" label="En cours" />
-    <app-mini-stat-card icon="pi pi-check-circle" color="success" value="29" label="Terminées" />
+  <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+    <app-mini-stat-card icon="pi pi-flag" color="primary" [value]="totalPlanifiees()" label="Planifiées" />
+    <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="totalEnCours()" label="En cours" />
+    <app-mini-stat-card icon="pi pi-ban" color="accent" [value]="totalAnnulees()" label="Annulées" />
+    <app-mini-stat-card icon="pi pi-check-circle" color="success" [value]="totalTerminees()" label="Terminées" />
   </div>
 
-  <app-filter-bar searchPlaceholder="Rechercher une maintenance..." (searchChange)="onSearch($event)">
-    <p-select [options]="statutOptions" optionLabel="label" optionValue="value" placeholder="Statut : Tous" />
-    <p-select [options]="typeOptions" optionLabel="label" optionValue="value" placeholder="Type : Tous" />
-    <p-select [options]="[{ label: 'Tous les équipements', value: null }]" optionLabel="label" optionValue="value"
-      placeholder="Tous les équipements" />
+  <app-filter-bar searchPlaceholder="Rechercher une maintenance...">
+    <p-select [options]="statutOptions" optionLabel="label" optionValue="value" placeholder="Statut : Tous"
+      [ngModel]="selectedStatut()" (ngModelChange)="selectedStatut.set($event)" />
+    <p-select [options]="typeOptions" optionLabel="label" optionValue="value" placeholder="Type : Tous"
+      [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event)" />
   </app-filter-bar>
 
-  <div class="bg-white border border-border rounded-xl overflow-hidden mt-4">
-    <app-data-table [columns]="columns" [data]="maintenances()" [rows]="5" [totalRecords]="56" [lazy]="true"
-      (lazyLoad)="onLazyLoad($event)">
-
-      <ng-template appColumnTemplate="equipement" let-row>
-        <span class="font-medium text-text">{{ row.equipement }}</span>
-      </ng-template>
-
-      <ng-template appColumnTemplate="type" let-row>
-        <app-dot-label [color]="row.type === 'Préventive' ? 'primary' : 'accent'" [label]="row.type" />
-      </ng-template>
-
-      <ng-template appColumnTemplate="statut" let-row>
-        <app-status-badge [statut]="row.statut" />
-      </ng-template>
-
-      <ng-template appColumnTemplate="actions" let-row>
-        <app-row-actions (view)="onVoir(row)" (edit)="onModifier(row)" (delete)="onSupprimer(row)">
-        <p-button icon="pi pi-check-circle" [text]="true" [rounded]="true" severity="success" size="small" (onClick)="onOuvrirCloture(row)" />
-      </app-row-actions>
-      </ng-template>
-
-    </app-data-table>
-  </div>
-
+  @if (loading()) {
+    <div class="rounded-xl border border-border bg-white p-12 text-center">
+      <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+      <p class="mt-3 text-sm text-text-secondary">Chargement des maintenances...</p>
+    </div>
+  } @else if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-6">
+      <p class="font-medium text-red-800">Une erreur est survenue</p>
+      <p class="mt-1 text-sm text-red-700">{{ error() }}</p>
+    </div>
+  } @else {
+    <div class="bg-white border border-border rounded-xl overflow-hidden">
+      <app-data-table [columns]="columns" [data]="filteredMaintenances()" [rows]="10">
+        <ng-template appColumnTemplate="equipement_nom" let-row>
+          <span class="font-medium text-text">{{ row.equipement_nom }}</span>
+        </ng-template>
+        <ng-template appColumnTemplate="type" let-row>
+          <app-dot-label [color]="row.type === 'PREVENTIVE' ? 'primary' : 'accent'"
+            [label]="row.type === 'PREVENTIVE' ? 'Préventive' : 'Corrective'" />
+        </ng-template>
+        <ng-template appColumnTemplate="technicien_nom" let-row>{{ row.technicien_nom ?? '—' }}</ng-template>
+        <ng-template appColumnTemplate="date_planifiee" let-row>{{ row.date_planifiee | date: 'dd/MM/yyyy' }}</ng-template>
+        <ng-template appColumnTemplate="statut" let-row><app-status-badge [statut]="row.statut" /></ng-template>
+        <ng-template appColumnTemplate="actions" let-row>
+          <app-row-actions [showEdit]="false" [showDelete]="false" (view)="onVoir(row)">
+            @if (row.statut === 'PLANIFIEE') {
+              <p-button icon="pi pi-play" [text]="true" [rounded]="true" severity="info" size="small" (onClick)="onDemarrer(row)" pTooltip="Démarrer" />
+            }
+            @if (row.statut === 'PLANIFIEE' || row.statut === 'EN_COURS') {
+              <p-button icon="pi pi-check-circle" [text]="true" [rounded]="true" severity="success" size="small" (onClick)="onOuvrirCloture(row)" pTooltip="Clôturer" />
+              <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger" size="small" (onClick)="onAnnuler(row)" pTooltip="Annuler" />
+            }
+          </app-row-actions>
+        </ng-template>
+      </app-data-table>
+    </div>
+  }
 </div>
+
 <app-maintenance-form-modal [(visible)]="formModalVisible" />
 <app-maintenance-cloture-modal [(visible)]="clotureModalVisible" [maintenance]="maintenanceSelectionnee()" />
+<p-confirmDialog />

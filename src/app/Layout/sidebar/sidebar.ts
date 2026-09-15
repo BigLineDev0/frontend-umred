@@ -56,22 +56,12 @@ export class Sidebar {
             icon: 'pi pi-table',
             route: '/admin/dashboard', exact: true
           },
-          {
-            label: 'Réservations',
-            icon: 'pi pi-file-edit',
-            route: '/admin/reservations',
-          },
           this.reservationsAValiderItem,
           ...this.commonItems,
           { label: 'Maintenances', icon: 'pi pi-wrench', route: '/maintenances' },
-          { label: 'Utilisateurs', icon: 'pi pi-users', route: '/utilisateurs', disabled: true },
-          { label: 'Rapports', icon: 'pi pi-chart-line', route: '/rapports', disabled: true },
-          {
-            label: "Journal d'activité",
-            icon: 'pi pi-history',
-            route: '/journal-activite',
-            disabled: true,
-          },
+          { label: 'Utilisateurs', icon: 'pi pi-users', route: '/utilisateurs'},
+          { label: 'Rapports', icon: 'pi pi-chart-line', route: '/rapports' },
+          { label: "Journal d'activité", icon: 'pi pi-history', route: '/journal-activite' },
         ];
 
       case 'TECHNICIEN':
@@ -82,9 +72,9 @@ export class Sidebar {
             route: '/technicien/dashboard',
             exact: true,
           },
+          { label: 'Maintenances', icon: 'pi pi-wrench', route: '/maintenances' },
           this.reservationsAValiderItem,
           ...this.commonItems,
-          { label: 'Maintenances', icon: 'pi pi-wrench', route: '/maintenances' },
         ];
 
       case 'CHERCHEUR':

@@ -16,6 +16,7 @@ export interface Reservation {
   statut: StatutReservation;
   date_creation: string;
   date_validation: string | null;
+  est_archivee: boolean;
 }
 
 export interface ReservationPayload {

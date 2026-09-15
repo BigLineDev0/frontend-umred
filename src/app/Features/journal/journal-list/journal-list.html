@@ -1,0 +1,77 @@
+<div class="space-y-8">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Journal d’activité' }]"
+    title="Journal d'activité"
+    subtitle="Consultez l'historique des actions réalisées sur la plateforme.">
+  </app-page-header>
+
+  <div class="bg-white border border-border rounded-xl p-4 flex flex-wrap gap-3">
+    <input type="text" [ngModel]="search()" (ngModelChange)="search.set($event); onFiltreChange()"
+      placeholder="Rechercher une activité..."
+      class="flex-1 min-w-[220px] border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+    <p-select [options]="utilisateurOptions()" optionLabel="label" optionValue="value" placeholder="Utilisateur"
+      [ngModel]="selectedUtilisateur()" (ngModelChange)="selectedUtilisateur.set($event); onFiltreChange()" />
+    <p-select [options]="actionOptions" optionLabel="label" optionValue="value" placeholder="Type d'action"
+      [ngModel]="selectedAction()" (ngModelChange)="selectedAction.set($event); onFiltreChange()" />
+    <p-select [options]="entiteOptions" optionLabel="label" optionValue="value" placeholder="Entité"
+      [ngModel]="selectedEntite()" (ngModelChange)="selectedEntite.set($event); onFiltreChange()" />
+    <p-select [options]="periodeOptions" optionLabel="label" optionValue="value" placeholder="Période"
+      [ngModel]="selectedPeriode()" (ngModelChange)="selectedPeriode.set($event); onFiltreChange()" />
+  </div>
+
+  <div class="bg-white border border-border rounded-xl p-6">
+    <h2 class="text-lg font-semibold text-text">Historique des actions</h2>
+    <p class="text-sm text-text-secondary mt-0.5 mb-5">Toutes les actions enregistrées sur la plateforme</p>
+
+    @if (journalService.loading()) {
+      <div class="py-12 text-center"><i class="pi pi-spin pi-spinner text-2xl text-primary"></i></div>
+    } @else if (journalService.entrees().length === 0) {
+      <p class="text-sm text-text-secondary py-8 text-center">Aucune activité ne correspond à ces critères.</p>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border text-left text-xs text-text-secondary font-medium">
+              <th class="pb-3 pr-4">Date et heure</th>
+              <th class="pb-3 pr-4">Utilisateur</th>
+              <th class="pb-3 pr-4">Action</th>
+              <th class="pb-3 pr-4">Entité</th>
+              <th class="pb-3">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entree of journalService.entrees(); track entree.id; let i = $index) {
+              <tr class="border-b border-border last:border-b-0 animate-fade-in-up" [style.animation-delay.ms]="i * 30">
+                <td class="py-3 pr-4 whitespace-nowrap text-text-secondary">{{ entree.date_heure | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td class="py-3 pr-4 font-medium text-text whitespace-nowrap">{{ entree.auteur_nom ?? 'Système' }}</td>
+                <td class="py-3 pr-4"><p-tag [value]="badge(entree.action).label" [severity]="badge(entree.action).severity" styleClass="!text-xs" /></td>
+                <td class="py-3 pr-4 text-text-secondary whitespace-nowrap">{{ entiteLabel(entree.entite_type_nom) }}</td>
+                <td class="py-3 text-text-secondary">{{ entree.description || entree.action }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-5 pt-5 border-t border-border">
+        <p class="text-sm text-text-secondary">
+          Affichage {{ (page() - 1) * 9 + 1 }} à {{ Math.min(page() * 9, journalService.total()) }} sur {{ journalService.total() }} activités
+        </p>
+        <div class="flex items-center gap-1.5">
+          <button type="button" (click)="pagePrecedente()" [disabled]="page() === 1"
+            class="px-3 py-1.5 text-sm rounded-lg border border-border disabled:opacity-40 hover:bg-background transition-colors">Précédent</button>
+          @for (p of pagesAffichees(); track $index) {
+            @if (p === '...') {
+              <span class="px-2 text-text-secondary text-sm">…</span>
+            } @else {
+              <button type="button" (click)="allerPage(p)" class="w-9 h-9 rounded-lg text-sm font-medium transition-colors"
+                [class]="p === page() ? 'bg-primary text-white' : 'hover:bg-background text-text'">{{ p }}</button>
+            }
+          }
+          <button type="button" (click)="pageSuivante()" [disabled]="page() === totalPages()"
+            class="px-3 py-1.5 text-sm rounded-lg border border-border disabled:opacity-40 hover:bg-background transition-colors">Suivant</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

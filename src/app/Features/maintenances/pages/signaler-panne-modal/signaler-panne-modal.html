@@ -1,0 +1,25 @@
+<p-dialog [(visible)]="visible" [modal]="true" [draggable]="false" [resizable]="false"
+  [style]="{ width: '460px', maxWidth: 'calc(100vw - 2rem)' }" header="Déclarer une panne">
+
+  <div class="space-y-5">
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Équipement <span class="text-danger">*</span></label>
+      <p-select [options]="equipementOptions()" optionLabel="label" optionValue="value"
+        [ngModel]="equipementId()" (ngModelChange)="equipementId.set($event)"
+        placeholder="Sélectionnez l'équipement en panne" class="w-full" [showClear]="true" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Description de la panne <span class="text-danger">*</span></label>
+      <textarea pTextarea rows="4" [ngModel]="description()" (ngModelChange)="description.set($event)"
+        placeholder="Décrivez le problème constaté..." class="w-full"></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-3">
+      <p-button label="Annuler" severity="secondary" [outlined]="true" [disabled]="submitting()" (onClick)="onAnnuler()" />
+      <p-button label="Déclarer la panne" icon="pi pi-bolt" severity="danger" [loading]="submitting()" (onClick)="onSignaler()" />
+    </div>
+  </ng-template>
+</p-dialog>

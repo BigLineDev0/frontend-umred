@@ -14,7 +14,7 @@ import { ColumnTemplateDirective } from '../../../../Shared/components/column-te
 import { StatusBadge } from '../../../../Shared/components/status-badge';
 import { RowActions } from '../../../../Shared/components/row-actions';
 import { Reservation } from '../../../../Core/models/reservation.model';
-import { ReservationService } from '../../../../Core/services/reservatiom.service';
+import { ReservationService } from '../../../../Core/services/reservation.service';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { ReservationDetailModal } from '../../components/reservation-detail-modal/reservation-detail-modal';
 

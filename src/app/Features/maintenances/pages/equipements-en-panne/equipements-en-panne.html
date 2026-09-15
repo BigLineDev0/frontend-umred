@@ -1,0 +1,41 @@
+<div class="space-y-8">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Maintenance', link: '/maintenances' }, { label: 'Équipements en panne' }]"
+    title="Équipements en panne"
+    subtitle="Équipements actuellement signalés en panne, en attente d'une intervention corrective.">
+    <p-button actions label="Retour aux maintenances" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" routerLink="/maintenances" />
+  </app-page-header>
+
+  @if (equipementService.loading()) {
+    <div class="rounded-xl border border-border bg-white p-12 text-center">
+      <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+    </div>
+  } @else if (equipementService.equipements().length === 0) {
+    <div class="rounded-xl border border-border bg-white p-12 text-center">
+      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success/10 text-success mb-4">
+        <i class="pi pi-check text-xl"></i>
+      </div>
+      <p class="font-medium text-text">Aucun équipement en panne</p>
+      <p class="mt-1 text-sm text-text-secondary">Tous les équipements sont actuellement fonctionnels.</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      @for (e of equipementService.equipements(); track e.id) {
+        <div class="rounded-xl border border-danger/20 bg-danger/5 p-5 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center shrink-0">
+              <i class="pi pi-exclamation-triangle text-danger"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-text">{{ e.nom }}</p>
+              <p class="text-xs text-text-secondary">{{ e.laboratoire_nom }} · Réf. {{ e.numero_serie }}</p>
+            </div>
+          </div>
+          <p-button label="Planifier" icon="pi pi-wrench" size="small" (onClick)="planifierIntervention(e.id)" />
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-maintenance-form-modal [(visible)]="formModalVisible" [equipementPreselectionne]="equipementSelectionne()" />

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { Reservation } from '../../../../Core/models/reservation.model';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
@@ -18,7 +18,7 @@ import { ColumnTemplateDirective } from '../../../../Shared/components/column-te
 import { StatusBadge } from '../../../../Shared/components/status-badge';
 import { RowActions } from '../../../../Shared/components/row-actions';
 import { ReservationDetailModal } from '../../components/reservation-detail-modal/reservation-detail-modal';
-import { ReservationService } from '../../../../Core/services/reservatiom.service';
+import { ReservationService } from '../../../../Core/services/reservation.service';
 
 interface FilterValues {
   search: string;
@@ -52,6 +52,7 @@ export class ReservationsAValider implements OnInit {
   readonly laboratoireService = inject(LaboratoireService);
   private readonly authService = inject(AuthService);
   private readonly confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
 
   readonly reservations = this.reservationService.reservations;
   readonly loading = this.reservationService.loading;
@@ -61,7 +62,12 @@ export class ReservationsAValider implements OnInit {
   // peuvent que consulter et valider/refuser.
   readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'ADMIN');
 
-  readonly filters = signal<FilterValues>({ search: '', status: 'EN_ATTENTE', laboratoire: null });
+  private readonly statutParDefaut: Reservation['statut'] | null =
+    this.authService.currentUser()?.role === 'ADMIN' ? null : 'EN_ATTENTE';
+
+  readonly filters = signal<FilterValues>({
+    search: '', status: this.statutParDefaut, laboratoire: null,
+  });
 
   readonly columns: TableColumn<Reservation>[] = [
     { field: 'demandeur_nom', header: 'Demandeur' },
@@ -158,8 +164,10 @@ export class ReservationsAValider implements OnInit {
       acceptLabel: 'Oui, Valider',
       rejectLabel: 'Retour',
       acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.reservationService.archiver(reservation.id).subscribe()
+      accept: () => this.reservationService.archiver(reservation.id).subscribe({
+          next: () => this.messageService.add({ severity: 'success', summary: 'Réservation archivée', detail: 'Elle a été retirée de la liste active.' }),
+          error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "Cette réservation ne peut plus être archivée." }),
+        })
     });
-
   }
 }

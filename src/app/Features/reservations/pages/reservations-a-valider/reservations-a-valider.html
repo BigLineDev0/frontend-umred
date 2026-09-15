@@ -1,9 +1,9 @@
 <div class="space-y-8">
 
   <app-page-header
-    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Réservations à valider' }]"
-    title="Réservations à valider"
-    subtitle="Consultez et traitez les demandes de réservation de laboratoires et d'équipements.">
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: isAdmin() ? 'Réservations' : 'Réservations à valider' }]"
+    [title]="isAdmin() ? 'Réservations' : 'Réservations à valider'"
+    [subtitle]="isAdmin() ? 'Vue d\'ensemble de toutes les réservations de la plateforme.' : 'Consultez et traitez les demandes de réservation.'">
   </app-page-header>
 
   <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md">
@@ -59,7 +59,7 @@
               <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger" size="small" (onClick)="refuser(row)" pTooltip="Refuser" />
             }
 
-            @if (isAdmin() && !row.statut.includes('EN_ATTENTE')) {
+           @if (isAdmin() && !row.statut.includes('ATTENTE') && !row.est_archivee) {
               <p-button icon="pi pi-inbox" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="archiver(row)" pTooltip="Archiver" />
             }
           </div>

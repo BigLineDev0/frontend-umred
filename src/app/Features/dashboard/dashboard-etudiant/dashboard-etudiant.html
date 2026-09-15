@@ -1,403 +1,127 @@
 <div class="w-full max-w-[1400px] mx-auto">
 
-  <!-- En-tête -->
-   <app-page-header
+  <app-page-header
     [breadcrumbs]="[{ label: 'Accueil', link: '/etudiant/dashboard' }, { label: 'Tableau de bord' }]"
     title="Tableau de bord"
     subtitle="Voici un aperçu de vos demandes et réservations.">
     <p-button actions label="Nouvelle demande" icon="pi pi-plus" routerLink="/reservations/ajouter" />
   </app-page-header>
 
-  <!-- KPI -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <app-mini-stat-card icon="pi pi-calendar" color="primary" value="1" label="Total réservations" />
-    <app-mini-stat-card icon="pi pi-check-circle" color="success" value="7" label="Demandes validées" />
-    <app-mini-stat-card icon="pi pi-clock" color="accent" value="3" label="Demandes en attente" />
-    <app-mini-stat-card icon="pi pi-times-circle" color="danger" value="2" label="Demandes refusées" />
+    <app-mini-stat-card icon="pi pi-calendar" color="primary" [value]="total()" label="Total réservations" />
+    <app-mini-stat-card icon="pi pi-check-circle" color="success" [value]="validees()" label="Demandes validées" />
+    <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="enAttente()" label="Demandes en attente" />
+    <app-mini-stat-card icon="pi pi-times-circle" color="danger" [value]="refusees()" label="Demandes refusées" />
   </div>
 
-
-  <!-- INFORMATION -->
-  <div
-    class="flex items-center gap-3 bg-secondary/10 border border-secondary/20 rounded-xl px-5 py-4 mb-7"
-  >
-
-    <div
-      class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center shrink-0"
-    >
+  <div class="flex items-center gap-3 bg-secondary/10 border border-secondary/20 rounded-xl px-5 py-4 mb-7">
+    <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
       <i class="pi pi-info-circle text-secondary text-sm"></i>
     </div>
-
     <p class="text-sm text-[#536B92] leading-relaxed">
       Une demande étudiant doit être validée par un technicien ou un enseignant-chercheur avant confirmation.
     </p>
-
   </div>
 
-  <!-- PROCHAINES RÉSERVATIONS + NOTIFICATIONS -->
-  <div
-    class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-7"
-  >
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-7">
 
-    <!-- ======================================================= -->
-    <!-- MES PROCHAINES RÉSERVATIONS -->
-    <!-- ======================================================= -->
-
-    <div
-      class="bg-white border border-border rounded-xl p-5 sm:p-6"
-    >
-
-      <div
-        class="flex items-start justify-between gap-4 mb-5"
-      >
-
+    <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
+      <div class="flex items-start justify-between gap-4 mb-5">
         <div>
-          <h2 class="text-lg font-semibold text-text">
-            Mes prochaines réservations
-          </h2>
-
-          <p class="text-sm text-text-secondary mt-1">
-            Réservations confirmées ou en attente
-          </p>
+          <h2 class="text-lg font-semibold text-text">Mes prochaines réservations</h2>
+          <p class="text-sm text-text-secondary mt-1">Réservations confirmées ou en attente</p>
         </div>
-
-        <a
-          routerLink="/reservations"
-          class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline"
-        >
-          Voir tout
-          <i class="pi pi-arrow-right text-xs"></i>
+        <a routerLink="/etudiant/mes-demandes" class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
+          Voir tout <i class="pi pi-arrow-right text-xs"></i>
         </a>
-
       </div>
 
-
-      <div class="divide-y divide-border">
-
-        <!-- Réservation 1 -->
-
-        <div
-          class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-4 first:pt-0"
-        >
-
-          <div>
-            <p class="text-sm font-semibold text-text">
-              Laboratoire Biochimie
-            </p>
-
-            <p class="text-xs text-text-secondary mt-1">
-              15 Sep · 09:00 - 11:00
-            </p>
-          </div>
-
-          <p-tag
-            value="En attente"
-            severity="warn"
-            styleClass="!text-xs !font-medium self-start sm:self-auto"
-          />
-
+      @if (prochainesReservations().length === 0) {
+        <p class="text-sm text-text-secondary py-4">Vous n'avez aucune réservation à venir.</p>
+      } @else {
+        <div class="divide-y divide-border">
+          @for (r of prochainesReservations(); track r.id) {
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-4 first:pt-0 last:pb-0">
+              <div>
+                <p class="text-sm font-semibold text-text">{{ r.laboratoire_nom }}</p>
+                <p class="text-xs text-text-secondary mt-1">{{ r.date | date: 'dd MMM' }} · {{ r.heure_debut.slice(0,5) }} - {{ r.heure_fin.slice(0,5) }}</p>
+              </div>
+              <p-tag [value]="statusLabel(r.statut)" [severity]="statusSeverity(r.statut)" styleClass="!text-xs !font-medium self-start sm:self-auto" />
+            </div>
+          }
         </div>
-
-
-        <!-- Réservation 2 -->
-
-        <div
-          class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-4 last:pb-0"
-        >
-
-          <div>
-            <p class="text-sm font-semibold text-text">
-              Laboratoire Microbiologie
-            </p>
-
-            <p class="text-xs text-text-secondary mt-1">
-              18 Sep · 14:00 - 16:00
-            </p>
-          </div>
-
-          <p-tag
-            value="Validée"
-            severity="success"
-            styleClass="!text-xs !font-medium self-start sm:self-auto"
-          />
-
-        </div>
-
-      </div>
-
+      }
     </div>
 
-
-    <!-- ======================================================= -->
-    <!-- NOTIFICATIONS -->
-    <!-- ======================================================= -->
-
-    <div
-      class="bg-white border border-border rounded-xl p-5 sm:p-6"
-    >
-
-      <div
-        class="flex items-start justify-between gap-4 mb-5"
-      >
-
+    <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
+      <div class="flex items-start justify-between gap-4 mb-5">
         <div>
-          <h2 class="text-lg font-semibold text-text">
-            Notifications
-          </h2>
-
-          <p class="text-sm text-text-secondary mt-1">
-            Dernières mises à jour
-          </p>
+          <h2 class="text-lg font-semibold text-text">Notifications</h2>
+          <p class="text-sm text-text-secondary mt-1">Dernières mises à jour</p>
         </div>
-
-        <a
-          routerLink="/notifications"
-          class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline"
-        >
-          Voir tout
-          <i class="pi pi-arrow-right text-xs"></i>
+        <a routerLink="/notifications" class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
+          Voir tout <i class="pi pi-arrow-right text-xs"></i>
         </a>
-
       </div>
 
-
-      <div class="divide-y divide-border">
-
-        <!-- Notification 1 -->
-
-        <div
-          class="flex items-center gap-3 py-3 first:pt-0"
-        >
-
-          <div
-            class="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center shrink-0"
-          >
-            <i class="pi pi-clock text-accent text-sm"></i>
-          </div>
-
-          <div class="min-w-0">
-            <p class="text-sm font-semibold text-text">
-              Votre demande est en attente de validation
-            </p>
-
-            <p class="text-xs text-text-secondary mt-1">
-              Il y a 2 heures
-            </p>
-          </div>
-
+      @if (notificationsRecentes().length === 0) {
+        <p class="text-sm text-text-secondary py-4">Aucune notification pour le moment.</p>
+      } @else {
+        <div class="divide-y divide-border">
+          @for (n of notificationsRecentes(); track n.id) {
+            <div class="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+              <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0" [class]="n.lu ? 'bg-background' : 'bg-primary/10'">
+                <i class="pi text-sm"
+                  [class.pi-clock]="n.type === 'RESERVATION'" [class.pi-check]="n.type === 'VALIDATION'"
+                  [class.pi-wrench]="n.type === 'MAINTENANCE'" [class.pi-bell]="n.type === 'RAPPEL' || n.type === 'SYSTEME'"
+                  [class.text-primary]="!n.lu" [class.text-text-secondary]="n.lu"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold text-text truncate">{{ n.titre }}</p>
+                <p class="text-xs text-text-secondary mt-1">{{ tempsEcoule(n.date_envoi) }}</p>
+              </div>
+            </div>
+          }
         </div>
-
-
-        <!-- Notification 2 -->
-
-        <div
-          class="flex items-center gap-3 py-3 last:pb-0"
-        >
-
-          <div
-            class="w-9 h-9 rounded-full bg-success/10 flex items-center justify-center shrink-0"
-          >
-            <i class="pi pi-check text-success text-sm"></i>
-          </div>
-
-          <div class="min-w-0">
-            <p class="text-sm font-semibold text-text">
-              Votre demande du 12 Sept a été validée
-            </p>
-
-            <p class="text-xs text-text-secondary mt-1">
-              Il y a 1 jour
-            </p>
-          </div>
-
-        </div>
-
-      </div>
-
+      }
     </div>
 
   </div>
 
-  <!-- LABORATOIRES DISPONIBLES -->
-  <div
-    class="bg-white border border-border rounded-xl p-5 sm:p-6"
-  >
+  <div class="grid grid-cols-1 xl:grid-cols-1 gap-4 mb-7">
 
-    <div
-      class="flex items-center justify-between gap-4 mb-5"
-    >
-
-      <h2 class="text-lg font-semibold text-text">
-        Laboratoires disponibles
-      </h2>
-
-      <a
-        routerLink="/laboratoires"
-        class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline"
-      >
-        Voir tout
-        <i class="pi pi-arrow-right text-xs"></i>
-      </a>
-
+    <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
+      <h2 class="text-lg font-semibold text-text mb-5">Calendrier des réservations</h2>
+      <app-reservations-calendar [reservations]="reservations()" />
     </div>
 
+    <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
+      <div class="flex items-center justify-between gap-4 mb-5">
+        <h2 class="text-lg font-semibold text-text">Laboratoires disponibles</h2>
+        <a routerLink="/laboratoires" class="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
+          Voir tout <i class="pi pi-arrow-right text-xs"></i>
+        </a>
+      </div>
 
-    <div
-      class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3"
-    >
-
-      <!-- Biochimie -->
-
-      <a
-        routerLink="/laboratoires"
-        class="group border border-border rounded-xl p-4 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors"
-      >
-
-        <div
-          class="flex items-start justify-between gap-3"
-        >
-
-          <div
-            class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"
-          >
-            <i class="pi pi-cog text-primary"></i>
-          </div>
-
-          <span
-            class="inline-flex items-center px-2.5 py-1 rounded-full bg-success/5 text-success border border-success/20 text-[11px] font-medium"
-          >
-            Disponible
-          </span>
-
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          @for (labo of laboratoiresDisponibles(); track labo.id) {
+            <a [routerLink]="['/laboratoires', labo.id]" class="group border border-border rounded-xl p-4 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors">
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <i class="pi pi-cog text-primary"></i>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium border"
+                  [class]="labo.statut === 'DISPONIBLE' ? 'bg-success/5 text-success border-success/20' : 'bg-background text-text-secondary border-border'">
+                  {{ labo.statut === 'DISPONIBLE' ? 'Disponible' : 'Indisponible' }}
+                </span>
+              </div>
+              <p class="text-sm font-semibold text-text mt-4 group-hover:text-primary transition-colors">{{ labo.nom }}</p>
+              <p class="text-xs text-text-secondary mt-1">{{ labo.localisation }}</p>
+            </a>
+          }
         </div>
 
-        <p
-          class="text-sm font-semibold text-text mt-4 group-hover:text-primary transition-colors"
-        >
-          Biochimie
-        </p>
-
-        <p class="text-xs text-text-secondary mt-1">
-          Bâtiment A · Salle 2
-        </p>
-
-      </a>
-
-
-      <!-- Microbiologie -->
-
-      <a
-        routerLink="/laboratoires"
-        class="group border border-border rounded-xl p-4 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors"
-      >
-
-        <div
-          class="flex items-start justify-between gap-3"
-        >
-
-          <div
-            class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"
-          >
-            <i class="pi pi-cog text-primary"></i>
-          </div>
-
-          <span
-            class="inline-flex items-center px-2.5 py-1 rounded-full bg-success/5 text-success border border-success/20 text-[11px] font-medium"
-          >
-            Disponible
-          </span>
-
-        </div>
-
-        <p
-          class="text-sm font-semibold text-text mt-4 group-hover:text-primary transition-colors"
-        >
-          Microbiologie
-        </p>
-
-        <p class="text-xs text-text-secondary mt-1">
-          Bâtiment B · Salle 1
-        </p>
-
-      </a>
-
-
-      <!-- Imagerie -->
-
-      <a
-        routerLink="/laboratoires"
-        class="group border border-border rounded-xl p-4 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors"
-      >
-
-        <div
-          class="flex items-start justify-between gap-3"
-        >
-
-          <div
-            class="w-10 h-10 rounded-lg bg-danger/10 flex items-center justify-center shrink-0"
-          >
-            <i class="pi pi-building text-danger"></i>
-          </div>
-
-          <span
-            class="inline-flex items-center px-2.5 py-1 rounded-full bg-danger/5 text-danger border border-danger/20 text-[11px] font-medium"
-          >
-            Occupé
-          </span>
-
-        </div>
-
-        <p
-          class="text-sm font-semibold text-text mt-4 group-hover:text-primary transition-colors"
-        >
-          Imagerie
-        </p>
-
-        <p class="text-xs text-text-secondary mt-1">
-          Bâtiment C · Salle 3
-        </p>
-
-      </a>
-
-
-      <!-- Biologie moléculaire -->
-
-      <a
-        routerLink="/laboratoires"
-        class="group border border-border rounded-xl p-4 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors"
-      >
-
-        <div
-          class="flex items-start justify-between gap-3"
-        >
-
-          <div
-            class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"
-          >
-            <i class="pi pi-hourglass text-primary"></i>
-          </div>
-
-          <span
-            class="inline-flex items-center px-2.5 py-1 rounded-full bg-success/5 text-success border border-success/20 text-[11px] font-medium"
-          >
-            Disponible
-          </span>
-
-        </div>
-
-        <p
-          class="text-sm font-semibold text-text mt-4 group-hover:text-primary transition-colors"
-        >
-          Biologie Moléculaire
-        </p>
-
-        <p class="text-xs text-text-secondary mt-1">
-          Bâtiment A · Salle 4
-        </p>
-
-      </a>
-
-    </div>
+     </div>
 
   </div>
 

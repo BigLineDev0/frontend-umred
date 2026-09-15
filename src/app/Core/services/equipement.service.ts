@@ -13,13 +13,14 @@ export class EquipementService {
   loading = signal(false);
   error = signal<string | null>(null);
 
-  charger(options: { search?: string; laboratoire?: number } = {}): void {
+  charger(options: { search?: string; laboratoire?: number; statut?: string } = {}): void {
     this.loading.set(true);
     this.error.set(null);
 
     let params = new HttpParams();
     if (options.search) params = params.set('search', options.search);
     if (options.laboratoire) params = params.set('laboratoire', options.laboratoire);
+    if (options.statut) params = params.set('statut', options.statut);
 
     this.http.get<Equipement[]>(`${this.baseUrl}/equipements/`, { params }).subscribe({
       next: (data) => { this.equipements.set(data); this.loading.set(false); },
@@ -37,6 +38,10 @@ export class EquipementService {
 
   chargerUn(id: number): Observable<Equipement> {
     return this.http.get<Equipement>(`${this.baseUrl}/equipements/${id}/`);
+  }
+
+  chargerEnPanne(): void {
+    this.charger({ statut: 'EN_PANNE' });
   }
 
   creer(payload: EquipementPayload): Observable<Equipement> {

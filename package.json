@@ -19,6 +19,7 @@
     "@angular/router": "^22.0.0",
     "@primeng/themes": "^21.0.4",
     "@primeuix/themes": "^3.0.0",
+    "chart.js": "^4.5.1",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^21.1.9",

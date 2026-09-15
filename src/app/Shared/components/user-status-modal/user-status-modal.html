@@ -1,0 +1,41 @@
+<p-dialog [(visible)]="visible" [modal]="true" [draggable]="false" [resizable]="false"
+  [style]="{ width: '440px', maxWidth: 'calc(100vw - 2rem)' }" [showHeader]="false">
+
+  @if (utilisateur(); as u) {
+    <div class="pt-2">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4"
+        [class]="action() === 'desactiver' ? 'bg-danger/10' : 'bg-success/10'">
+        <i class="pi text-xl"
+          [class.pi-power-off]="action() === 'desactiver'" [class.pi-check]="action() === 'activer'"
+          [class.text-danger]="action() === 'desactiver'" [class.text-success]="action() === 'activer'"></i>
+      </div>
+
+      <h2 class="text-xl font-bold text-text mb-2">
+        {{ action() === 'desactiver' ? 'Désactiver ce compte ?' : 'Activer ce compte ?' }}
+      </h2>
+      <p class="text-sm text-text-secondary mb-5">
+        {{ action() === 'desactiver'
+          ? "L'utilisateur ne pourra plus accéder à la plateforme tant que son compte sera désactivé."
+          : "L'utilisateur pourra accéder à la plateforme selon les permissions associées à son rôle." }}
+      </p>
+
+      <div class="flex items-center gap-3 bg-background rounded-lg px-4 py-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-sm shrink-0">
+          {{ initiales() }}
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-text truncate">{{ u.prenom }} {{ u.nom }}</p>
+          <p class="text-xs text-text-secondary truncate">{{ roleLabel() }}</p>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <p-button label="Annuler" severity="secondary" [outlined]="true" styleClass="flex-1" [disabled]="loading()" (onClick)="onAnnuler()" />
+        <p-button [label]="action() === 'desactiver' ? 'Désactiver le compte' : 'Activer le compte'"
+          [icon]="action() === 'desactiver' ? 'pi pi-power-off' : 'pi pi-check'"
+          [severity]="action() === 'desactiver' ? 'danger' : 'success'"
+          styleClass="flex-1" [loading]="loading()" (onClick)="onConfirmer()" />
+      </div>
+    </div>
+  }
+</p-dialog>

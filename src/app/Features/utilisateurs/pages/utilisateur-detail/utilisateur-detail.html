@@ -1,0 +1,79 @@
+@if (loading()) {
+  <div class="flex min-h-96 items-center justify-center"><i class="pi pi-spin pi-spinner text-2xl text-primary"></i></div>
+} @else if (error()) {
+  <div class="rounded-xl border border-red-200 bg-red-50 p-6"><p class="font-medium text-red-800">{{ error() }}</p></div>
+} @else if (utilisateur(); as u) {
+  <div class="space-y-8">
+
+    <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
+      <a routerLink="/utilisateurs" class="hover:text-primary transition-colors">Utilisateurs</a>
+      <i class="pi pi-angle-right text-xs"></i>
+      <span class="font-medium text-text">Détail</span>
+    </div>
+
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-xl font-bold shrink-0">
+          {{ u.prenom[0] }}{{ u.nom[0] }}
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-text">{{ u.prenom }} {{ u.nom }}</h1>
+          <p class="text-text-secondary">{{ roleLabel(u.role) }}</p>
+          <div class="mt-1"><app-status-badge [statut]="u.statut_compte" /></div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 shrink-0">
+        <p-button label="Modifier" icon="pi pi-pencil" severity="secondary" [outlined]="true" (onClick)="ouvrirModification()" />
+        <p-button [label]="statusAction() === 'desactiver' ? 'Désactiver le compte' : 'Activer le compte'"
+          [icon]="statusAction() === 'desactiver' ? 'pi pi-power-off' : 'pi pi-check'"
+          [severity]="statusAction() === 'desactiver' ? 'danger' : 'success'" [outlined]="statusAction() === 'desactiver'"
+          (onClick)="ouvrirStatus()" />
+      </div>
+    </div>
+
+    <section>
+      <h2 class="mb-4 text-lg font-semibold text-text">Informations personnelles</h2>
+      <div class="rounded-xl border border-border bg-white p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Nom</p><p class="mt-1 text-sm font-semibold text-text">{{ u.nom }}</p></div>
+        <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Prénom</p><p class="mt-1 text-sm font-semibold text-text">{{ u.prenom }}</p></div>
+        <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Email</p><p class="mt-1 text-sm font-semibold text-text">{{ u.email }}</p></div>
+        <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Téléphone</p><p class="mt-1 text-sm font-semibold text-text">{{ u.telephone || '—' }}</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-semibold text-text">Informations du compte</h2>
+      <div class="rounded-xl border border-border bg-white p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Rôle</p><p class="mt-1 text-sm font-semibold text-text">{{ roleLabel(u.role) }}</p></div>
+        <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Statut</p><div class="mt-1"><app-status-badge [statut]="u.statut_compte" /></div></div>
+        <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Date de création</p><p class="mt-1 text-sm font-semibold text-text">{{ u.date_creation | date: 'dd MMMM yyyy' }}</p></div>
+        <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Dernière connexion</p><p class="mt-1 text-sm font-semibold text-text">{{ u.last_login ? (u.last_login | date: 'dd/MM/yyyy — HH:mm') : 'Jamais connecté' }}</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-semibold text-text">Activité récente</h2>
+      <div class="rounded-xl border border-border bg-white p-6">
+        @if (journalService.loading()) {
+          <p class="text-sm text-text-secondary">Chargement...</p>
+        } @else if (journalService.entrees().length === 0) {
+          <p class="text-sm text-text-secondary">Aucune activité enregistrée pour cet utilisateur.</p>
+        } @else {
+          <div class="space-y-4">
+            @for (entree of journalService.entrees(); track entree.id) {
+              <div class="flex items-start gap-2">
+                <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0"></span>
+                <p class="text-sm text-text">{{ entree.action }} <span class="text-text-secondary">{{ tempsEcoule(entree.date_heure) }}</span></p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+  </div>
+}
+
+<app-utilisateur-form-modal [(visible)]="formModalVisible" [utilisateurAModifier]="utilisateur()" />
+<app-user-status-modal [(visible)]="statusModalVisible" [utilisateur]="utilisateur()" [action]="statusAction()" [loading]="statusLoading()" (confirmed)="confirmerStatus()" />

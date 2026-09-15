@@ -35,6 +35,10 @@ export class AuthService {
   }
 
   logout(): void {
+    const refresh = this.getRefreshToken();
+    this.http.post(`${environment.apiUrl}/auth/logout/`, { refresh }).subscribe({
+      error: () => {}, // best-effort : on déconnecte localement même si l'appel échoue
+    });
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('current_user');
@@ -53,6 +57,7 @@ export class AuthService {
       })
     );
   }
+
 
   getAccessToken(): string | null {
     return localStorage.getItem('access_token');

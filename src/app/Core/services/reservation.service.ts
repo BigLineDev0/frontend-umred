@@ -13,7 +13,7 @@ export class ReservationService {
   loading = signal(false);
   error = signal<string | null>(null);
 
-  charger(options: { all?: boolean; laboratoire?: number; aVenir?: boolean } = {}): void {
+ charger(options: { all?: boolean; laboratoire?: number; aVenir?: boolean; statut?: string; dateDebut?: string; dateFin?: string; archivees?: boolean } = {}): void {
     this.loading.set(true);
     this.error.set(null);
 
@@ -21,6 +21,11 @@ export class ReservationService {
     if (options.all) params = params.set('all', 'true');
     if (options.laboratoire) params = params.set('laboratoire', options.laboratoire);
     if (options.aVenir) params = params.set('a_venir', 'true');
+    if (options.statut) params = params.set('statut', options.statut);
+
+    if (options.dateDebut) params = params.set('date_debut', options.dateDebut);
+    if (options.dateFin) params = params.set('date_fin', options.dateFin);
+    if (options.archivees) params = params.set('archivees', 'true');
 
     this.http.get<Reservation[]>(`${this.baseUrl}/reservations/`, { params }).subscribe({
       next: (data) => { this.reservations.set(data); this.loading.set(false); },
@@ -29,7 +34,7 @@ export class ReservationService {
         this.loading.set(false);
       },
     });
-}
+  }
 
   creer(payload: ReservationPayload): Observable<Reservation> {
     return this.http.post<Reservation>(`${this.baseUrl}/reservations/`, payload).pipe(

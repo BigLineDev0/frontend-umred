@@ -1,1 +1,113 @@
-<p>maintenance-detail works!</p>
+@if (loading()) {
+  <div class="flex min-h-96 items-center justify-center">
+    <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+  </div>
+} @else if (error()) {
+  <div class="rounded-xl border border-red-200 bg-red-50 p-6">
+    <p class="font-medium text-red-800">{{ error() }}</p>
+  </div>
+} @else if (maintenance(); as m) {
+  <div class="space-y-8">
+
+    <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
+      <a routerLink="/maintenances" class="hover:text-primary transition-colors">Maintenance</a>
+      <i class="pi pi-angle-right text-xs"></i>
+      <span class="font-medium text-text">Détail</span>
+    </div>
+
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl font-semibold text-text">Détail de la maintenance</h1>
+          <p-tag [value]="getStatusLabel(m.statut)" [severity]="getStatusSeverity(m.statut)" [rounded]="true" />
+        </div>
+        <p class="mt-1 text-sm text-text-secondary">
+          Intervention {{ m.type === 'PREVENTIVE' ? 'préventive' : 'corrective' }} sur le {{ m.equipement_nom }}.
+        </p>
+      </div>
+
+      @if (canManage()) {
+        <div class="flex gap-2 shrink-0">
+          @if (m.statut === 'PLANIFIEE' || m.statut === 'EN_COURS') {
+            <p-button label="Clôturer" icon="pi pi-check-circle" severity="success" (onClick)="ouvrirCloture()" />
+          }
+          <p-button label="Supprimer" icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="supprimer()" />
+        </div>
+      }
+    </div>
+
+    <section>
+      <h2 class="mb-4 text-lg font-semibold text-text">Informations de l'intervention</h2>
+      <div class="rounded-xl border border-border bg-white p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div><p class="font-semibold text-text">Type</p><p class="text-sm text-text-secondary">Maintenance {{ m.type === 'PREVENTIVE' ? 'préventive' : 'corrective' }}</p></div>
+        <div><p class="font-semibold text-text">Statut</p><p class="text-sm text-text-secondary">{{ getStatusLabel(m.statut) }}</p></div>
+        <div><p class="font-semibold text-text">Équipement</p><p class="text-sm text-text-secondary">{{ m.equipement_nom }}</p></div>
+        <div><p class="font-semibold text-text">Référence équipement</p><p class="text-sm text-text-secondary">{{ m.equipement_numero_serie }}</p></div>
+        <div><p class="font-semibold text-text">Technicien responsable</p><p class="text-sm text-text-secondary">{{ m.technicien_nom ?? 'Non assigné' }}</p></div>
+        <div><p class="font-semibold text-text">Date planifiée</p><p class="text-sm text-text-secondary">{{ m.date_planifiee | date: 'dd MMMM yyyy' }}</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-semibold text-text">Dates d'intervention</h2>
+      <div class="rounded-xl border border-border bg-white p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div><p class="font-semibold text-text">Début réel</p><p class="text-sm text-text-secondary">{{ m.date_debut ? (m.date_debut | date: 'dd/MM/yyyy HH:mm') : '—' }}</p></div>
+        <div><p class="font-semibold text-text">Fin réelle</p><p class="text-sm text-text-secondary">{{ m.date_fin ? (m.date_fin | date: 'dd/MM/yyyy HH:mm') : '—' }}</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-semibold text-text">Équipement concerné</h2>
+      <div class="rounded-xl border border-border bg-white p-5 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0"><i class="pi pi-cog"></i></div>
+          <div>
+            <div class="flex items-center gap-2">
+              <p class="font-semibold text-text">{{ m.equipement_nom }}</p>
+              <p-tag [value]="getEquipementStatusLabel(m.equipement_statut)" [severity]="getEquipementStatusSeverity(m.equipement_statut)" [rounded]="true" styleClass="!text-xs" />
+            </div>
+            <p class="text-sm text-text-secondary">Référence : {{ m.equipement_numero_serie }}</p>
+            <p class="text-sm text-text-secondary">{{ m.equipement_laboratoire_nom }}</p>
+          </div>
+        </div>
+        <a [routerLink]="['/equipements', m.equipement]" class="text-sm font-medium text-primary hover:underline shrink-0">Voir l'équipement →</a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-semibold text-text">Description de l'intervention</h2>
+      <div class="rounded-xl border border-border bg-white p-5"><p class="text-sm text-text leading-relaxed">{{ m.description || 'Aucune description fournie.' }}</p></div>
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-semibold text-text">Rapport de maintenance</h2>
+      @if (m.rapport) {
+        <div class="rounded-xl border border-border bg-white p-5"><p class="text-sm text-text leading-relaxed">{{ m.rapport }}</p></div>
+      } @else {
+        <div class="rounded-xl border border-dashed border-border bg-background p-8 text-center">
+          <i class="pi pi-file text-2xl text-text-secondary mb-2"></i>
+          <p class="text-sm text-text-secondary">Le rapport sera disponible une fois la maintenance clôturée.</p>
+        </div>
+      }
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-semibold text-text">Historique</h2>
+      <div class="rounded-xl border border-border bg-white p-5 space-y-4">
+        @for (etape of historique(); track etape.date + etape.libelle) {
+          <div class="flex gap-3">
+            <span class="mt-1.5 w-2 h-2 rounded-full bg-primary shrink-0"></span>
+            <div>
+              <p class="text-sm font-medium text-text">{{ etape.date | date: 'dd MMMM yyyy — HH:mm' }}</p>
+              <p class="text-sm text-text-secondary">{{ etape.libelle }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+  </div>
+}
+
+<app-maintenance-cloture-modal [(visible)]="clotureModalVisible" [maintenance]="maintenance()" />
+<p-confirmDialog />

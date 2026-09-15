@@ -1,0 +1,112 @@
+<div class="space-y-8">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Rapports et statistiques' }]"
+    title="Rapports & statistiques"
+    subtitle="Analysez l'activité et l'utilisation des ressources du laboratoire.">
+    <p-button actions label="Exporter en PDF" icon="pi pi-file-pdf" class="no-print" (onClick)="exporterPdf()" />
+  </app-page-header>
+
+  <div class="flex flex-wrap items-center gap-2 no-print bg-background rounded-lg p-1 w-fit">
+    @for (opt of periodeOptions; track opt.value) {
+      <button type="button" (click)="changerPeriode(opt.value)"
+        class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        [class]="periode() === opt.value ? 'bg-white shadow-sm text-text' : 'text-text-secondary hover:text-text'">
+        {{ opt.label }}
+      </button>
+    }
+  </div>
+
+  @if (periode() === 'custom') {
+    <div class="flex flex-wrap items-end gap-3 no-print animate-fade-in-up">
+      <div>
+        <label class="block text-xs font-medium text-text-secondary mb-1">Du</label>
+        <p-datepicker [(ngModel)]="customDebut" dateFormat="dd/mm/yy" [showIcon]="true" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-text-secondary mb-1">Au</label>
+        <p-datepicker [(ngModel)]="customFin" dateFormat="dd/mm/yy" [showIcon]="true" />
+      </div>
+      <p-button label="Appliquer" size="small" (onClick)="appliquerPeriodePersonnalisee()" />
+    </div>
+  }
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white border border-border rounded-xl p-5 animate-fade-in-up">
+      <div class="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-3"><i class="pi pi-calendar"></i></div>
+      <p class="text-3xl font-bold text-text"><app-animated-number [value]="totalReservations()" /></p>
+      <p class="text-sm text-text-secondary mt-1">Réservations</p>
+    </div>
+    <div class="bg-white border border-border rounded-xl p-5 animate-fade-in-up" style="animation-delay: 60ms">
+      <div class="w-11 h-11 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-3"><i class="pi pi-cog"></i></div>
+      <p class="text-3xl font-bold text-text"><app-animated-number [value]="equipementsUtilisesCount()" /></p>
+      <p class="text-sm text-text-secondary mt-1">Équipements utilisés</p>
+    </div>
+    <div class="bg-white border border-border rounded-xl p-5 animate-fade-in-up" style="animation-delay: 120ms">
+      <div class="w-11 h-11 rounded-lg bg-success/10 flex items-center justify-center text-success mb-3"><i class="pi pi-wrench"></i></div>
+      <p class="text-3xl font-bold text-text"><app-animated-number [value]="totalMaintenances()" /></p>
+      <p class="text-sm text-text-secondary mt-1">Maintenances</p>
+    </div>
+    <div class="bg-white border border-border rounded-xl p-5 animate-fade-in-up" style="animation-delay: 180ms">
+      <div class="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-3"><i class="pi pi-users"></i></div>
+      <p class="text-3xl font-bold text-text"><app-animated-number [value]="utilisateursActifs()" /></p>
+      <p class="text-sm text-text-secondary mt-1">Utilisateurs actifs</p>
+    </div>
+  </div>
+
+  <div class="bg-white border border-border rounded-xl p-6 animate-fade-in-up">
+    <h2 class="text-lg font-semibold text-text">Analyse des réservations</h2>
+    <p class="text-sm text-text-secondary mb-5">Évolution du nombre de réservations sur la période</p>
+    <div class="h-[260px]"><p-chart type="bar" [data]="chartData()" [options]="chartOptions" /></div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="bg-white border border-border rounded-xl p-6 animate-fade-in-up">
+      <h2 class="text-lg font-semibold text-text mb-1">Utilisation des équipements</h2>
+      <p class="text-sm text-text-secondary mb-5">Usage relatif par équipement sur la période</p>
+      @if (usageEquipements().length === 0) {
+        <p class="text-sm text-text-secondary py-6 text-center">Aucune donnée sur cette période.</p>
+      } @else {
+        <div class="space-y-4">
+          @for (e of usageEquipements(); track e.nom) {
+            <div>
+              <div class="flex justify-between mb-1.5">
+                <span class="text-sm font-medium text-text">{{ e.nom }}</span>
+                <span class="text-sm text-text-secondary">{{ e.count }}</span>
+              </div>
+              <div class="h-2 bg-background rounded-full overflow-hidden">
+                <div class="h-full bg-primary rounded-full transition-all duration-700 ease-out" [style.width.%]="e.pct"></div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="bg-white border border-border rounded-xl p-6 animate-fade-in-up">
+      <h2 class="text-lg font-semibold text-text mb-1">Maintenance</h2>
+      <p class="text-sm text-text-secondary mb-5">Répartition des interventions sur la période</p>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="text-center">
+          <div class="w-11 h-11 mx-auto rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-2"><i class="pi pi-shield"></i></div>
+          <p class="text-2xl font-bold text-text"><app-animated-number [value]="maintenancesPreventives()" /></p>
+          <p class="text-xs text-text-secondary">Préventives</p>
+        </div>
+        <div class="text-center">
+          <div class="w-11 h-11 mx-auto rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-2"><i class="pi pi-wrench"></i></div>
+          <p class="text-2xl font-bold text-text"><app-animated-number [value]="maintenancesCorrectives()" /></p>
+          <p class="text-xs text-text-secondary">Correctives</p>
+        </div>
+        <div class="text-center">
+          <div class="w-11 h-11 mx-auto rounded-lg bg-success/10 flex items-center justify-center text-success mb-2"><i class="pi pi-check"></i></div>
+          <p class="text-2xl font-bold text-text"><app-animated-number [value]="maintenancesTerminees()" /></p>
+          <p class="text-xs text-text-secondary">Terminées</p>
+        </div>
+        <div class="text-center">
+          <div class="w-11 h-11 mx-auto rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-2"><i class="pi pi-hourglass"></i></div>
+          <p class="text-2xl font-bold text-text"><app-animated-number [value]="maintenancesEnCours()" /></p>
+          <p class="text-xs text-text-secondary">En cours</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

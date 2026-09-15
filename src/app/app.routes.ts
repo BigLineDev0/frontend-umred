@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { MainLayout } from './Layout/main-layout/main-layout';
 import { Home } from './home/home';
 import { authGuard } from './Core/guards/auth.guard';
+import { roleGuard } from './Core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -35,6 +36,18 @@ export const routes: Routes = [
       {
         path: 'maintenances',
         loadChildren: () => import('./Features/maintenances/maintenances.routes').then(m => m.MAINTENANCES_ROUTES)
+      },
+      {
+        path: 'utilisateurs',
+        loadChildren: () => import('./Features/utilisateurs/utilisateurs.routes').then(m => m.UTILISATEURS_ROUTES)
+      },
+      {
+        path: 'journal-activite', canActivate: [roleGuard(['ADMIN'])],
+        loadComponent: () => import('./Features/journal/journal-list/journal-list').then(m => m.JournalList)
+      },
+      {
+        path: 'rapports', canActivate: [roleGuard(['ADMIN'])],
+        loadComponent: () => import('./Features/rapports/rapports/rapports').then(m => m.Rapports)
       },
     ]
   },

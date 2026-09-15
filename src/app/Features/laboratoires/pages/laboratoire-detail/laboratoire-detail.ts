@@ -6,7 +6,7 @@ import { TagModule } from 'primeng/tag';
 import { Laboratoire, StatutLaboratoire } from '../../../../Core/models/laboratoire.model';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { EquipementService } from '../../../../Core/services/equipement.service';
-import { ReservationService } from '../../../../Core/services/reservatiom.service';
+import { ReservationService } from '../../../../Core/services/reservation.service';
 import { DatePipe } from '@angular/common';
 
 @Component({

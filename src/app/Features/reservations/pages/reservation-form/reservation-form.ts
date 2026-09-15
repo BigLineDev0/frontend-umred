@@ -13,7 +13,7 @@ import { DialogModule } from 'primeng/dialog';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { EquipementService } from '../../../../Core/services/equipement.service';
 import { ReservationPayload } from '../../../../Core/models/reservation.model';
-import { ReservationService } from '../../../../Core/services/reservatiom.service';
+import { ReservationService } from '../../../../Core/services/reservation.service';
 
 @Component({
   standalone: true,
