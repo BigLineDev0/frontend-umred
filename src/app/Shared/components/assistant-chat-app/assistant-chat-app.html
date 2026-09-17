@@ -1,0 +1,73 @@
+<button type="button" (click)="toggle()"
+  class="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-primary text-white shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors assistant-pulse">
+  <i class="pi text-xl" [class.pi-comments]="!ouvert()" [class.pi-times]="ouvert()"></i>
+</button>
+
+@if (ouvert()) {
+  <div class="fixed bottom-24 right-6 z-40 w-[380px] max-w-[calc(100vw-2rem)] h-[540px] max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden chat-panel-in">
+
+    <div class="bg-primary px-5 py-4 flex items-center gap-3 shrink-0">
+      <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"><i class="pi pi-sparkles text-white"></i></div>
+      <div>
+        <p class="text-white font-semibold text-sm">Assistant UMRED</p>
+        <p class="text-white/70 text-xs">{{ erreurConnexion() ? 'Connexion instable' : 'En ligne' }}</p>
+      </div>
+    </div>
+
+    <div #scrollZone class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-background">
+      @for (m of messages(); track $index) {
+        <div class="flex" [class.justify-end]="m.role === 'user'">
+          <div class="max-w-[82%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
+            [class]="m.role === 'user' ? 'bg-primary text-white rounded-br-sm' : 'bg-white border border-border text-text rounded-bl-sm'">
+
+            @if (m.role === 'assistant') {
+              @for (seg of segments(m.texte); track $index) {
+                @if (seg.type === 'texte') {
+                  <p>{{ seg.lignes[0] }}</p>
+                } @else {
+                  <ul class="mt-1 space-y-0.5 list-disc list-inside">
+                    @for (l of seg.lignes; track l) { <li>{{ l }}</li> }
+                  </ul>
+                }
+              }
+            } @else {
+              <p>{{ m.texte }}</p>
+            }
+
+            <p class="text-[10px] mt-1 opacity-60">{{ m.heure }}</p>
+          </div>
+        </div>
+      }
+
+      @if (enTrainDecrire()) {
+        <div class="flex">
+          <div class="bg-white border border-border rounded-2xl rounded-bl-sm px-4 py-3 flex gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-text-secondary typing-dot"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-text-secondary typing-dot" style="animation-delay:.15s"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-text-secondary typing-dot" style="animation-delay:.3s"></span>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (messages().length <= 1) {
+      <div class="px-4 pb-3 flex flex-wrap gap-2 shrink-0">
+        @for (s of suggestions; track s) {
+          <button type="button" (click)="envoyerSuggestion(s)"
+            class="text-xs bg-white border border-border rounded-full px-3 py-1.5 hover:border-primary hover:text-primary transition-colors">
+            {{ s }}
+          </button>
+        }
+      </div>
+    }
+
+    <div class="border-t border-border p-3 flex items-center gap-2 shrink-0">
+      <input type="text" [ngModel]="saisie()" (ngModelChange)="saisie.set($event)" (keyup.enter)="envoyer()"
+        placeholder="Écrivez votre demande..."
+        class="flex-1 text-sm border border-border rounded-full px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+      <button type="button" (click)="envoyer()" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shrink-0 hover:bg-primary-dark transition-colors">
+        <i class="pi pi-send text-sm"></i>
+      </button>
+    </div>
+  </div>
+}

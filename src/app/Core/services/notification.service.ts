@@ -8,7 +8,7 @@ export interface NotificationFilters {
   type?: string; lu?: boolean; page?: number; pageSize?: number;
 }
 
-const POLLING_MS = 30000;
+// const POLLING_MS = 30000;
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
@@ -30,7 +30,7 @@ export class NotificationService {
     // vraie solution (WebSocket / Django Channels) serait l'évolution
     // naturelle, mais un polling à 30s suffit largement à l'usage d'un
     // laboratoire, sans infrastructure supplémentaire côté backend.
-    setInterval(() => this.rafraichirCompteur(), POLLING_MS);
+    // setInterval(() => this.rafraichirCompteur(), POLLING_MS);
   }
 
   rafraichirCompteur(): void {

@@ -36,3 +36,38 @@ body {
 @media print {
   app-sidebar, app-topbar, app-footer, .no-print { display: none !important; }
 }
+
+
+@keyframes floatBlob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.08); }
+}
+.blob-anim { animation: floatBlob 10s ease-in-out infinite; }
+.blob-anim-delay { animation: floatBlob 12s ease-in-out infinite reverse; }
+
+@keyframes fadeInWord {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.word-in { display: inline-block; opacity: 0; animation: fadeInWord .6s ease forwards; }
+
+@keyframes pulseRing {
+  0% { box-shadow: 0 0 0 0 rgba(24, 72, 217, 0.45); }
+  100% { box-shadow: 0 0 0 16px rgba(24, 72, 217, 0); }
+}
+.assistant-pulse { animation: pulseRing 2.2s ease-out infinite; }
+
+@keyframes chatPanelIn {
+  from { opacity: 0; transform: translateY(16px) scale(.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.chat-panel-in { animation: chatPanelIn .25s ease both; }
+
+@keyframes typingDot {
+  0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+.typing-dot { animation: typingDot 1s ease-in-out infinite; }
+
+.reveal-init { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+.reveal-visible { opacity: 1; transform: translateY(0); }

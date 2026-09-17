@@ -28,7 +28,7 @@
     </div>
   } @else {
     <div class="bg-white border border-border rounded-xl overflow-hidden">
-      <app-data-table [columns]="columns" [data]="filteredEquipements()" [rows]="3">
+      <app-data-table [columns]="columns" [data]="filteredEquipements()" [rows]="10">
         <ng-template appColumnTemplate="nom" let-row>
           <span class="font-medium text-text">{{ row.nom }}</span>
         </ng-template>

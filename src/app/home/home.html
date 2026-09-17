@@ -1,3 +1,298 @@
-<div class="min-h-screen flex items-center justify-center bg-background">
-  <p class="text-text-secondary">Page vitrine UMRED — à construire</p>
-</div>
+<!-- NAV -->
+<header class="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-b border-border">
+  <nav class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+
+    
+    <img src="images/logo umred.jpeg" alt="Logo Umred" class="h-10 w-auto" />
+
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-text-secondary">
+      <a href="#accueil" class="hover:text-primary transition-colors">Accueil</a>
+      <a href="#apropos" class="hover:text-primary transition-colors">À propos</a>
+      <a href="#video" class="hover:text-primary transition-colors">Découvrir</a>
+      <a href="#fonctionnalites" class="hover:text-primary transition-colors">Fonctionnalités</a>
+      <a href="#faq" class="hover:text-primary transition-colors">FAQ</a>
+    </div>
+
+    <div class="hidden md:flex items-center gap-3">
+      <button type="button" (click)="accederPlateforme()" class="text-sm font-medium text-text-secondary hover:text-primary transition-colors">Se connecter</button>
+      <button type="button" (click)="accederPlateforme()" class="bg-primary text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors inline-flex items-center gap-2">
+        Accéder à la plateforme <i class="pi pi-arrow-right text-xs"></i>
+      </button>
+    </div>
+
+    <button type="button" (click)="toggleMobileMenu()" class="md:hidden text-text">
+      <i class="pi" [class.pi-bars]="!mobileMenuOpen()" [class.pi-times]="mobileMenuOpen()"></i>
+    </button>
+  </nav>
+
+  @if (mobileMenuOpen()) {
+    <div class="md:hidden bg-white border-t border-border px-5 py-4 space-y-3">
+      <a href="#accueil" (click)="closeMobileMenu()" class="block text-sm text-text py-1">Accueil</a>
+      <a href="#apropos" (click)="closeMobileMenu()" class="block text-sm text-text py-1">À propos</a>
+      <a href="#video" (click)="closeMobileMenu()" class="block text-sm text-text py-1">Découvrir</a>
+      <a href="#fonctionnalites" (click)="closeMobileMenu()" class="block text-sm text-text py-1">Fonctionnalités</a>
+      <a href="#faq" (click)="closeMobileMenu()" class="block text-sm text-text py-1">FAQ</a>
+      <button type="button" (click)="accederPlateforme(); closeMobileMenu()" class="w-full bg-primary text-white text-sm font-medium px-5 py-2.5 rounded-lg mt-2">Accéder à la plateforme</button>
+    </div>
+  }
+</header>
+
+<!-- HERO -->
+<section id="accueil" class="relative isolate pt-32 pb-24 px-5 sm:px-8 overflow-hidden bg-sidebar">
+  <div class="absolute inset-0 -z-10 bg-cover bg-center opacity-40" style="background-image: url('images/hero-labo.jpg')" [appParallax]="0.15"></div>
+  <div class="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-primary/30 blur-3xl blob-anim -z-10"></div>
+  <div class="absolute top-40 right-0 w-80 h-80 rounded-full bg-secondary/30 blur-3xl blob-anim-delay -z-10"></div>
+
+  <div class="max-w-7xl mx-auto">
+    <div class="max-w-2xl">
+      <h1 class="text-4xl sm:text-5xl font-bold text-white leading-tight mb-5">
+        <span class="word-in" style="animation-delay:.05s">
+          La gestion intelligente de votre laboratoire
+        </span>
+      </h1>
+      <p class="text-white/80 text-lg mb-8 leading-relaxed word-in" style="animation-delay:.7s">
+        Centralisez les réservations, les équipements et la maintenance de votre laboratoire dans une plateforme unique, simple et intelligente.
+      </p>
+      <div class="flex flex-wrap gap-3 animate-fade-in-up" style="animation-delay:.85s">
+        <button type="button" (click)="accederPlateforme()" class="bg-primary text-white font-medium px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors inline-flex items-center gap-2">
+          Accéder à la plateforme <i class="pi pi-arrow-right text-xs"></i>
+        </button>
+        <a href="#video" class="bg-white/10 text-white font-medium px-6 py-3 rounded-lg border border-white/20 hover:bg-white/20 transition-colors inline-flex items-center gap-2">
+          <i class="pi pi-play-circle"></i> Voir la démo
+        </a>
+      </div>
+
+      <div class="flex items-start gap-10 mt-12 animate-fade-in-up" style="animation-delay:1s">
+        <div><p class="text-3xl font-bold text-white"><app-animated-number [value]="4" />+</p><p class="text-sm text-white/60">Laboratoires</p></div>
+        <div><p class="text-3xl font-bold text-white"><app-animated-number [value]="120" />+</p><p class="text-sm text-white/60">Équipements</p></div>
+        <div><p class="text-3xl font-bold text-white"><app-animated-number [value]="60" />+</p><p class="text-sm text-white/60">Chercheurs</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- À PROPOS -->
+<section id="apropos" class="py-20 px-5 sm:px-8">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <div class="rounded-2xl overflow-hidden aspect-[4/3] bg-cover bg-center" style="background-image: url('images/umred-batiment.png')" appReveal></div>
+    <div appReveal>
+      <p class="text-xs font-semibold tracking-wide text-primary uppercase mb-2">À propos de l'UMRED</p>
+      <h2 class="text-3xl font-bold text-text mb-4">L'UMRED en quelques mots</h2>
+      <p class="text-text-secondary leading-relaxed mb-5">
+        L'Unité Mixte de Recherche et d'Enseignement en Diagnostic (UMRED) réunit chercheurs, enseignants et techniciens autour d'infrastructures partagées de haut niveau. Notre laboratoire s'inscrit dans une démarche scientifique rigoureuse, au service de la recherche universitaire et du diagnostic.
+      </p>
+      <a href="#fonctionnalites" class="text-primary font-medium inline-flex items-center gap-1 hover:underline">Découvrir la plateforme <i class="pi pi-arrow-right text-xs"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- VIDÉO DE PRÉSENTATION -->
+<section id="video" class="py-20 px-5 sm:px-8 bg-sidebar">
+  <div class="max-w-5xl mx-auto text-center mb-10" appReveal>
+    <p class="text-xs font-semibold tracking-wide text-accent uppercase mb-2">Découvrir</p>
+    <h2 class="text-3xl font-bold text-white mb-3">Voyez UMRED Labo en action</h2>
+    <p class="text-white/70 max-w-xl mx-auto">Une présentation de 2 minutes pour découvrir comment la plateforme simplifie la gestion quotidienne de votre laboratoire.</p>
+  </div>
+
+  <button type="button" (click)="ouvrirVideo()"
+    class="max-w-5xl mx-auto block relative rounded-2xl overflow-hidden aspect-video group w-full" appReveal>
+    <img src="images/video-poster.png" alt="Aperçu de la vidéo de présentation" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+    <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+      <div class="w-20 h-20 rounded-full bg-white/95 flex items-center justify-center group-hover:scale-110 transition-transform">
+        <i class="pi pi-play text-primary text-3xl ml-1"></i>
+      </div>
+    </div>
+  </button>
+</section>
+
+@if (videoOuverte()) {
+  <div class="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4" (click)="fermerVideo()">
+    <button type="button" (click)="fermerVideo()" class="absolute top-6 right-6 text-white text-2xl"><i class="pi pi-times"></i></button>
+    <video src="videos/presentation-umred.mp4" controls autoplay class="max-w-4xl w-full rounded-xl" (click)="$event.stopPropagation()"></video>
+  </div>
+}
+
+<!-- AVANTAGES -->
+<section class="py-20 px-5 sm:px-8 bg-background">
+  <div class="max-w-7xl mx-auto text-center mb-12" appReveal>
+    <p class="text-xs font-semibold tracking-wide text-primary uppercase mb-2">Avantages</p>
+    <h2 class="text-3xl font-bold text-text">Pourquoi choisir UMRED Labo</h2>
+  </div>
+  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    @for (a of [
+      { icon: 'pi-database', titre: 'Centralisation', desc: 'Toutes les données du laboratoire réunies sur une seule plateforme.' },
+      { icon: 'pi-search', titre: 'Traçabilité', desc: 'Historique complet des utilisations et interventions techniques.' },
+      { icon: 'pi-clock', titre: 'Gain de temps', desc: 'Automatisez les processus de réservation et de suivi de maintenance.' },
+      { icon: 'pi-shield', titre: 'Fiabilité', desc: 'Des équipements toujours opérationnels grâce à un suivi rigoureux.' }
+    ]; track a.titre; let i = $index) {
+      <div class="bg-white rounded-xl p-6 border border-border hover:-translate-y-1 hover:shadow-lg transition-all" appReveal [style.transition-delay.ms]="i * 80">
+        <div class="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4"><i class="pi" [class]="a.icon"></i></div>
+        <p class="font-semibold text-text mb-2">{{ a.titre }}</p>
+        <p class="text-sm text-text-secondary leading-relaxed">{{ a.desc }}</p>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- APERÇU ÉQUIPEMENTS -->
+<section class="py-20 px-5 sm:px-8">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <div class="bg-white rounded-2xl border border-border p-5 space-y-3" appReveal>
+      @for (item of [
+        { nom: 'Microscope optique', labo: 'Laboratoire Biologie Moléculaire', statut: 'Disponible', color: 'success' },
+        { nom: 'Centrifugeuse', labo: 'Laboratoire Biochimie', statut: 'En cours', color: 'accent' },
+        { nom: 'Thermocycleur PCR', labo: 'Laboratoire Microbiologie', statut: 'Maintenance', color: 'danger' }
+      ]; track item.nom) {
+        <div class="flex items-center justify-between bg-background rounded-xl px-4 py-3">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary"><i class="pi pi-cog text-sm"></i></div>
+            <div><p class="text-sm font-semibold text-text">{{ item.nom }}</p><p class="text-xs text-text-secondary">{{ item.labo }}</p></div>
+          </div>
+          <span class="text-xs font-medium px-2.5 py-1 rounded-full"
+            [class.bg-success/5]="item.color === 'success'" [class.text-success]="item.color === 'success'"
+            [class.bg-accent/5]="item.color === 'accent'" [class.text-accent]="item.color === 'accent'"
+            [class.bg-danger/5]="item.color === 'danger'" [class.text-danger]="item.color === 'danger'">
+            {{ item.statut }}
+          </span>
+        </div>
+      }
+    </div>
+
+    <div appReveal>
+      <p class="text-xs font-semibold tracking-wide text-primary uppercase mb-2">Équipements</p>
+      <h2 class="text-3xl font-bold text-text mb-4">Un inventaire clair de tous vos équipements</h2>
+      <p class="text-text-secondary leading-relaxed mb-5">Microscopes, centrifugeuses, spectrophotomètres, thermocycleurs PCR : suivez en temps réel l'état, la localisation et la disponibilité de chaque équipement de vos laboratoires.</p>
+      <ul class="space-y-2.5">
+        @for (p of ['Fiche technique détaillée pour chaque appareil', 'Historique d\'utilisation et de maintenance', 'Statut de disponibilité en temps réel']; track p) {
+          <li class="flex items-center gap-2.5 text-sm text-text"><i class="pi pi-check-circle text-success"></i>{{ p }}</li>
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FONCTIONNALITÉS -->
+<section id="fonctionnalites" class="py-20 px-5 sm:px-8 bg-background">
+  <div class="max-w-7xl mx-auto text-center mb-12" appReveal>
+    <p class="text-xs font-semibold tracking-wide text-primary uppercase mb-2">Fonctionnalités</p>
+    <h2 class="text-3xl font-bold text-text mb-3">Tout ce dont vous avez besoin</h2>
+    <p class="text-text-secondary max-w-xl mx-auto">Une plateforme complète pensée pour les laboratoires universitaires de recherche et de diagnostic.</p>
+  </div>
+  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    @for (f of [
+      { icon: 'pi-calendar', titre: 'Réservation des ressources', desc: 'Réservez laboratoires et équipements en quelques clics, avec disponibilité en temps réel.' },
+      { icon: 'pi-cog', titre: 'Gestion des équipements', desc: 'Suivez l\'état, l\'historique et la disponibilité de chaque équipement scientifique.' },
+      { icon: 'pi-building', titre: 'Gestion des laboratoires', desc: 'Centralisez les informations et capacités de chaque laboratoire de l\'UFR Santé.' },
+      { icon: 'pi-wrench', titre: 'Maintenance préventive/corrective', desc: 'Planifiez et suivez les interventions techniques pour garantir la fiabilité du matériel.' },
+      { icon: 'pi-bell', titre: 'Notifications automatiques', desc: 'Recevez des alertes sur les réservations, échéances et signalements en temps réel.' },
+      { icon: 'pi-sparkles', titre: 'Assistant intelligent', desc: 'Interrogez vos équipements et réservations en langage naturel, directement depuis la plateforme.' }
+    ]; track f.titre; let i = $index) {
+      <div class="bg-white rounded-xl p-6 border border-border hover:-translate-y-1 hover:shadow-lg transition-all" appReveal [style.transition-delay.ms]="i * 60">
+        <div class="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4"><i class="pi" [class]="f.icon"></i></div>
+        <p class="font-semibold text-text mb-2">{{ f.titre }}</p>
+        <p class="text-sm text-text-secondary leading-relaxed">{{ f.desc }}</p>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- COMMENT ÇA MARCHE -->
+<section class="py-20 px-5 sm:px-8">
+  <div class="max-w-7xl mx-auto text-center mb-14" appReveal>
+    <p class="text-xs font-semibold tracking-wide text-primary uppercase mb-2">Comment ça marche</p>
+    <h2 class="text-3xl font-bold text-text">Trois étapes, une gestion simplifiée</h2>
+  </div>
+  <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-10">
+    @for (e of [
+      { n: '01', titre: 'Connectez-vous', desc: 'Accédez à votre espace personnel sécurisé selon votre rôle dans le laboratoire.' },
+      { n: '02', titre: 'Réservez et gérez', desc: 'Planifiez vos créneaux, réservez équipements et laboratoires en toute simplicité.' },
+      { n: '03', titre: 'Suivez vos activités', desc: 'Consultez l\'historique, les statistiques et l\'état de vos équipements en continu.' }
+    ]; track e.n; let i = $index) {
+      <div class="text-center" appReveal [style.transition-delay.ms]="i * 100">
+        <div class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold mx-auto mb-4">{{ e.n }}</div>
+        <p class="font-semibold text-text mb-2">{{ e.titre }}</p>
+        <p class="text-sm text-text-secondary leading-relaxed">{{ e.desc }}</p>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="py-20 px-5 sm:px-8 bg-background">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-10" appReveal>
+      <p class="text-xs font-semibold tracking-wide text-primary uppercase mb-2">Questions fréquentes</p>
+      <h2 class="text-3xl font-bold text-text">Vous vous posez des questions ?</h2>
+    </div>
+    <div class="space-y-3" appReveal>
+      @for (item of [
+        { q: 'Qui peut utiliser la plateforme ?', r: 'La plateforme est réservée aux membres de l\'UMRED : enseignants-chercheurs, techniciens, étudiants et administrateurs, chacun avec un accès adapté à son rôle.' },
+        { q: 'Comment obtenir un compte ?', r: 'Les étudiants peuvent créer leur compte directement depuis la plateforme. Les autres profils reçoivent leurs identifiants par email, créés par l\'administrateur.' },
+        { q: 'Mes données sont-elles sécurisées ?', r: 'Oui. Chaque connexion est authentifiée de façon sécurisée, et les droits d\'accès sont strictement limités selon le rôle de chaque utilisateur.' },
+        { q: 'Puis-je poser des questions à l\'assistant en langage naturel ?', r: 'Oui, une fois connecté, l\'assistant intelligent peut consulter vos réservations, équipements et maintenances directement à partir de vos questions.' }
+      ]; track item.q; let i = $index) {
+        <div class="bg-white rounded-xl border border-border overflow-hidden">
+          <button type="button" (click)="toggleFaq(i)" class="w-full flex items-center justify-between px-5 py-4 text-left">
+            <span class="font-medium text-text text-sm">{{ item.q }}</span>
+            <i class="pi text-text-secondary text-xs transition-transform" [class.pi-plus]="faqOuverte() !== i" [class.pi-minus]="faqOuverte() === i"></i>
+          </button>
+          @if (faqOuverte() === i) {
+            <p class="px-5 pb-4 text-sm text-text-secondary leading-relaxed">{{ item.r }}</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-20 px-5 sm:px-8">
+  <div class="max-w-5xl mx-auto rounded-2xl bg-sidebar bg-cover bg-center relative overflow-hidden text-center py-16 px-6" style="background-image: url('images/hero-labo.jpg')" appReveal>
+    <div class="absolute inset-0 bg-sidebar/85"></div>
+    <div class="relative">
+      <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3">Prêt à simplifier la gestion de votre laboratoire ?</h2>
+      <p class="text-white/70 mb-8 max-w-xl mx-auto">Rejoignez UMRED Labo et centralisez réservations, équipements et maintenance dès aujourd'hui.</p>
+      <div class="flex flex-wrap justify-center gap-3">
+        <button type="button" (click)="accederPlateforme()" class="bg-white text-text font-medium px-6 py-3 rounded-lg hover:bg-background transition-colors">Accéder à la plateforme</button>
+        <a href="#apropos" class="bg-white/10 text-white font-medium px-6 py-3 rounded-lg border border-white/20 hover:bg-white/20 transition-colors">En savoir plus sur UMRED</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-sidebar text-white/70 py-14 px-5 sm:px-8">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+    <div>
+      <p class="font-bold text-white text-lg mb-3">UMRED Labo</p>
+      <p class="text-sm leading-relaxed">Plateforme de gestion intelligente des laboratoires de recherche universitaire.</p>
+    </div>
+    <div>
+      <p class="font-semibold text-white mb-3 text-sm">Plateforme</p>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#fonctionnalites" class="hover:text-white transition-colors">Fonctionnalités</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Laboratoires</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Équipements</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Maintenance</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="font-semibold text-white mb-3 text-sm">Institution</p>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#" class="hover:text-white transition-colors">UFR Santé</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Université Iba Der Thiam</a></li>
+        <li><a href="#apropos" class="hover:text-white transition-colors">À propos</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="font-semibold text-white mb-3 text-sm">Légal</p>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#" class="hover:text-white transition-colors">Mentions légales</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Politique de confidentialité</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="max-w-7xl mx-auto border-t border-white/10 mt-10 pt-6 text-xs text-white/50">© 2026 UMRED — UFR Santé de Thiès</div>
+</footer>
+
+<app-assistant-chat />
