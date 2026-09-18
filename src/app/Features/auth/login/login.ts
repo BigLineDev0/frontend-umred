@@ -4,7 +4,7 @@ import { ButtonModule } from "primeng/button";
 import { PasswordModule } from 'primeng/password';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
 import { AuthService } from '../../../Core/services/auth.service';
@@ -19,6 +19,8 @@ import { AuthService } from '../../../Core/services/auth.service';
 export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService)
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   loading = signal(false);
   submitted = false;
@@ -55,7 +57,12 @@ export class Login {
     this.authService.login(email, password).subscribe({
       next: () => {
         this.loading.set(false);
-        this.authService.redirigerSelonRole();
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        if (returnUrl) {
+          this.router.navigate([returnUrl]);
+        } else {
+          this.authService.redirigerSelonRole();
+        }
       },
       error: (err) => {
         this.loading.set(false);

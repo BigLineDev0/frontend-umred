@@ -83,7 +83,7 @@
     </div>
   } @else {
     <div class="bg-white border border-border rounded-xl overflow-hidden">
-      <app-data-table [columns]="columns" [data]="filteredReservations()" [rows]="5">
+      <app-data-table [columns]="columns" [data]="filteredReservations()" [rows]="10">
         <ng-template appColumnTemplate="laboratoire_nom" let-row>
           {{ row.laboratoire_nom }}
         </ng-template>

@@ -65,4 +65,15 @@ export class EquipementService {
   vider(): void {
     this.equipements.set([]);
   }
+
+  televerserManuel(id: number, fichier: File): Observable<Equipement> {
+    const formData = new FormData();
+    formData.append('manuel_pdf', fichier);
+    // Ne jamais fixer manuellement le Content-Type ici : le navigateur doit
+    // générer lui-même la frontière multipart (boundary), sinon Django ne
+    // parvient pas à parser correctement le fichier envoyé.
+    return this.http.patch<Equipement>(`${this.baseUrl}/equipements/${id}/`, formData).pipe(
+      tap(maj => this.equipements.update(list => list.map(e => e.id === id ? maj : e)))
+    );
+  }
 }

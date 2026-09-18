@@ -13,6 +13,7 @@ import { MaintenanceService } from '../../../../Core/services/maintenance.servic
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { AuthService } from '../../../../Core/services/auth.service';
 
+import QRCode from 'qrcode';
 @Component({
   standalone: true,
   selector: 'app-equipement-detail',
@@ -35,6 +36,7 @@ export class EquipementDetail implements OnInit {
   readonly laboratoire = signal<{ nom: string; localisation: string } | null>(null);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  qrCodeUrl = signal<string | null>(null);
 
   readonly canManage = computed(() => {
     const role = this.authService.currentUser()?.role;
@@ -63,6 +65,7 @@ export class EquipementDetail implements OnInit {
     this.equipementService.chargerUn(id).subscribe({
       next: (e) => {
         this.equipement.set(e);
+        this.genererQrCode(e.id);
         this.loading.set(false);
         this.maintenanceService.chargerParEquipement(id);
         this.laboratoireService.chargerUn(e.laboratoire).subscribe(l =>
@@ -142,5 +145,22 @@ export class EquipementDetail implements OnInit {
         });
       },
     });
+  }
+
+  private genererQrCode(equipementId: number): void {
+    const lienCible = `${window.location.origin}/equipements/${equipementId}`;
+    QRCode.toDataURL(lienCible, { width: 300, margin: 2 }).then(dataUrl => {
+      this.qrCodeUrl.set(dataUrl);
+    });
+  }
+
+  telechargerQrCode(): void {
+    const url = this.qrCodeUrl();
+    const e = this.equipement();
+    if (!url || !e) return;
+    const lien = document.createElement('a');
+    lien.href = url;
+    lien.download = `qr-${e.numero_serie}.png`;
+    lien.click();
   }
 }

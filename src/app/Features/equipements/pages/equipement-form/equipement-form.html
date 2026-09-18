@@ -245,6 +245,45 @@
         </div>
       </section>
 
+      <section class="border-t border-border p-5 sm:p-7">
+        <div class="mb-7">
+          <h2 class="text-base font-semibold text-text">Guide d'utilisation</h2>
+          <p class="mt-1 text-xs text-text-secondary">Consignes et instructions destinées aux utilisateurs de cet équipement.</p>
+        </div>
+
+        <div class="space-y-5">
+          <div>
+            <label class="mb-2 block text-sm font-medium text-text">Consignes de sécurité</label>
+            <textarea pTextarea formControlName="consignes_securite" rows="3"
+              placeholder="Ex. : Porter des gants avant manipulation. Ne jamais ouvrir l'appareil sous tension."
+              class="w-full"></textarea>
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-medium text-text">Instructions d'utilisation</label>
+            <textarea pTextarea formControlName="instructions_utilisation" rows="4"
+              placeholder="Ex. : 1. Allumer l'appareil. 2. Calibrer avant chaque série de mesures..."
+              class="w-full"></textarea>
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-medium text-text">Manuel d'utilisation (PDF)</label>
+
+            @if (manuelNomActuel() && !manuelFichier()) {
+              <p class="text-sm text-text-secondary mb-2">
+                <i class="pi pi-file-pdf text-danger"></i> Fichier actuel : {{ manuelNomActuel() }}
+              </p>
+            }
+            @if (manuelFichier()) {
+              <p class="text-sm text-success mb-2"><i class="pi pi-check"></i> {{ manuelFichier()!.name }} sera envoyé.</p>
+            }
+
+            <input type="file" accept="application/pdf" (change)="onFichierSelectionne($event)"
+              class="block w-full text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:font-medium hover:file:bg-primary/20 file:cursor-pointer cursor-pointer" />
+            <p class="text-xs text-text-secondary mt-1">Format PDF uniquement.</p>
+          </div>
+        </div>
+      </section>
+
       <div
         class="flex flex-col-reverse justify-between gap-3 border-t border-border bg-background/60 p-5 sm:flex-row sm:p-7"
       >

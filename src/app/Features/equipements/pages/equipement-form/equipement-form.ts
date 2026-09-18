@@ -34,6 +34,16 @@ export class EquipementForm implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
 
+  manuelFichier = signal<File | null>(null);
+  manuelNomActuel = signal<string | null>(null);
+
+  onFichierSelectionne(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      this.manuelFichier.set(input.files[0]);
+    }
+  }
+
   statutOptions = [
     { label: 'Disponible', value: 'DISPONIBLE' },
     { label: 'Réservé', value: 'RESERVE' },
@@ -51,6 +61,8 @@ export class EquipementForm implements OnInit {
     description: ['', Validators.maxLength(1000)],
     dateAcquisition: [null as Date | null],
     statut: ['DISPONIBLE', Validators.required],
+    instructions_utilisation: [''],
+    consignes_securite: [''],
   });
 
   ngOnInit(): void {
@@ -77,7 +89,10 @@ export class EquipementForm implements OnInit {
           description: e.description,
           dateAcquisition: e.date_acquisition ? new Date(e.date_acquisition) : null,
           statut: e.statut,
+          instructions_utilisation: e.instructions_utilisation,
+          consignes_securite: e.consignes_securite
         });
+        this.manuelNomActuel.set(e.manuel_pdf ? e.manuel_pdf.split('/').pop() ?? null : null);
         this.loading.set(false);
       },
       error: () => {
@@ -128,6 +143,9 @@ export class EquipementForm implements OnInit {
       description: value.description?.trim() || '',
       date_acquisition: value.dateAcquisition ? this.formatDate(value.dateAcquisition) : null,
       statut: value.statut! as any,
+      instructions_utilisation: value.instructions_utilisation?.trim() || '',
+      consignes_securite: value.consignes_securite?.trim() || ''
+
     };
 
     this.loading.set(true);
@@ -137,20 +155,35 @@ export class EquipementForm implements OnInit {
       : this.equipementService.creer(payload);
 
     requete.subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: this.isEditMode() ? 'Équipement modifié' : 'Équipement ajouté',
-          detail: `« ${payload.nom} » a été enregistré avec succès.`,
-        });
-        this.router.navigate(['/equipements']);
+      next: (equipement) => {
+        const fichier = this.manuelFichier();
+        if (fichier) {
+          this.equipementService.televerserManuel(equipement.id, fichier).subscribe({
+            next: () => this.finaliserSucces(payload.nom),
+            error: () => {
+              this.finaliserSucces(payload.nom);
+              this.messageService.add({ severity: 'warn', summary: 'Manuel non enregistré', detail: "L'équipement a été enregistré, mais l'envoi du manuel a échoué." });
+            },
+          });
+        } else {
+          this.finaliserSucces(payload.nom);
+        }
       },
       error: (err) => {
         this.loading.set(false);
         this.error.set(err.error?.numero_serie?.[0] ?? "Une erreur est survenue lors de l'enregistrement.");
       },
     });
+  }
+
+  private finaliserSucces(nom: string): void {
+    this.loading.set(false);
+    this.messageService.add({
+      severity: 'success',
+      summary: this.isEditMode() ? 'Équipement modifié' : 'Équipement ajouté',
+      detail: `« ${nom} » a été enregistré avec succès.`
+    });
+    this.router.navigate(['/equipements']);
   }
 
   private formatDate(date: Date): string {

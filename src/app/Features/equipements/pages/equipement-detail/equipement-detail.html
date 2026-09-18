@@ -34,6 +34,21 @@
         </div>
       }
     </div>
+    @if (canManage()) {
+  <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
+    <div>
+      <h2 class="text-base font-semibold text-text">QR code de l'équipement</h2>
+      <p class="text-xs text-text-secondary mt-1">À imprimer et coller sur l'appareil pour un accès rapide à sa fiche.</p>
+    </div>
+
+    @if (qrCodeUrl(); as qr) {
+      <div class="flex flex-col items-center gap-4 mt-5">
+        <img [src]="qr" alt="QR code de l'équipement" class="w-48 h-48 border border-border rounded-lg p-2" />
+        <p-button label="Télécharger" icon="pi pi-download" size="small" (onClick)="telechargerQrCode()" />
+      </div>
+    }
+  </section>
+}
 
     <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
       <h2 class="mb-7 text-base font-semibold text-text">Informations générales</h2>
@@ -63,7 +78,37 @@
           <div class="mt-2"><p-tag [value]="getStatusLabel(e.statut)" [severity]="getStatusSeverity(e.statut)" /></div>
         </div>
       </div>
+
     </section>
+    @if (e.consignes_securite || e.instructions_utilisation || e.manuel_pdf ) {
+    <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
+      <h2 class="mb-6 text-base font-semibold text-text">Guide d'utilisation</h2>
+
+      @if (e.consignes_securite) {
+        <div class="bg-danger/5 border border-danger/20 rounded-lg p-4 mb-5">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="pi pi-exclamation-triangle text-danger"></i>
+            <p class="text-sm font-semibold text-danger">Consignes de sécurité</p>
+          </div>
+          <p class="text-sm text-text whitespace-pre-line">{{ e.consignes_securite }}</p>
+        </div>
+      }
+
+      @if (e.instructions_utilisation) {
+        <div>
+          <p class="text-sm font-semibold text-text mb-2">Mode d'emploi</p>
+          <p class="text-sm text-text-secondary whitespace-pre-line leading-relaxed">{{ e.instructions_utilisation }}</p>
+        </div>
+      }
+
+      @if (e.manuel_pdf) {
+        <a [href]="e.manuel_pdf" target="_blank" rel="noopener"
+          class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+          <i class="pi pi-file-pdf"></i> Télécharger le manuel complet (PDF)
+        </a>
+      }
+    </section>
+  }
 
     <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
       <h2 class="mb-6 text-base font-semibold text-text">Laboratoire</h2>

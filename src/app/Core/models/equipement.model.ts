@@ -12,6 +12,9 @@ export interface Equipement {
   date_acquisition: string | null;
   statut: StatutEquipement;
   date_creation: string;
+  instructions_utilisation: string;
+  consignes_securite: string;
+  manuel_pdf: string | null;
 }
 
 export interface EquipementPayload {
@@ -23,4 +26,7 @@ export interface EquipementPayload {
   numero_serie: string;
   date_acquisition?: string | null;
   statut: StatutEquipement;
+  instructions_utilisation?: string;
+  consignes_securite?: string;
+  manuel_pdf?: string | null;
 }
