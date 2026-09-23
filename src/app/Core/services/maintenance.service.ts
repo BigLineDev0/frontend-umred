@@ -40,6 +40,14 @@ export class MaintenanceService {
     return this.http.get<Maintenance>(`${this.baseUrl}/maintenances/${id}/`);
   }
 
+  prendreEnCharge(id: number, datePlanifiee: string): Observable<Maintenance> {
+    return this.http.post<Maintenance>(`${this.baseUrl}/maintenances/${id}/prendre_en_charge/`, {
+      date_planifiee: datePlanifiee,
+    }).pipe(
+      tap(maj => this.maintenances.update(list => list.map(m => m.id === id ? maj : m)))
+    );
+  }
+
   creer(payload: MaintenancePayload): Observable<Maintenance> {
     return this.http.post<Maintenance>(`${this.baseUrl}/maintenances/`, payload).pipe(
       tap(nouvelle => this.maintenances.update(list => [nouvelle, ...list]))

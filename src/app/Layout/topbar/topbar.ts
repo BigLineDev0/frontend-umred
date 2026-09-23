@@ -1,4 +1,12 @@
-import { Component, ElementRef, HostListener, computed, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { NgClass } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -11,19 +19,32 @@ import { LayoutService } from '../../Core/services/layout.service';
 import { AuthService } from '../../Core/services/auth.service';
 import { NotificationService } from '../../Core/services/notification.service';
 import { Notification, TypeNotification } from '../../Core/models/notification.model';
+import { RechercheService } from '../../Core/services/recherche.service';
+import { ResultatRecherche } from '../../Core/models/recherche.model';
+import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 const NOTIF_STYLE: Record<TypeNotification, { icon: string; bg: string; color: string }> = {
   RESERVATION: { icon: 'pi pi-calendar', bg: 'bg-primary/10', color: 'text-primary' },
   MAINTENANCE: { icon: 'pi pi-wrench', bg: 'bg-accent/10', color: 'text-accent' },
-  VALIDATION:  { icon: 'pi pi-check-circle', bg: 'bg-success/10', color: 'text-success' },
-  RAPPEL:      { icon: 'pi pi-clock', bg: 'bg-accent/10', color: 'text-accent' },
-  SYSTEME:     { icon: 'pi pi-info-circle', bg: 'bg-primary/10', color: 'text-primary' },
+  VALIDATION: { icon: 'pi pi-check-circle', bg: 'bg-success/10', color: 'text-success' },
+  RAPPEL: { icon: 'pi pi-clock', bg: 'bg-accent/10', color: 'text-accent' },
+  SYSTEME: { icon: 'pi pi-info-circle', bg: 'bg-primary/10', color: 'text-primary' },
 };
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [ButtonModule, AvatarModule, InputTextModule, InputIconModule, IconFieldModule, RouterLink, NgClass],
+  imports: [
+    ButtonModule,
+    AvatarModule,
+    InputTextModule,
+    InputIconModule,
+    IconFieldModule,
+    RouterLink,
+    NgClass,
+    FormsModule
+  ],
   templateUrl: './topbar.html',
   styleUrl: './topbar.css',
 })
@@ -36,6 +57,23 @@ export class Topbar {
   private router = inject(Router);
   readonly notificationService = inject(NotificationService);
 
+  private rechercheService = inject(RechercheService);
+
+  rechercheTerme = signal('');
+  rechercheOuverte = signal(false);
+  resultats = signal<ResultatRecherche>({ equipements: [], laboratoires: [] });
+  private rechercheSubject = new Subject<string>();
+
+  onRechercheInput(valeur: string): void {
+    this.rechercheTerme.set(valeur);
+    this.rechercheOuverte.set(valeur.length >= 2);
+    this.rechercheSubject.next(valeur);
+  }
+
+  fermerRecherche(): void {
+    this.rechercheOuverte.set(false);
+  }
+
   user = this.authService.currentUser;
 
   initials = computed(() => {
@@ -47,14 +85,38 @@ export class Topbar {
     effect(() => {
       if (this.notifPanelOpen()) this.notificationService.chargerRecentes();
     });
+
+    // debounceTime évite de lancer une requête à CHAQUE frappe — on
+    // attend que l'utilisateur marque une pause de 300ms avant de
+    // chercher. distinctUntilChanged évite de relancer la même requête
+    // si le texte n'a en fait pas changé (ex: retaper la même lettre).
+    this.rechercheSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((terme) => (terme.length >= 2 ? this.rechercheService.rechercher(terme) : [])),
+      )
+      .subscribe((resultat) => {
+        if (resultat) this.resultats.set(resultat);
+      });
   }
 
-  styleFor(type: TypeNotification) { return NOTIF_STYLE[type]; }
+  styleFor(type: TypeNotification) {
+    return NOTIF_STYLE[type];
+  }
 
-  toggleProfileMenu(): void { this.notifPanelOpen.set(false); this.profileMenuOpen.update(o => !o); }
-  toggleNotifPanel(): void { this.profileMenuOpen.set(false); this.notifPanelOpen.update(o => !o); }
+  toggleProfileMenu(): void {
+    this.notifPanelOpen.set(false);
+    this.profileMenuOpen.update((o) => !o);
+  }
+  toggleNotifPanel(): void {
+    this.profileMenuOpen.set(false);
+    this.notifPanelOpen.update((o) => !o);
+  }
 
-  marquerToutesLues(): void { this.notificationService.marquerToutesLues().subscribe(); }
+  marquerToutesLues(): void {
+    this.notificationService.marquerToutesLues().subscribe();
+  }
 
   ouvrirNotification(n: Notification): void {
     if (!n.lu) this.notificationService.marquerLue(n.id).subscribe();
@@ -72,9 +134,12 @@ export class Topbar {
     }
     if (n.entite_type_nom === 'reservation') {
       const role = this.user()?.role;
-      const route = role === 'ETUDIANT' ? '/etudiant/dashboard/mes-demandes'
-        : role === 'CHERCHEUR' ? '/enseignant/dashboard/reservations'
-        : '/reservations/a-valider';
+      const route =
+        role === 'ETUDIANT'
+          ? '/etudiant/dashboard/mes-demandes'
+          : role === 'CHERCHEUR'
+            ? '/enseignant/dashboard/reservations'
+            : '/reservations/a-valider';
       this.router.navigate([route]);
       return;
     }
@@ -95,9 +160,15 @@ export class Topbar {
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.profileMenuOpen.set(false);
       this.notifPanelOpen.set(false);
+      this.rechercheOuverte.set(false);
     }
   }
 
-  toggleSidebar(): void { this.layoutService.toggleSidebar(); }
-  onLogout(): void { this.profileMenuOpen.set(false); this.authService.logout(); }
+  toggleSidebar(): void {
+    this.layoutService.toggleSidebar();
+  }
+  onLogout(): void {
+    this.profileMenuOpen.set(false);
+    this.authService.logout();
+  }
 }

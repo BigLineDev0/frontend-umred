@@ -77,7 +77,7 @@ export class AuthService {
   private enregistrerSession(reponse: LoginResponse): void {
     localStorage.setItem('access_token', reponse.access);
     localStorage.setItem('refresh_token', reponse.refresh);
-    const user: CurrentUser = { nom: reponse.nom, prenom: reponse.prenom, role: reponse.role };
+    const user: CurrentUser = {id: reponse.id, nom: reponse.nom, prenom: reponse.prenom, role: reponse.role, photo: reponse.photo };
     localStorage.setItem('current_user', JSON.stringify(user));
     this._currentUser.set(user);
   }
@@ -85,5 +85,36 @@ export class AuthService {
   private lireUtilisateurStocke(): CurrentUser | null {
     const brut = localStorage.getItem('current_user');
     return brut ? JSON.parse(brut) : null;
+  }
+
+  verifierJeton(jeton: string): Observable<{ valide: boolean; prenom?: string }> {
+    return this.http.get<{ valide: boolean; prenom?: string }>(`${this.baseUrl}/auth/verifier-jeton/${jeton}/`);
+  }
+
+  definirMotDePasse(jeton: string, password: string): Observable<{ detail: string }> {
+    return this.http.post<{ detail: string }>(`${this.baseUrl}/auth/definir-mot-de-passe/`, { jeton, password });
+  }
+
+  changerMotDePasse(ancien_password: string, nouveau_password: string): Observable<{ detail: string }> {
+    return this.http.post<{ detail: string }>(`${this.baseUrl}/auth/changer-mot-de-passe/`, { ancien_password, nouveau_password });
+  }
+
+  // Le nom/prénom affiché dans la sidebar et le topbar vient du token de
+  // connexion, pas d'un rechargement — sans ça, un changement de nom ne
+  // se refléterait qu'après une déconnexion/reconnexion.
+  mettreAJourProfilLocal(nom: string, prenom: string): void {
+    const utilisateur = this.currentUser();
+    if (!utilisateur) return;
+    const maj = { ...utilisateur, nom, prenom };
+    localStorage.setItem('current_user', JSON.stringify(maj));
+    this._currentUser.set(maj);
+  }
+
+  mettreAJourPhotoLocale(photoUrl: string): void {
+    const utilisateur = this.currentUser();
+    if (!utilisateur) return;
+    const maj = { ...utilisateur, photo: photoUrl };
+    localStorage.setItem('current_user', JSON.stringify(maj));
+    this._currentUser.set(maj);
   }
 }

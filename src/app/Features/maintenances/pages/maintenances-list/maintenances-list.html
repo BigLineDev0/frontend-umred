@@ -47,7 +47,7 @@
         <ng-template appColumnTemplate="statut" let-row><app-status-badge [statut]="row.statut" /></ng-template>
         <ng-template appColumnTemplate="actions" let-row>
           <app-row-actions [showEdit]="false" [showDelete]="false" (view)="onVoir(row)">
-            @if (row.statut === 'PLANIFIEE') {
+            @if (row.statut === 'PLANIFIEE' || row.statut === 'SIGNALEE') {
               <p-button icon="pi pi-play" [text]="true" [rounded]="true" severity="info" size="small" (onClick)="onDemarrer(row)" pTooltip="Démarrer" />
             }
             @if (row.statut === 'PLANIFIEE' || row.statut === 'EN_COURS') {

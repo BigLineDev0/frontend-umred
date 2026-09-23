@@ -11,12 +11,22 @@ import { MessageService } from 'primeng/api';
 
 import { EquipementService } from '../../../../Core/services/equipement.service';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   standalone: true,
   selector: 'app-equipement-form',
   templateUrl: './equipement-form.html',
-  imports: [ReactiveFormsModule, RouterLink, ButtonModule, InputTextModule, TextareaModule, SelectModule, DatePickerModule],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    ButtonModule,
+    InputTextModule,
+    TextareaModule,
+    SelectModule,
+    DatePickerModule,
+    CheckboxModule
+  ],
 })
 export class EquipementForm implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -63,6 +73,8 @@ export class EquipementForm implements OnInit {
     statut: ['DISPONIBLE', Validators.required],
     instructions_utilisation: [''],
     consignes_securite: [''],
+    necessite_validation: [false],
+    seuil_heures_maintenance: [200, [Validators.required, Validators.min(1)]],
   });
 
   ngOnInit(): void {
@@ -90,9 +102,11 @@ export class EquipementForm implements OnInit {
           dateAcquisition: e.date_acquisition ? new Date(e.date_acquisition) : null,
           statut: e.statut,
           instructions_utilisation: e.instructions_utilisation,
-          consignes_securite: e.consignes_securite
+          consignes_securite: e.consignes_securite,
+          necessite_validation: e.necessite_validation,
+          seuil_heures_maintenance: e.seuil_heures_maintenance,
         });
-        this.manuelNomActuel.set(e.manuel_pdf ? e.manuel_pdf.split('/').pop() ?? null : null);
+        this.manuelNomActuel.set(e.manuel_pdf ? (e.manuel_pdf.split('/').pop() ?? null) : null);
         this.loading.set(false);
       },
       error: () => {
@@ -144,8 +158,9 @@ export class EquipementForm implements OnInit {
       date_acquisition: value.dateAcquisition ? this.formatDate(value.dateAcquisition) : null,
       statut: value.statut! as any,
       instructions_utilisation: value.instructions_utilisation?.trim() || '',
-      consignes_securite: value.consignes_securite?.trim() || ''
-
+      consignes_securite: value.consignes_securite?.trim() || '',
+      necessite_validation: value.necessite_validation,
+      seuil_heures_maintenance: value.seuil_heures_maintenance,
     };
 
     this.loading.set(true);
@@ -162,7 +177,11 @@ export class EquipementForm implements OnInit {
             next: () => this.finaliserSucces(payload.nom),
             error: () => {
               this.finaliserSucces(payload.nom);
-              this.messageService.add({ severity: 'warn', summary: 'Manuel non enregistré', detail: "L'équipement a été enregistré, mais l'envoi du manuel a échoué." });
+              this.messageService.add({
+                severity: 'warn',
+                summary: 'Manuel non enregistré',
+                detail: "L'équipement a été enregistré, mais l'envoi du manuel a échoué.",
+              });
             },
           });
         } else {
@@ -171,7 +190,9 @@ export class EquipementForm implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.numero_serie?.[0] ?? "Une erreur est survenue lors de l'enregistrement.");
+        this.error.set(
+          err.error?.numero_serie?.[0] ?? "Une erreur est survenue lors de l'enregistrement.",
+        );
       },
     });
   }
@@ -181,7 +202,7 @@ export class EquipementForm implements OnInit {
     this.messageService.add({
       severity: 'success',
       summary: this.isEditMode() ? 'Équipement modifié' : 'Équipement ajouté',
-      detail: `« ${nom} » a été enregistré avec succès.`
+      detail: `« ${nom} » a été enregistré avec succès.`,
     });
     this.router.navigate(['/equipements']);
   }
@@ -193,11 +214,17 @@ export class EquipementForm implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  get pageTitle(): string { return this.isEditMode() ? "Modifier l'équipement" : 'Nouvel équipement'; }
-  get pageDescription(): string {
-    return this.isEditMode() ? "Modifiez les informations de l'équipement." : 'Ajoutez un nouvel équipement au laboratoire.';
+  get pageTitle(): string {
+    return this.isEditMode() ? "Modifier l'équipement" : 'Nouvel équipement';
   }
-  get submitLabel(): string { return this.isEditMode() ? 'Enregistrer les modifications' : "Enregistrer l'équipement"; }
+  get pageDescription(): string {
+    return this.isEditMode()
+      ? "Modifiez les informations de l'équipement."
+      : 'Ajoutez un nouvel équipement au laboratoire.';
+  }
+  get submitLabel(): string {
+    return this.isEditMode() ? 'Enregistrer les modifications' : "Enregistrer l'équipement";
+  }
 
   annuler(): void {
     this.router.navigate(['/equipements']);

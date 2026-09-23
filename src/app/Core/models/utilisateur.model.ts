@@ -8,6 +8,7 @@ export interface Utilisateur {
   email: string;
   telephone: string;
   role: Role;
+  photo: string | null;
   statut_compte: StatutCompte;
   date_creation: string;
   last_login: string | null;

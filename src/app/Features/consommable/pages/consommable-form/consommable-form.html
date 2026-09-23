@@ -1,0 +1,87 @@
+<div class="min-h-full">
+  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
+        <a routerLink="/consommables" class="transition-colors hover:text-primary">Consommables</a>
+        <i class="pi pi-angle-right text-xs"></i>
+        <span class="font-medium text-text">{{ isEditMode() ? 'Modifier' : 'Nouveau' }}</span>
+      </div>
+      <h1 class="text-2xl font-semibold tracking-tight text-text">
+        {{ isEditMode() ? 'Modifier le consommable' : 'Ajouter un consommable' }}
+      </h1>
+    </div>
+    <p-button label="Retour" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (onClick)="annuler()" />
+  </div>
+
+  @if (error()) {
+    <div class="mx-auto mb-6 max-w-3xl flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <i class="pi pi-exclamation-circle mt-0.5"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mx-auto max-w-3xl overflow-hidden rounded-xl border border-border bg-white shadow-sm p-6 sm:p-8 space-y-6">
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-text">
+          Laboratoire <span class="text-red-600">*</span>
+        </label>
+        <p-select inputId="laboratoire" formControlName="laboratoireId" [options]="laboratoireService.laboratoires()"
+          optionLabel="nom" optionValue="id" placeholder="Sélectionnez un laboratoire" [showClear]="true" fluid class="w-full" />
+        @if (isFieldInvalid('laboratoireId')) {
+          <small class="mt-1 block text-red-600">Le laboratoire est obligatoire.</small>
+        }
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <label class="mb-2 block text-sm font-medium text-text">
+            Nom du consommable <span class="text-red-600">*</span>
+          </label>
+          <input pInputText type="text" formControlName="nom" placeholder="Ex. Kit d'extraction ADN" class="w-full" />
+          @if (isFieldInvalid('nom')) {
+            <small class="mt-1 block text-red-600">Le nom est obligatoire (2 caractères minimum).</small>
+          }
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-medium text-text">Référence</label>
+          <input pInputText type="text" formControlName="reference" placeholder="Ex. REF-2024-045" class="w-full" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div>
+          <label class="mb-2 block text-sm font-medium text-text">
+            Unité <span class="text-red-600">*</span>
+          </label>
+          <p-select formControlName="unite" [options]="uniteOptions" optionLabel="label" optionValue="value" fluid class="w-full" />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-medium text-text">
+            Quantité en stock <span class="text-red-600">*</span>
+          </label>
+          <p-inputNumber formControlName="quantite_stock" [minFractionDigits]="0" [maxFractionDigits]="2" [min]="0" class="w-full" inputStyleClass="w-full" />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-medium text-text">
+            Seuil d'alerte <span class="text-red-600">*</span>
+          </label>
+          <p-inputNumber formControlName="seuil_alerte" [minFractionDigits]="0" [maxFractionDigits]="2" [min]="0" class="w-full" inputStyleClass="w-full" />
+          <p class="text-xs text-text-secondary mt-1">Quantité sous laquelle l'alerte "stock faible" se déclenche.</p>
+        </div>
+      </div>
+
+      <div class="max-w-xs">
+        <label class="mb-2 block text-sm font-medium text-text">Date de péremption</label>
+        <p-datepicker formControlName="date_peremption" dateFormat="dd/mm/yy" placeholder="jj/mm/aaaa" [showIcon]="true" fluid class="w-full" />
+        <p class="text-xs text-text-secondary mt-1">Laissez vide si le produit n'est pas périssable.</p>
+      </div>
+
+      <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 border-t border-border pt-6">
+        <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="loading()" (onClick)="annuler()" />
+        <p-button type="submit" [label]="isEditMode() ? 'Enregistrer' : 'Créer le consommable'" icon="pi pi-check" [loading]="loading()" />
+      </div>
+    </div>
+  </form>
+</div>

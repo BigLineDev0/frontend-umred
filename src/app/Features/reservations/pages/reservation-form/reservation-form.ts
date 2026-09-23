@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { Location } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
@@ -12,8 +12,10 @@ import { DialogModule } from 'primeng/dialog';
 
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { EquipementService } from '../../../../Core/services/equipement.service';
-import { ReservationPayload } from '../../../../Core/models/reservation.model';
+import { ReponseConflit, ReservationPayload } from '../../../../Core/models/reservation.model';
 import { ReservationService } from '../../../../Core/services/reservation.service';
+import { ProjetService } from '../../../../Core/services/projet.service';
+import { ProjetFormModal } from '../../../../Shared/components/projet-form-modal/projet-form-modal';
 
 @Component({
   standalone: true,
@@ -29,6 +31,8 @@ import { ReservationService } from '../../../../Core/services/reservation.servic
     InputTextModule,
     TextareaModule,
     DialogModule,
+    ProjetFormModal,
+    DatePipe
   ],
 })
 export class ReservationForm {
@@ -39,6 +43,10 @@ export class ReservationForm {
   readonly laboratoireService = inject(LaboratoireService);
   readonly equipementService = inject(EquipementService);
   private readonly reservationService = inject(ReservationService);
+  readonly projetService = inject(ProjetService);
+
+  reponseConflit = signal<ReponseConflit | null>(null);
+  projetFormVisible = signal(false);
 
   readonly today = new Date();
 
@@ -51,6 +59,7 @@ export class ReservationForm {
     // que la salle, sans équipement précis (décision métier assumée).
     equipementIds: [[] as number[]],
     motif: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
+    projetId: [null as number | null],
   });
 
   // --- États UI ---
@@ -69,6 +78,7 @@ export class ReservationForm {
 
   ngOnInit(): void {
     this.laboratoireService.charger();
+    this.projetService.charger();
   }
 
   // --- Sélection du laboratoire ---
@@ -167,7 +177,7 @@ export class ReservationForm {
 
   // --- Confirmation finale : appel API réel ---
 
-  confirmerReservation(): void {
+ confirmerReservation(): void {
     const value = this.reservationForm.getRawValue();
 
     const payload: ReservationPayload = {
@@ -177,9 +187,11 @@ export class ReservationForm {
       heure_debut: value.heureDebut,
       heure_fin: value.heureFin,
       motif: value.motif.trim(),
+      projet: value.projetId,
     };
 
     this.loading.set(true);
+    this.reponseConflit.set(null);
 
     this.reservationService.creer(payload).subscribe({
       next: () => {
@@ -190,7 +202,12 @@ export class ReservationForm {
       error: (err) => {
         this.loading.set(false);
         this.showConfirmation.set(false);
-        this.error.set(this.extraireMessageErreur(err));
+
+        if (err.status === 409 && err.error?.conflit) {
+          this.reponseConflit.set(err.error as ReponseConflit);
+        } else {
+          this.error.set(this.extraireMessageErreur(err));
+        }
       },
     });
   }
@@ -255,5 +272,27 @@ export class ReservationForm {
     const debut = this.reservationForm.get('heureDebut')?.value;
     const fin = this.reservationForm.get('heureFin')?.value;
     return `${debut} – ${fin}`;
+  }
+
+  appliquerAlternative(alt: { date: string; heure_debut: string; heure_fin: string }): void {
+    this.reservationForm.patchValue({
+      date: new Date(alt.date),
+      heureDebut: alt.heure_debut,
+      heureFin: alt.heure_fin,
+    });
+    this.reponseConflit.set(null);
+  }
+
+  appliquerEquipementEquivalent(equipementId: number): void {
+    this.reservationForm.patchValue({ equipementIds: [equipementId] });
+    this.reponseConflit.set(null);
+  }
+
+  fermerConflit(): void {
+    this.reponseConflit.set(null);
+  }
+
+  onProjetCree(projetId: number): void {
+    this.reservationForm.patchValue({ projetId });
   }
 }

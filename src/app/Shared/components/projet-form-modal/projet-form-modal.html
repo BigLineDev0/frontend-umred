@@ -1,0 +1,29 @@
+<p-dialog [(visible)]="visible" [modal]="true" [draggable]="false" [resizable]="false"
+  [style]="{ width: '440px', maxWidth: 'calc(100vw - 2rem)' }" header="Nouveau projet">
+
+  <div class="space-y-5">
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Nom du projet <span class="text-danger">*</span></label>
+      <input pInputText type="text" [ngModel]="nom()" (ngModelChange)="nom.set($event)"
+        placeholder="Ex. Étude des biomarqueurs cardiaques" class="w-full" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Description (optionnelle)</label>
+      <textarea pTextarea rows="3" [ngModel]="description()" (ngModelChange)="description.set($event)"
+        placeholder="Contexte du projet de recherche..." class="w-full"></textarea>
+    </div>
+    <div class="flex items-start gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2.5">
+      <i class="pi pi-info-circle text-primary mt-0.5 text-sm"></i>
+      <p class="text-xs text-text-secondary leading-relaxed">
+        Le niveau de priorité de ce projet est défini par un administrateur, pas par vous, il permet de départager les demandes concurrentes sur un même équipement.
+      </p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-3">
+      <p-button label="Annuler" severity="secondary" [outlined]="true" [disabled]="submitting()" (onClick)="onAnnuler()" />
+      <p-button label="Créer le projet" icon="pi pi-check" [loading]="submitting()" (onClick)="onCreer()" />
+    </div>
+  </ng-template>
+</p-dialog>

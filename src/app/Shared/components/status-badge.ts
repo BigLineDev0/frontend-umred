@@ -15,7 +15,11 @@ type Statut =
   | 'EN_PANNE'
   | 'HORS_SERVICE'
   | 'ACTIF'
-  | 'INACTIF';
+  | 'INACTIF'
+  | 'SIGNALEE'
+  | 'STOCK_FAIBLE'
+  | 'EPUISE'
+  | 'PERIME';
 
 const STATUT_CONFIG: Record<
   Statut,
@@ -33,8 +37,12 @@ const STATUT_CONFIG: Record<
   DISPONIBLE: { label: 'Disponible', severity: 'success' },
   RESERVE: { label: 'Réservé', severity: 'info' },
   EN_MAINTENANCE: { label: 'En maintenance', severity: 'warn' },
+  SIGNALEE: { label: 'Signalée', severity: 'danger' },
   EN_PANNE: { label: 'En panne', severity: 'danger' },
   HORS_SERVICE: { label: 'Hors service', severity: 'secondary' },
+  STOCK_FAIBLE: { label: 'Stock faible', severity: 'warn' },
+  EPUISE: { label: 'Épuisé', severity: 'danger' },
+  PERIME: { label: 'Périmé', severity: 'danger' },
 };
 
 @Component({

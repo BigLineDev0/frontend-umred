@@ -10,7 +10,7 @@
     <div class="rounded-xl border border-border bg-white p-12 text-center">
       <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
     </div>
-  } @else if (equipementService.equipements().length === 0) {
+  } @else if (equipementsAffiches().length === 0) {
     <div class="rounded-xl border border-border bg-white p-12 text-center">
       <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success/10 text-success mb-4">
         <i class="pi pi-check text-xl"></i>
@@ -20,22 +20,31 @@
     </div>
   } @else {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      @for (e of equipementService.equipements(); track e.id) {
+      @for (e of equipementsAffiches(); track e.id) {
         <div class="rounded-xl border border-danger/20 bg-danger/5 p-5 flex items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 min-w-0">
             <div class="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center shrink-0">
               <i class="pi pi-exclamation-triangle text-danger"></i>
             </div>
-            <div>
-              <p class="font-semibold text-text">{{ e.nom }}</p>
-              <p class="text-xs text-text-secondary">{{ e.laboratoire_nom }} · Réf. {{ e.numero_serie }}</p>
+            <div class="min-w-0">
+              <p class="font-semibold text-text truncate">{{ e.nom }}</p>
+              <p class="text-xs text-text-secondary truncate">{{ e.laboratoire_nom }} · Réf. {{ e.numero_serie }}</p>
             </div>
           </div>
-          <p-button label="Planifier" icon="pi pi-wrench" size="small" (onClick)="planifierIntervention(e.id)" />
+
+          @if (e.dejaPriseEnCharge) {
+            <span class="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-white border border-border text-text-secondary"
+              [pTooltip]="e.parMoi ? '' : 'Prise en charge par un autre technicien'">
+              <i class="pi pi-check-circle text-success"></i>
+              {{ e.parMoi ? 'Prise en charge par vous' : 'Déjà prise en charge' }}
+            </span>
+          } @else {
+            <p-button label="Prendre en charge" icon="pi pi-wrench" size="small" (onClick)="ouvrirPriseEnCharge(e)" />
+          }
         </div>
       }
     </div>
   }
 </div>
 
-<app-maintenance-form-modal [(visible)]="formModalVisible" [equipementPreselectionne]="equipementSelectionne()" />
+<app-prise-en-charge-modal [(visible)]="modalVisible" [maintenance]="maintenanceSelectionnee()" (priseEnChargeReussie)="rafraichir()" />

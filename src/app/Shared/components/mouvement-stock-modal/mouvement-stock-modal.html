@@ -1,0 +1,39 @@
+<p-dialog [(visible)]="visible" [modal]="true" [draggable]="false" [resizable]="false"
+  [style]="{ width: '420px', maxWidth: 'calc(100vw - 2rem)' }" [header]="titre">
+
+  @if (consommable(); as c) {
+    <div class="bg-background rounded-lg p-4 mb-5 space-y-2">
+      <div class="flex justify-between text-sm">
+        <span class="text-text-secondary">Consommable</span>
+        <span class="font-medium text-text">{{ c.nom }}</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-text-secondary">Stock actuel</span>
+        <span class="font-medium text-text">{{ c.quantite_stock }} {{ c.unite }}</span>
+      </div>
+    </div>
+
+    <div class="space-y-5">
+      <div>
+        <label class="block text-sm font-medium text-text mb-2">
+          Quantité {{ mode() === 'retirer' ? 'utilisée' : 'ajoutée' }} <span class="text-danger">*</span>
+        </label>
+        <p-inputNumber [ngModel]="quantite()" (ngModelChange)="quantite.set($event)"
+          [minFractionDigits]="0" [maxFractionDigits]="2" [min]="0.01" [suffix]="' ' + c.unite" class="w-full" inputStyleClass="w-full" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-text mb-2">Motif (optionnel)</label>
+        <input pInputText type="text" [ngModel]="motif()" (ngModelChange)="motif.set($event)"
+          [placeholder]="mode() === 'retirer' ? 'Ex. Manipulation extraction ADN' : 'Ex. Commande n°2026-45'" class="w-full" />
+      </div>
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-3">
+      <p-button label="Annuler" severity="secondary" [outlined]="true" [disabled]="submitting()" (onClick)="onAnnuler()" />
+      <p-button [label]="mode() === 'retirer' ? 'Confirmer' : 'Ajouter au stock'" icon="pi pi-check" [loading]="submitting()" (onClick)="onConfirmer()" />
+    </div>
+  </ng-template>
+</p-dialog>

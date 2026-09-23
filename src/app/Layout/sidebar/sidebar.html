@@ -38,15 +38,15 @@
           } @else {
 
             <a
-              [routerLink]="item.route"
-              routerLinkActive="bg-white/10 !text-white"
-              [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
-              (click)="closeSidebar()"
-              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-            >
-              <i [class]="item.icon"></i>
-              <span>{{ item.label }}</span>
-            </a>
+               [routerLink]="item.route"
+                [class.bg-white/10]="isItemActive(item)"
+                [class.!text-white]="isItemActive(item)"
+                (click)="closeSidebar()"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
+              >
+                <i [class]="item.icon"></i>
+                <span>{{ item.label }}</span>
+              </a>
           }
         </li>
       }

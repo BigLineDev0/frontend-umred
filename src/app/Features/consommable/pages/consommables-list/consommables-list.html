@@ -1,0 +1,58 @@
+<div class="space-y-8">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Consommables & réactifs' }]"
+    title="Consommables & réactifs"
+    subtitle="Suivez les stocks de réactifs et consommables du laboratoire.">
+    @if (canManage()) {
+      <p-button actions label="Nouveau consommable" icon="pi pi-plus" routerLink="/consommables/ajouter" />
+    }
+  </app-page-header>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <app-mini-stat-card icon="pi pi-exclamation-triangle" color="danger" [value]="totalStockFaible()" label="Stock faible ou épuisé" />
+    <app-mini-stat-card icon="pi pi-calendar-times" color="danger" [value]="totalPerimes()" label="Périmés" />
+    <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="totalPeremptionProche()" label="Péremption proche (15 j)" />
+  </div>
+
+  <app-filter-bar searchPlaceholder="Rechercher un consommable..." (searchChange)="search.set($event)">
+    <p-select [options]="statutOptions" optionLabel="label" optionValue="value" placeholder="Statut : Tous"
+      [ngModel]="selectedStatut()" (ngModelChange)="selectedStatut.set($event)" />
+    <p-select [options]="laboratoireOptions()" optionLabel="label" optionValue="value" placeholder="Laboratoire : Tous"
+      [ngModel]="selectedLaboratoire()" (ngModelChange)="selectedLaboratoire.set($event)" />
+  </app-filter-bar>
+
+  @if (loading()) {
+    <div class="rounded-xl border border-border bg-white p-12 text-center"><i class="pi pi-spin pi-spinner text-2xl text-primary"></i></div>
+  } @else if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-6"><p class="font-medium text-red-800">{{ error() }}</p></div>
+  } @else {
+    <div class="bg-white border border-border rounded-xl overflow-hidden">
+      <app-data-table [columns]="columns" [data]="filteredConsommables()" [rows]="10">
+        <ng-template appColumnTemplate="nom" let-row>
+          <span class="font-medium text-text">{{ row.nom }}</span>
+          @if (row.peremption_proche && row.statut !== 'PERIME') {
+            <i class="pi pi-clock text-accent ml-1.5" pTooltip="Péremption proche" style="font-size: 12px;"></i>
+          }
+        </ng-template>
+        <ng-template appColumnTemplate="laboratoire_nom" let-row>{{ row.laboratoire_nom }}</ng-template>
+        <ng-template appColumnTemplate="quantite_stock" let-row>{{ row.quantite_stock }} {{ row.unite }}</ng-template>
+        <ng-template appColumnTemplate="date_peremption" let-row>{{ row.date_peremption ? (row.date_peremption | date: 'dd/MM/yyyy') : '—' }}</ng-template>
+        <ng-template appColumnTemplate="statut" let-row><app-status-badge [statut]="row.statut" /></ng-template>
+        <ng-template appColumnTemplate="actions" let-row>
+          <div class="flex gap-1">
+            <p-button icon="pi pi-eye" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="voirDetail(row)" pTooltip="Déclarer une utilisation" />
+            <p-button icon="pi pi-minus-circle" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="ouvrirModale(row, 'retirer')" pTooltip="Déclarer une utilisation" />
+            @if (canManage()) {
+              <p-button icon="pi pi-plus-circle" [text]="true" [rounded]="true" severity="success" size="small" (onClick)="ouvrirModale(row, 'reapprovisionner')" pTooltip="Réapprovisionner" />
+              <a [routerLink]="['/consommables', row.id, 'modifier']">
+                <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary" size="small" />
+              </a>
+            }
+          </div>
+        </ng-template>
+      </app-data-table>
+    </div>
+  }
+</div>
+
+<app-mouvement-stock-modal [(visible)]="modalVisible" [consommable]="consommableSelectionne()" [mode]="modalMode()" (mouvementEffectue)="consommableService.charger()" />

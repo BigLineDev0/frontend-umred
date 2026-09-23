@@ -9,4 +9,9 @@ export const AUTH_ROUTES: Routes = [
     path: 'inscription',
     loadComponent: () => import('./register/register').then(m => m.Register)
   },
+
+  {
+    path: 'definir-mot-de-passe/:jeton',
+    loadComponent: () => import('./definir-mot-de-passe/definir-mot-de-passe').then(m => m.DefinirMotDePasse)
+  },
 ];

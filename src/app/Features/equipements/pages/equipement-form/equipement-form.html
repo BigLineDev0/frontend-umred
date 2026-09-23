@@ -26,31 +26,23 @@
     </div>
 
     <a routerLink="/equipements" class="shrink-0">
-      <p-button
-        label="Retour aux équipements"
-        icon="pi pi-arrow-left"
-        severity="secondary"
-        [outlined]="true"
-      />
+      <p-button label="Retour aux équipements" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" />
     </a>
   </div>
 
   @if (error()) {
-    <div
-      class="mx-auto mb-6 max-w-4xl flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-    >
-      <i class="pi pi-exclamation-circle mt-0.5"></i>
+  <div
+    class="mx-auto mb-6 max-w-4xl flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <i class="pi pi-exclamation-circle mt-0.5"></i>
 
-      <span>
-        {{ error() }}
-      </span>
-    </div>
+    <span>
+      {{ error() }}
+    </span>
+  </div>
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-    <div
-      class="mx-auto max-w-4xl overflow-hidden rounded-xl border border-border bg-white shadow-sm"
-    >
+    <div class="mx-auto max-w-4xl overflow-hidden rounded-xl border border-border bg-white shadow-sm">
       <section class="border-b border-border p-5 sm:p-7">
         <div class="mb-7">
           <h2 class="text-base font-semibold text-text">Informations générales</h2>
@@ -68,19 +60,13 @@
               <span class="text-red-600">*</span>
             </label>
 
-            <input
-              id="nom"
-              pInputText
-              type="text"
-              formControlName="nom"
-              placeholder="Ex : Spectrophotomètre UV-1800"
-              class="w-full"
-            />
+            <input id="nom" pInputText type="text" formControlName="nom" placeholder="Ex : Spectrophotomètre UV-1800"
+              class="w-full" />
 
             @if (isFieldInvalid('nom')) {
-              <small class="mt-1 block text-red-600">
-                {{ getFieldError('nom') }}
-              </small>
+            <small class="mt-1 block text-red-600">
+              {{ getFieldError('nom') }}
+            </small>
             }
           </div>
 
@@ -89,16 +75,10 @@
             <label for="numero_serie" class="mb-2 block text-sm font-medium text-text">
               Numéro de série <span class="text-red-600">*</span>
             </label>
-            <input
-              id="numero_serie"
-              pInputText
-              type="text"
-              formControlName="numero_serie"
-              placeholder="Ex : SH-UV1800-2024-001"
-              class="w-full"
-            />
+            <input id="numero_serie" pInputText type="text" formControlName="numero_serie"
+              placeholder="Ex : SH-UV1800-2024-001" class="w-full" />
             @if (isFieldInvalid('numero_serie')) {
-              <small class="mt-1 block text-red-600">{{ getFieldError('numero_serie') }}</small>
+            <small class="mt-1 block text-red-600">{{ getFieldError('numero_serie') }}</small>
             }
           </div>
 
@@ -106,28 +86,16 @@
           <div>
             <label for="marque" class="mb-2 block text-sm font-medium text-text"> Marque </label>
 
-            <input
-              id="marque"
-              pInputText
-              type="text"
-              formControlName="marque"
-              placeholder="Ex : Shimadzu"
-              class="w-full"
-            />
+            <input id="marque" pInputText type="text" formControlName="marque" placeholder="Ex : Shimadzu"
+              class="w-full" />
           </div>
 
           <!-- Modèle -->
           <div>
             <label for="modele" class="mb-2 block text-sm font-medium text-text"> Modèle </label>
 
-            <input
-              id="modele"
-              pInputText
-              type="text"
-              formControlName="modele"
-              placeholder="Ex : UV-1800"
-              class="w-full"
-            />
+            <input id="modele" pInputText type="text" formControlName="modele" placeholder="Ex : UV-1800"
+              class="w-full" />
           </div>
 
 
@@ -147,22 +115,13 @@
             <span class="text-red-600">*</span>
           </label>
 
-          <p-select
-            inputId="laboratoire"
-            formControlName="laboratoireId"
-            [options]="laboratoires()"
-            optionLabel="nom"
-            optionValue="id"
-            placeholder="Sélectionnez un laboratoire"
-            [showClear]="true"
-            fluid
-            class="w-full"
-          />
+          <p-select inputId="laboratoire" formControlName="laboratoireId" [options]="laboratoires()" optionLabel="nom"
+            optionValue="id" placeholder="Sélectionnez un laboratoire" [showClear]="true" fluid class="w-full" />
 
           @if (isFieldInvalid('laboratoireId')) {
-            <small class="mt-1 block text-red-600">
-              {{ getFieldError('laboratoireId') }}
-            </small>
+          <small class="mt-1 block text-red-600">
+            {{ getFieldError('laboratoireId') }}
+          </small>
           }
         </div>
       </section>
@@ -176,46 +135,16 @@
           </p>
         </div>
 
-        <!-- Description -->
-        <div>
-          <label for="description" class="mb-2 block text-sm font-medium text-text">
-            Description
-          </label>
-
-          <textarea
-            id="description"
-            pTextarea
-            formControlName="description"
-            rows="4"
-            placeholder="Ajoutez une description ou des notes sur cet équipement..."
-            class="w-full"
-          ></textarea>
-
-          @if (isFieldInvalid('description')) {
-            <small class="mt-1 block text-red-600">
-              {{ getFieldError('description') }}
-            </small>
-          }
-        </div>
-
         <!-- Date + état -->
-        <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-3">
           <!-- Date acquisition -->
           <div>
             <label for="dateAcquisition" class="mb-2 block text-sm font-medium text-text">
               Date d'acquisition
             </label>
 
-            <p-datepicker
-              inputId="dateAcquisition"
-              formControlName="dateAcquisition"
-              placeholder="jj/mm/aaaa"
-              dateFormat="dd/mm/yy"
-              [showIcon]="true"
-              [maxDate]="today"
-              fluid
-              class="w-full"
-            />
+            <p-datepicker inputId="dateAcquisition" formControlName="dateAcquisition" placeholder="jj/mm/aaaa"
+              dateFormat="dd/mm/yy" [showIcon]="true" [maxDate]="today" fluid class="w-full" />
           </div>
 
           <!-- État -->
@@ -225,30 +154,57 @@
               <span class="text-red-600">*</span>
             </label>
 
-            <p-select
-              inputId="statut"
-              formControlName="statut"
-              [options]="statutOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Sélectionnez un état"
-              fluid
-              class="w-full"
-            />
+            <p-select inputId="statut" formControlName="statut" [options]="statutOptions" optionLabel="label"
+              optionValue="value" placeholder="Sélectionnez un état" fluid class="w-full" />
 
             @if (isFieldInvalid('statut')) {
-              <small class="mt-1 block text-red-600">
-                {{ getFieldError('statut') }}
-              </small>
+            <small class="mt-1 block text-red-600">
+              {{ getFieldError('statut') }}
+            </small>
             }
           </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-medium text-text">
+              Seuil d'heures avant maintenance <span class="text-red-600">*</span>
+            </label>
+            <input pInputText type="number" formControlName="seuil_heures_maintenance" placeholder="Ex : 200"
+              class="w-full" />
+            <small class="mt-1 block text-red-600">
+              {{ getFieldError('seuil_heures_maintenance') }}
+            </small>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mt-5">
+          <label for="description" class="mb-2 block text-sm font-medium text-text">
+            Description
+          </label>
+
+          <textarea id="description" pTextarea formControlName="description" rows="4"
+            placeholder="Ajoutez une description ou des notes sur cet équipement..." class="w-full"></textarea>
+
+          @if (isFieldInvalid('description')) {
+          <small class="mt-1 block text-red-600">
+            {{ getFieldError('description') }}
+          </small>
+          }
+        </div>
+
+        <div class="flex items-center gap-3 mt-5">
+          <p-checkbox formControlName="necessite_validation" [binary]="true" inputId="necessite_validation" />
+          <label for="necessite_validation" class="text-sm text-text cursor-pointer">
+            Équipement sensible - nécessite toujours une validation, même pour un enseignant-chercheur ou un technicien
+          </label>
         </div>
       </section>
 
       <section class="border-t border-border p-5 sm:p-7">
         <div class="mb-7">
           <h2 class="text-base font-semibold text-text">Guide d'utilisation</h2>
-          <p class="mt-1 text-xs text-text-secondary">Consignes et instructions destinées aux utilisateurs de cet équipement.</p>
+          <p class="mt-1 text-xs text-text-secondary">Consignes et instructions destinées aux utilisateurs de cet
+            équipement.</p>
         </div>
 
         <div class="space-y-5">
@@ -269,12 +225,13 @@
             <label class="mb-2 block text-sm font-medium text-text">Manuel d'utilisation (PDF)</label>
 
             @if (manuelNomActuel() && !manuelFichier()) {
-              <p class="text-sm text-text-secondary mb-2">
-                <i class="pi pi-file-pdf text-danger"></i> Fichier actuel : {{ manuelNomActuel() }}
-              </p>
+            <p class="text-sm text-text-secondary mb-2">
+              <i class="pi pi-file-pdf text-danger"></i> Fichier actuel : {{ manuelNomActuel() }}
+            </p>
             }
             @if (manuelFichier()) {
-              <p class="text-sm text-success mb-2"><i class="pi pi-check"></i> {{ manuelFichier()!.name }} sera envoyé.</p>
+            <p class="text-sm text-success mb-2"><i class="pi pi-check"></i> {{ manuelFichier()!.name }} sera envoyé.
+            </p>
             }
 
             <input type="file" accept="application/pdf" (change)="onFichierSelectionne($event)"
@@ -285,8 +242,7 @@
       </section>
 
       <div
-        class="flex flex-col-reverse justify-between gap-3 border-t border-border bg-background/60 p-5 sm:flex-row sm:p-7"
-      >
+        class="flex flex-col-reverse justify-between gap-3 border-t border-border bg-background/60 p-5 sm:flex-row sm:p-7">
         <div class="flex items-center">
           <span class="text-xs text-text-secondary">
             <span class="text-red-600">*</span>
@@ -296,22 +252,12 @@
 
         <div class="flex flex-col-reverse gap-3 sm:flex-row">
           <a routerLink="/equipements" class="inline-flex">
-            <p-button
-              type="button"
-              label="Annuler"
-              severity="secondary"
-              [outlined]="true"
-              [disabled]="loading()"
-              (onClick)="annuler()"
-            />
+            <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="loading()"
+              (onClick)="annuler()" />
           </a>
 
-          <p-button
-            type="submit"
-            [label]="isEditMode() ? 'Enregistrer les modifications' : 'Ajouter un équipement'"
-            icon="pi pi-check"
-            [loading]="loading()"
-          />
+          <p-button type="submit" [label]="isEditMode() ? 'Enregistrer les modifications' : 'Ajouter un équipement'"
+            icon="pi pi-check" [loading]="loading()" />
         </div>
       </div>
     </div>

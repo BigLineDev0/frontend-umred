@@ -7,7 +7,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
-import { Equipement, StatutEquipement } from '../../../../Core/models/equipement.model';
+import { AlerteUsure, Equipement, StatutEquipement } from '../../../../Core/models/equipement.model';
 import { EquipementService } from '../../../../Core/services/equipement.service';
 import { MaintenanceService } from '../../../../Core/services/maintenance.service';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
@@ -38,6 +38,8 @@ export class EquipementDetail implements OnInit {
   readonly error = signal<string | null>(null);
   qrCodeUrl = signal<string | null>(null);
 
+  alerteUsure = signal<AlerteUsure | null>(null);
+
   readonly canManage = computed(() => {
     const role = this.authService.currentUser()?.role;
     return role === 'ADMIN' || role === 'TECHNICIEN';
@@ -65,6 +67,9 @@ export class EquipementDetail implements OnInit {
     this.equipementService.chargerUn(id).subscribe({
       next: (e) => {
         this.equipement.set(e);
+        this.equipementService.chargerAlerteUsure(e.id).subscribe(a => {
+          if (a.niveau) this.alerteUsure.set(a);
+        });
         this.genererQrCode(e.id);
         this.loading.set(false);
         this.maintenanceService.chargerParEquipement(id);
@@ -162,5 +167,9 @@ export class EquipementDetail implements OnInit {
     lien.href = url;
     lien.download = `qr-${e.numero_serie}.png`;
     lien.click();
+  }
+
+  allerVersSignalement(): void {
+    this.router.navigate(['/maintenances'], { queryParams: { signaler: this.equipement()?.id } });
   }
 }

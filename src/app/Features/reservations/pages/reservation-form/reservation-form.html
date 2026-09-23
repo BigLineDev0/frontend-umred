@@ -24,6 +24,59 @@
     </div>
   }
 
+  @if (reponseConflit(); as conflit) {
+    <div class="mx-auto max-w-4xl mb-6 rounded-xl border border-accent/30 bg-accent/5 p-5">
+      <div class="flex items-start gap-3">
+        <i class="pi pi-exclamation-triangle text-accent mt-0.5"></i>
+        <div class="flex-1">
+          <p class="font-medium text-text">{{ conflit.detail }}</p>
+          @if (conflit.priorite_superieure) {
+            <p class="text-sm text-accent mt-1">
+              Votre demande est prioritaire — les techniciens ont été alertés du conflit, mais vous pouvez aussi choisir une alternative ci-dessous.
+            </p>
+          }
+        </div>
+        <button type="button" class="text-text-secondary hover:text-text" (click)="fermerConflit()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      @if (conflit.alternatives.memes_equipements.length > 0) {
+        <div class="mt-4">
+          <p class="text-sm font-medium text-text mb-2">Créneaux disponibles sur le même équipement</p>
+          <div class="flex flex-wrap gap-2">
+            @for (alt of conflit.alternatives.memes_equipements; track alt.date + alt.heure_debut) {
+              <button type="button"
+                class="text-sm bg-white border border-border rounded-lg px-3 py-2 hover:border-primary hover:text-primary transition-colors"
+                (click)="appliquerAlternative(alt)">
+                {{ alt.date | date: 'dd/MM' }} · {{ alt.heure_debut }}–{{ alt.heure_fin }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (conflit.alternatives.equipements_equivalents.length > 0) {
+        <div class="mt-4">
+          <p class="text-sm font-medium text-text mb-2">Équipements équivalents libres sur ce créneau</p>
+          <div class="flex flex-wrap gap-2">
+            @for (equiv of conflit.alternatives.equipements_equivalents; track equiv.id) {
+              <button type="button"
+                class="text-sm bg-white border border-border rounded-lg px-3 py-2 hover:border-primary hover:text-primary transition-colors"
+                (click)="appliquerEquipementEquivalent(equiv.id)">
+                <i class="pi pi-cog mr-1.5"></i>{{ equiv.nom }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (conflit.alternatives.memes_equipements.length === 0 && conflit.alternatives.equipements_equivalents.length === 0) {
+        <p class="text-sm text-text-secondary mt-3">Aucune alternative disponible dans les prochains jours. Contactez un technicien.</p>
+      }
+    </div>
+  }
+
   <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
     <div class="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
 
@@ -57,6 +110,25 @@
           @if (isFieldInvalid('laboratoireId')) {
             <small class="mt-1 block text-red-600">Le laboratoire est obligatoire.</small>
           }
+        </div>
+
+        <div class="mt-5">
+          <div class="flex items-center justify-between mb-2">
+            <label for="projet" class="text-sm font-medium text-gray-800">Projet associé (optionnel)</label>
+            <button type="button" class="text-xs text-primary font-medium hover:underline" (click)="projetFormVisible.set(true)">
+              + Nouveau projet
+            </button>
+          </div>
+          <p-select
+            inputId="projet"
+            formControlName="projetId"
+            [options]="projetService.projets()"
+            optionLabel="nom"
+            optionValue="id"
+            placeholder="Aucun projet associé"
+            [showClear]="true"
+            class="w-full"
+          />
         </div>
       </section>
 
@@ -241,3 +313,4 @@
     </ng-template>
   </p-dialog>
 </div>
+<app-projet-form-modal [(visible)]="projetFormVisible" (projetCree)="onProjetCree($event)" />

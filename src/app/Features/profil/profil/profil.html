@@ -1,0 +1,168 @@
+<div class="max-w-4xl mx-auto space-y-6">
+
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Profil' }]"
+    title="Mon profil"
+    subtitle="Gérez vos informations personnelles et votre sécurité.">
+  </app-page-header>
+
+  @if (loading()) {
+    <div class="rounded-xl border border-border bg-white p-12 text-center">
+      <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+    </div>
+  } @else if (profil(); as p) {
+
+    <!-- En-tête -->
+    <div class="bg-white border border-border rounded-2xl p-6 sm:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+
+        <div class="relative w-20 h-20 shrink-0 group">
+          @if (photoApercu() || p.photo) {
+            <img [src]="photoApercu() ?? p.photo" alt="Photo de profil" class="w-20 h-20 rounded-full object-cover" />
+          } @else {
+            <div class="w-20 h-20 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold">
+              {{ initiales() }}
+            </div>
+          }
+
+          <label class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+            @if (televersementPhoto()) {
+              <i class="pi pi-spin pi-spinner text-white"></i>
+            } @else {
+              <i class="pi pi-camera text-white"></i>
+            }
+            <input type="file" accept="image/*" (change)="onPhotoSelectionnee($event)" class="hidden" [disabled]="televersementPhoto()" />
+          </label>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <h2 class="text-xl font-bold text-text">{{ p.prenom }} {{ p.nom }}</h2>
+          <p class="text-text-secondary text-sm mt-0.5">{{ roleLabel() }}</p>
+          <div class="flex flex-wrap items-center gap-3 mt-3 text-xs text-text-secondary">
+            <app-status-badge [statut]="p.statut_compte" />
+            <span>Membre depuis {{ p.date_creation | date: 'MMMM yyyy' }}</span>
+            @if (p.last_login) {
+              <span>· Dernière connexion {{ p.last_login | date: 'dd/MM/yyyy à HH:mm' }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informations personnelles -->
+    <div class="bg-white border border-border rounded-2xl p-6 sm:p-8">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-base font-semibold text-text">Informations personnelles</h3>
+        @if (!modeEdition()) {
+          <p-button label="Modifier" icon="pi pi-pencil" size="small" severity="secondary" [outlined]="true" (onClick)="ouvrirEdition()" />
+        }
+      </div>
+
+      @if (!modeEdition()) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Prénom</p>
+            <p class="mt-1 text-sm font-medium text-text">{{ p.prenom }}</p>
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Nom</p>
+            <p class="mt-1 text-sm font-medium text-text">{{ p.nom }}</p>
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Email</p>
+            <p class="mt-1 text-sm font-medium text-text">{{ p.email }}</p>
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Téléphone</p>
+            <p class="mt-1 text-sm font-medium text-text">{{ p.telephone || 'Non renseigné' }}</p>
+          </div>
+        </div>
+      } @else {
+        <form [formGroup]="formInfos" (ngSubmit)="enregistrerInfos()" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-text mb-1.5">Prénom</label>
+              <input pInputText formControlName="prenom" class="w-full" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-text mb-1.5">Nom</label>
+              <input pInputText formControlName="nom" class="w-full" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text mb-1.5">Téléphone</label>
+            <input pInputText formControlName="telephone" class="w-full" />
+          </div>
+          <p class="text-xs text-text-secondary">L'email ne peut pas être modifié — contactez un administrateur si nécessaire.</p>
+          <div class="flex gap-3 pt-1">
+            <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="enregistrement()" (onClick)="annulerEdition()" />
+            <p-button type="submit" label="Enregistrer" icon="pi pi-check" [loading]="enregistrement()" />
+          </div>
+        </form>
+      }
+    </div>
+
+    <!-- Sécurité -->
+    <div class="bg-white border border-border rounded-2xl p-6 sm:p-8">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h3 class="text-base font-semibold text-text">Sécurité</h3>
+          <p class="text-xs text-text-secondary mt-0.5">Modifiez votre mot de passe de connexion.</p>
+        </div>
+        @if (!modeChangementMdp()) {
+          <p-button label="Changer le mot de passe" icon="pi pi-lock" size="small" severity="secondary" [outlined]="true" (onClick)="ouvrirChangementMdp()" />
+        }
+      </div>
+
+      @if (modeChangementMdp()) {
+        @if (erreurMdp()) {
+          <div class="p-3 mb-4 rounded-lg bg-danger/5 border border-danger/20">
+            <p class="text-sm text-danger">{{ erreurMdp() }}</p>
+          </div>
+        }
+        <form [formGroup]="formMdp" (ngSubmit)="enregistrerMdp()" class="space-y-4 max-w-md">
+          <div>
+            <label class="block text-sm font-medium text-text mb-1.5">Mot de passe actuel</label>
+            <p-password formControlName="ancien_password" [feedback]="false" [toggleMask]="true" fluid inputStyleClass="w-full" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text mb-1.5">Nouveau mot de passe</label>
+            <p-password formControlName="nouveau_password" [feedback]="true" [toggleMask]="true" fluid inputStyleClass="w-full" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text mb-1.5">Confirmer le nouveau mot de passe</label>
+            <p-password formControlName="confirmation" [feedback]="false" [toggleMask]="true" fluid inputStyleClass="w-full" />
+          </div>
+          <div class="flex gap-3 pt-1">
+            <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="changementMdpEnCours()" (onClick)="annulerChangementMdp()" />
+            <p-button type="submit" label="Mettre à jour" icon="pi pi-check" [loading]="changementMdpEnCours()" />
+          </div>
+        </form>
+      }
+    </div>
+
+    <!-- Activité récente -->
+    <div class="bg-white border border-border rounded-2xl p-6 sm:p-8">
+      <h3 class="text-base font-semibold text-text mb-5">Activité récente</h3>
+
+      @if (journalService.monActiviteLoading()) {
+        <p class="text-sm text-text-secondary">Chargement...</p>
+      } @else if (journalService.monActivite().length === 0) {
+        <p class="text-sm text-text-secondary">Aucune activité enregistrée pour le moment.</p>
+      } @else {
+        <div class="space-y-4">
+          @for (entree of journalService.monActivite(); track entree.id) {
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <p-tag [value]="badge(entree.action).label" [severity]="badge(entree.action).severity" styleClass="!text-xs shrink-0" />
+                <p class="text-sm text-text truncate">{{ entree.description || entree.action }}</p>
+              </div>
+              <span class="text-xs text-text-secondary shrink-0">{{ tempsEcoule(entree.date_heure) }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+  }
+</div>

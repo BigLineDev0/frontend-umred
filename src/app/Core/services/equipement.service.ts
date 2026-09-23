@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Equipement, EquipementPayload } from '../models/equipement.model';
+import { AlerteUsure, AlerteUsureGlobale, Equipement, EquipementPayload } from '../models/equipement.model';
 
 @Injectable({ providedIn: 'root' })
 export class EquipementService {
@@ -31,7 +31,7 @@ export class EquipementService {
     });
   }
 
-  // Conservé pour compatibilité avec le formulaire de réservation déjà branché.
+
   chargerParLaboratoire(laboratoireId: number): void {
     this.charger({ laboratoire: laboratoireId });
   }
@@ -76,4 +76,17 @@ export class EquipementService {
       tap(maj => this.equipements.update(list => list.map(e => e.id === id ? maj : e)))
     );
   }
+
+  alertesUsureActives = signal<AlerteUsureGlobale[]>([]);
+
+chargerAlertesUsure(): void {
+  this.http.get<AlerteUsureGlobale[]>(`${this.baseUrl}/equipements/alertes_usure_actives/`).subscribe({
+    next: (data) => this.alertesUsureActives.set(data),
+    error: () => this.alertesUsureActives.set([]),
+  });
+}
+
+chargerAlerteUsure(equipementId: number): Observable<AlerteUsure> {
+  return this.http.get<AlerteUsure>(`${this.baseUrl}/equipements/${equipementId}/alerte_usure/`);
+}
 }

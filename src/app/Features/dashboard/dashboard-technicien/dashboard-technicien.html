@@ -1,25 +1,30 @@
 <div class="max-w-[1400px] mx-auto">
-
-  <app-page-header
-    [breadcrumbs]="[{ label: 'Accueil', link: '/technicien/dashboard' }, { label: 'Tableau de bord' }]"
-    title="Tableau de bord"
-    subtitle="Voici un aperçu de vos activités techniques aujourd'hui.">
+  <app-page-header [breadcrumbs]="[
+      { label: 'Accueil', link: '/technicien/dashboard' },
+      { label: 'Tableau de bord' },
+    ]" title="Tableau de bord" subtitle="Voici un aperçu de vos activités techniques aujourd'hui.">
   </app-page-header>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <app-mini-stat-card icon="pi pi-cog" color="primary" [value]="equipementsDisponibles()" label="Équipements dispo" />
-    <app-mini-stat-card icon="pi pi-wrench" color="accent" [value]="equipementsEnMaintenance()" label="En maintenance" />
-    <app-mini-stat-card icon="pi pi-exclamation-triangle" color="danger" [value]="equipementsEnPanne()" label="En panne" />
-    <app-mini-stat-card icon="pi pi-calendar" color="primary" [value]="maintenancesPlanifiees()" label="Maintenances planifiées" />
+    <app-mini-stat-card icon="pi pi-wrench" color="accent" [value]="equipementsEnMaintenance()"
+      label="En maintenance" />
+    <app-mini-stat-card icon="pi pi-exclamation-triangle" color="danger" [value]="equipementsEnPanne()"
+      label="En panne" />
+    <app-mini-stat-card icon="pi pi-calendar" color="primary" [value]="maintenancesPlanifiees()"
+      label="Maintenances planifiées" />
   </div>
 
   <div class="mb-8">
     <p class="text-xs font-medium tracking-wide text-text-secondary mb-3">ACTIONS RAPIDES</p>
     <div class="flex flex-wrap gap-3">
       <p-button label="Nouvelle maintenance" icon="pi pi-plus" (onClick)="formModalVisible.set(true)" />
-      <p-button label="Voir les équipements" icon="pi pi-cog" severity="secondary" [outlined]="true" (onClick)="voirEquipements()" />
-      <p-button label="Voir les demandes" icon="pi pi-calendar" severity="secondary" [outlined]="true" routerLink="/reservations/a-valider" />
-      <p-button label="Déclarer une panne" icon="pi pi-bolt" severity="danger" (onClick)="panneModalVisible.set(true)" />
+      <p-button label="Voir les équipements" icon="pi pi-cog" severity="secondary" [outlined]="true"
+        (onClick)="voirEquipements()" />
+      <p-button label="Voir les demandes" icon="pi pi-calendar" severity="secondary" [outlined]="true"
+        routerLink="/reservations/a-valider" />
+      <p-button label="Déclarer une panne" icon="pi pi-bolt" severity="danger"
+        (onClick)="panneModalVisible.set(true)" />
     </div>
   </div>
 
@@ -30,87 +35,114 @@
         <h2 class="text-lg font-semibold text-text">Demandes de réservation à valider</h2>
         <p class="text-sm text-text-secondary mt-0.5">Réservations en attente de validation</p>
       </div>
-      <a routerLink="/reservations/a-valider" class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
+      <a routerLink="/reservations/a-valider"
+        class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
         Voir tout <i class="pi pi-arrow-right text-xs"></i>
       </a>
     </div>
 
     @if (demandesAValider().length === 0) {
-      <p class="text-sm text-text-secondary py-4 text-center">Aucune demande en attente pour le moment.</p>
+    <p class="text-sm text-text-secondary py-4 text-center">
+      Aucune demande en attente pour le moment.
+    </p>
     } @else {
-      <p-table [value]="demandesAValider()" styleClass="!border-none">
-        <ng-template pTemplate="header">
-          <tr>
-            <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">DEMANDEUR</th>
-            <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">LABORATOIRE</th>
-            <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">ÉQUIPEMENT</th>
-            <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">DATE / HEURE</th>
-            <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">ACTIONS</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-demande>
-          <tr>
-            <td class="!border-b !border-border !text-sm !font-medium !text-text">{{ demande.demandeur_nom }}</td>
-            <td class="!border-b !border-border !text-sm !text-text">{{ demande.laboratoire_nom }}</td>
-            <td class="!border-b !border-border !text-sm !text-text">
-              {{ demande.equipements_noms.length ? demande.equipements_noms.join(', ') : 'Salle uniquement' }}
-            </td>
-            <td class="!border-b !border-border !text-sm !text-text">
-              {{ demande.date }} · {{ demande.heure_debut.slice(0,5) }}
-            </td>
-            <td class="!border-b !border-border">
-              <div class="flex gap-2">
-                <p-button label="Valider" size="small" severity="success" [outlined]="true" (onClick)="valider(demande.id)" />
-                <p-button label="Refuser" size="small" severity="danger" [outlined]="true" (onClick)="refuser(demande.id)" />
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+    <p-table [value]="demandesAValider()" styleClass="!border-none">
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">
+            DEMANDEUR
+          </th>
+          <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">
+            LABORATOIRE
+          </th>
+          <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">
+            ÉQUIPEMENT
+          </th>
+          <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">
+            DATE / HEURE
+          </th>
+          <th class="!bg-white !text-xs !text-text-secondary !font-medium !border-b !border-border">
+            ACTIONS
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-demande>
+        <tr>
+          <td class="!border-b !border-border !text-sm !font-medium !text-text">
+            {{ demande.demandeur_nom }}
+          </td>
+          <td class="!border-b !border-border !text-sm !text-text">
+            {{ demande.laboratoire_nom }}
+          </td>
+          <td class="!border-b !border-border !text-sm !text-text">
+            {{
+            demande.equipements_noms.length
+            ? demande.equipements_noms.join(', ')
+            : 'Salle uniquement'
+            }}
+          </td>
+          <td class="!border-b !border-border !text-sm !text-text">
+            {{ demande.date }} · {{ demande.heure_debut.slice(0, 5) }}
+          </td>
+          <td class="!border-b !border-border">
+            <div class="flex gap-2">
+              <p-button label="Valider" size="small" severity="success" [outlined]="true"
+                (onClick)="valider(demande.id)" />
+              <p-button label="Refuser" size="small" severity="danger" [outlined]="true"
+                (onClick)="refuser(demande.id)" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
     }
   </div>
 
   <!-- Alertes techniques + Prochaines interventions -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-
     <div class="bg-white border border-border rounded-xl p-6">
       <div class="flex justify-between items-start mb-4">
         <div>
           <h2 class="text-lg font-semibold text-text">Alertes techniques</h2>
           <p class="text-sm text-text-secondary mt-0.5">Signalements et retards à traiter</p>
         </div>
-        <a routerLink="/maintenances/pannes" class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
+        <a routerLink="/maintenances/pannes"
+          class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
           Voir tout <i class="pi pi-arrow-right text-xs"></i>
         </a>
       </div>
 
       @if (equipementsEnPanneListe().length === 0 && maintenancesEnRetard().length === 0) {
-        <p class="text-sm text-text-secondary py-4 text-center">Aucune alerte pour le moment.</p>
+      <p class="text-sm text-text-secondary py-4 text-center">Aucune alerte pour le moment.</p>
       } @else {
-        <div class="space-y-3">
-          @for (e of equipementsEnPanneListe(); track e.id) {
-            <div class="flex items-center gap-3 bg-danger/5 rounded-lg p-4">
-              <div class="w-8 h-8 rounded-full bg-danger/10 flex items-center justify-center shrink-0">
-                <i class="pi pi-exclamation-triangle text-danger text-sm"></i>
-              </div>
-              <div>
-                <p class="text-sm font-medium text-text">{{ e.nom }}</p>
-                <p class="text-xs text-text-secondary mt-0.5">Panne signalée · {{ e.laboratoire_nom }}</p>
-              </div>
-            </div>
-          }
-          @for (m of maintenancesEnRetard(); track m.id) {
-            <div class="flex items-center gap-3 bg-accent/5 rounded-lg p-4">
-              <div class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                <i class="pi pi-clock text-accent text-sm"></i>
-              </div>
-              <div>
-                <p class="text-sm font-medium text-text">{{ m.equipement_nom }}</p>
-                <p class="text-xs text-text-secondary mt-0.5">Maintenance en retard · {{ m.equipement_laboratoire_nom }}</p>
-              </div>
-            </div>
-          }
+      <div class="space-y-3">
+        @for (e of equipementsEnPanneListe(); track e.id) {
+        <div class="flex items-center gap-3 bg-danger/5 rounded-lg p-4">
+          <div class="w-8 h-8 rounded-full bg-danger/10 flex items-center justify-center shrink-0">
+            <i class="pi pi-exclamation-triangle text-danger text-sm"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-text">{{ e.nom }}</p>
+            <p class="text-xs text-text-secondary mt-0.5">
+              Panne signalée · {{ e.laboratoire_nom }}
+            </p>
+          </div>
         </div>
+        }
+        @for (m of maintenancesEnRetard(); track m.id) {
+        <div class="flex items-center gap-3 bg-accent/5 rounded-lg p-4">
+          <div class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+            <i class="pi pi-clock text-accent text-sm"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-text">{{ m.equipement_nom }}</p>
+            <p class="text-xs text-text-secondary mt-0.5">
+              Maintenance en retard · {{ m.equipement_laboratoire_nom }}
+            </p>
+          </div>
+        </div>
+        }
+      </div>
       }
     </div>
 
@@ -120,35 +152,102 @@
           <h2 class="text-lg font-semibold text-text">Prochaines interventions</h2>
           <p class="text-sm text-text-secondary mt-0.5">Interventions à venir</p>
         </div>
-        <a routerLink="/maintenances" class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
+        <a routerLink="/maintenances"
+          class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
           Voir tout <i class="pi pi-arrow-right text-xs"></i>
         </a>
       </div>
 
       @if (prochainesInterventions().length === 0) {
-        <p class="text-sm text-text-secondary py-4 text-center">Aucune intervention planifiée à venir.</p>
+      <p class="text-sm text-text-secondary py-4 text-center">
+        Aucune intervention planifiée à venir.
+      </p>
       } @else {
-        <div class="space-y-3">
-          @for (m of prochainesInterventions(); track m.id) {
-            <div class="flex items-center justify-between rounded-lg p-2">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <i class="pi pi-cog text-primary text-sm"></i>
-                </div>
-                <div>
-                  <p class="text-sm font-medium text-text">{{ m.equipement_nom }}</p>
-                  <p class="text-xs text-text-secondary mt-0.5">{{ m.date_planifiee | date: 'dd MMM · HH:mm' }}</p>
-                </div>
-              </div>
-              <p-tag value="Planifiée" severity="info" styleClass="!text-xs" />
+      <div class="space-y-3">
+        @for (m of prochainesInterventions(); track m.id) {
+        <div class="flex items-center justify-between rounded-lg p-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <i class="pi pi-cog text-primary text-sm"></i>
             </div>
-          }
+            <div>
+              <p class="text-sm font-medium text-text">{{ m.equipement_nom }}</p>
+              <p class="text-xs text-text-secondary mt-0.5">
+                {{ m.date_planifiee | date: 'dd MMM · HH:mm' }}
+              </p>
+            </div>
+          </div>
+          <p-tag value="Planifiée" severity="info" styleClass="!text-xs" />
         </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Alerte usure et stock consommable -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+    <div class="bg-white border border-border rounded-xl p-6">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h2 class="text-lg font-semibold text-text">Alertes d'usure</h2>
+          <p class="text-sm text-text-secondary mt-0.5">
+            Équipements approchant leur seuil de maintenance
+          </p>
+        </div>
+      </div>
+
+      @if (alertesUsure().length === 0) {
+      <p class="text-sm text-text-secondary py-4 text-center">
+        Aucune alerte d'usure pour le moment.
+      </p>
+      } @else {
+      <div class="space-y-3">
+        @for (a of alertesUsure(); track a.equipement_id) {
+        <a [routerLink]="['/equipements', a.equipement_id]"
+          class="flex items-center gap-3 rounded-lg p-3 hover:bg-background transition-colors"
+          [class.bg-danger/5]="a.niveau === 'critique'" [class.bg-accent/5]="a.niveau === 'attention'">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+            [class.bg-danger/10]="a.niveau === 'critique'" [class.bg-accent/10]="a.niveau === 'attention'">
+            <i class="pi pi-chart-line text-sm" [class.text-danger]="a.niveau === 'critique'"
+              [class.text-accent]="a.niveau === 'attention'"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-text truncate">{{ a.equipement_nom }}</p>
+            <p class="text-xs text-text-secondary truncate">{{ a.laboratoire_nom }}</p>
+          </div>
+        </a>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="bg-white border border-border rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-text mb-1">Alertes de stock</h2>
+      <p class="text-sm text-text-secondary mb-4">Consommables en rupture ou proches de péremption</p>
+      @if (alertesConsommables().length === 0) {
+      <p class="text-sm text-text-secondary py-4 text-center">Aucune alerte de stock.</p>
+      } @else {
+      <div class="space-y-3">
+        @for (a of alertesConsommables(); track a.consommable_id) {
+        <a [routerLink]="['/consommables', a.consommable_id]"
+          class="flex items-center gap-3 rounded-lg p-3 hover:bg-background transition-colors">
+          <div class="w-8 h-8 rounded-full bg-danger/10 flex items-center justify-center shrink-0">
+            <i class="pi pi-exclamation-triangle text-danger text-sm"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-text truncate">{{ a.nom }}</p>
+            <p class="text-xs text-text-secondary truncate">{{ a.laboratoire_nom }} · {{ a.quantite_stock }} {{ a.unite
+              }}
+            </p>
+          </div>
+        </a>
+        }
+      </div>
       }
     </div>
 
   </div>
-
   <!-- Historique récent des maintenances -->
   <div class="bg-white border border-border rounded-xl p-6">
     <div class="flex justify-between items-start mb-4">
@@ -156,34 +255,38 @@
         <h2 class="text-lg font-semibold text-text">Historique récent des maintenances</h2>
         <p class="text-sm text-text-secondary mt-0.5">Vos dernières interventions techniques</p>
       </div>
-      <a routerLink="/maintenances" class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
+      <a routerLink="/maintenances"
+        class="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline">
         Voir tout <i class="pi pi-arrow-right text-xs"></i>
       </a>
     </div>
 
     @if (historiqueRecent().length === 0) {
-      <p class="text-sm text-text-secondary py-4 text-center">Aucune intervention récente.</p>
+    <p class="text-sm text-text-secondary py-4 text-center">Aucune intervention récente.</p>
     } @else {
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        @for (m of historiqueRecent(); track m.id) {
-          <div class="flex items-center justify-between border border-border rounded-lg p-3">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                [class.bg-accent/10]="m.statut === 'EN_COURS'" [class.bg-success/10]="m.statut === 'TERMINEE'">
-                <i class="pi pi-cog text-sm" [class.text-accent]="m.statut === 'EN_COURS'" [class.text-success]="m.statut === 'TERMINEE'"></i>
-              </div>
-              <div>
-                <p class="text-sm font-medium text-text">{{ m.equipement_nom }}</p>
-                <p class="text-xs text-text-secondary mt-0.5">{{ m.type === 'PREVENTIVE' ? 'Entretien' : 'Réparation' }}</p>
-              </div>
-            </div>
-            <p-tag [value]="getMaintenanceStatusLabel(m.statut)" [severity]="getMaintenanceStatusSeverity(m.statut)" styleClass="!text-xs" />
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      @for (m of historiqueRecent(); track m.id) {
+      <div class="flex items-center justify-between border border-border rounded-lg p-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+            [class.bg-accent/10]="m.statut === 'EN_COURS'" [class.bg-success/10]="m.statut === 'TERMINEE'">
+            <i class="pi pi-cog text-sm" [class.text-accent]="m.statut === 'EN_COURS'"
+              [class.text-success]="m.statut === 'TERMINEE'"></i>
           </div>
-        }
+          <div>
+            <p class="text-sm font-medium text-text">{{ m.equipement_nom }}</p>
+            <p class="text-xs text-text-secondary mt-0.5">
+              {{ m.type === 'PREVENTIVE' ? 'Entretien' : 'Réparation' }}
+            </p>
+          </div>
+        </div>
+        <p-tag [value]="getMaintenanceStatusLabel(m.statut)" [severity]="getMaintenanceStatusSeverity(m.statut)"
+          styleClass="!text-xs" />
       </div>
+      }
+    </div>
     }
   </div>
-
 </div>
 
 <app-maintenance-form-modal [(visible)]="formModalVisible" />

@@ -49,4 +49,15 @@ export class JournalService {
     if (filters.dateFin) params = params.set('date_fin', filters.dateFin);
     return this.http.get<JournalPage>(`${this.baseUrl}/logs/`, { params }).pipe(map(res => res.results));
   }
+
+  monActivite = signal<JournalEntry[]>([]);
+  monActiviteLoading = signal(false);
+
+  chargerMonActivite(): void {
+    this.monActiviteLoading.set(true);
+    this.http.get<JournalEntry[]>(`${this.baseUrl}/mon-activite/`).subscribe({
+      next: (data) => { this.monActivite.set(data); this.monActiviteLoading.set(false); },
+      error: () => this.monActiviteLoading.set(false),
+    });
+  }
 }

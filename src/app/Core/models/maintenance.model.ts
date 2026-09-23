@@ -1,5 +1,5 @@
 export type TypeMaintenance = 'PREVENTIVE' | 'CORRECTIVE';
-export type StatutMaintenance = 'PLANIFIEE' | 'EN_COURS' | 'TERMINEE' | 'ANNULEE';
+export type StatutMaintenance = 'SIGNALEE' | 'PLANIFIEE' | 'EN_COURS' | 'TERMINEE' | 'ANNULEE';
 
 export interface Maintenance {
   id: number;

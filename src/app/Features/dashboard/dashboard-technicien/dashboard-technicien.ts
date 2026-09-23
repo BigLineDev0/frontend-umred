@@ -13,6 +13,7 @@ import { MaintenanceFormModal } from '../../maintenances/pages/maintenance-form-
 import { ReservationService } from '../../../Core/services/reservation.service';
 import { SignalerPanneModal } from '../../maintenances/pages/signaler-panne-modal/signaler-panne-modal';
 import { DatePipe } from '@angular/common';
+import { ConsommableService } from '../../../Core/services/consommable.service';
 
 @Component({
   selector: 'app-dashboard-technicien',
@@ -36,6 +37,7 @@ export class DashboardTechnicien implements OnInit {
   readonly equipementService = inject(EquipementService);
   readonly maintenanceService = inject(MaintenanceService);
   readonly reservationService = inject(ReservationService);
+  readonly consommableService = inject(ConsommableService);
 
   formModalVisible = signal(false);
   panneModalVisible = signal(false);
@@ -56,6 +58,12 @@ export class DashboardTechnicien implements OnInit {
 
   // --- Demandes à valider : les 3 plus récentes seulement, le dashboard n'est qu'un aperçu ---
   readonly demandesAValider = computed(() => this.reservationService.reservations().slice(0, 3));
+
+  // Alerte usure
+  readonly alertesUsure = computed(() => this.equipementService.alertesUsureActives().slice(0, 3));
+
+  readonly alertesConsommables = computed(() => this.consommableService.alertesActives().slice(0, 3));
+
 
   // --- Alertes : équipements en panne + maintenances planifiées en retard ---
   readonly equipementsEnPanneListe = computed(() =>
@@ -98,6 +106,8 @@ export class DashboardTechnicien implements OnInit {
 
   ngOnInit(): void {
     this.equipementService.charger();
+    this.equipementService.alertesUsureActives();
+    this.consommableService.chargerAlertes();
     this.maintenanceService.charger();
     this.reservationService.charger({ all: true, statut: 'EN_ATTENTE' });
   }

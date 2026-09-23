@@ -33,6 +33,9 @@ export const routes: Routes = [
         path: 'equipements',
         loadChildren: () => import('./Features/equipements/equipements.routes').then(m => m.EQUIPEMENTS_ROUTES)
       },
+      { path: 'consommables',
+        loadChildren: () => import('./Features/consommable/consommables.routes').then(m => m.CONSOMMABLES_ROUTES)
+      },
       {
         path: 'maintenances',
         loadChildren: () => import('./Features/maintenances/maintenances.routes').then(m => m.MAINTENANCES_ROUTES)
@@ -49,7 +52,14 @@ export const routes: Routes = [
         path: 'rapports', canActivate: [roleGuard(['ADMIN'])],
         loadComponent: () => import('./Features/rapports/rapports/rapports').then(m => m.Rapports)
       },
-      { path: 'notifications', loadComponent: () => import('./Features/notifications/notifications-list/notifications-list').then(m => m.NotificationsList) },
+      {
+        path: 'notifications',
+        loadComponent: () => import('./Features/notifications/notifications-list/notifications-list').then(m => m.NotificationsList)
+      },
+      {
+        path: 'profil',
+        loadComponent: () => import('./Features/profil/profil/profil').then(m => m.Profil)
+      },
     ]
   },
 

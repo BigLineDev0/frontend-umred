@@ -24,6 +24,9 @@
         <div class="flex flex-wrap items-center gap-3">
           <h1 class="text-2xl font-semibold tracking-tight text-text">{{ e.nom }}</h1>
           <p-tag [value]="getStatusLabel(e.statut)" [severity]="getStatusSeverity(e.statut)" styleClass="!text-xs !font-medium" />
+          @if (e.necessite_validation) {
+            <p-tag value="Validation requise" severity="warn" icon="pi pi-shield" [rounded]="true" styleClass="!text-xs !font-medium" />
+          }
         </div>
       </div>
 
@@ -34,21 +37,46 @@
         </div>
       }
     </div>
-    @if (canManage()) {
-  <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
-    <div>
-      <h2 class="text-base font-semibold text-text">QR code de l'équipement</h2>
-      <p class="text-xs text-text-secondary mt-1">À imprimer et coller sur l'appareil pour un accès rapide à sa fiche.</p>
-    </div>
 
-    @if (qrCodeUrl(); as qr) {
-      <div class="flex flex-col items-center gap-4 mt-5">
-        <img [src]="qr" alt="QR code de l'équipement" class="w-48 h-48 border border-border rounded-lg p-2" />
-        <p-button label="Télécharger" icon="pi pi-download" size="small" (onClick)="telechargerQrCode()" />
+    <section class="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
+      @if (canManage()) {
+        <div class="flex flex-col rounded-xl border border-border bg-white p-5 lg:p-6">
+          <div>
+            <h2 class="text-base font-semibold text-text">QR code de l'équipement</h2>
+            <p class="text-xs text-text-secondary mt-1">À imprimer et coller sur l'appareil pour un accès rapide à sa fiche.</p>
+          </div>
+
+          @if (qrCodeUrl(); as qr) {
+            <div class="flex flex-col items-center gap-3 mt-4">
+              <img [src]="qr" alt="QR code de l'équipement" class="h-32 w-32 rounded-lg border border-border p-2" />
+              <p-button label="Télécharger" icon="pi pi-download" size="small" (onClick)="telechargerQrCode()" />
+            </div>
+          }
+        </div>
+      }
+      @if (alerteUsure(); as alerte) {
+      <div class="flex items-start gap-4 rounded-xl border p-4 lg:p-5"
+        [class.border-danger/30]="alerte.niveau === 'critique'" [class.bg-danger/5]="alerte.niveau === 'critique'"
+        [class.border-accent/30]="alerte.niveau === 'attention'" [class.bg-accent/5]="alerte.niveau === 'attention'">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+          [class.bg-danger/10]="alerte.niveau === 'critique'" [class.bg-accent/10]="alerte.niveau === 'attention'">
+          <i class="pi pi-exclamation-triangle" [class.text-danger]="alerte.niveau === 'critique'" [class.text-accent]="alerte.niveau === 'attention'"></i>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-text mb-1">
+            {{ alerte.niveau === 'critique' ? 'Maintenance recommandée' : "Surveillance recommandée" }}
+          </p>
+          <p class="text-sm text-text-secondary">{{ alerte.message }}</p>
+          <p class="text-xs text-text-secondary mt-2">
+            {{ alerte.heures_cumulees }}h utilisées sur {{ alerte.seuil }}h · {{ alerte.pannes_recentes }} panne(s) sur 90 jours
+          </p>
+        </div>
+        @if (canManage()) {
+          <p-button label="Signaler" size="small" severity="danger" [outlined]="true" (onClick)="allerVersSignalement()" />
+        }
       </div>
     }
-  </section>
-}
+    </section>
 
     <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
       <h2 class="mb-7 text-base font-semibold text-text">Informations générales</h2>
@@ -75,40 +103,46 @@
         </div>
         <div>
           <p class="text-xs font-medium uppercase tracking-wide text-text-secondary">État</p>
-          <div class="mt-2"><p-tag [value]="getStatusLabel(e.statut)" [severity]="getStatusSeverity(e.statut)" /></div>
+          <div class="mt-2">
+            <p-tag [value]="getStatusLabel(e.statut)" [severity]="getStatusSeverity(e.statut)" />
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-medium uppercase tracking-wide text-text-secondary">Sueil heures maintenances</p>
+          <p class="mt-2 text-sm font-semibold text-text">{{ e.seuil_heures_maintenance }}heures</p>
         </div>
       </div>
 
     </section>
     @if (e.consignes_securite || e.instructions_utilisation || e.manuel_pdf ) {
-    <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
-      <h2 class="mb-6 text-base font-semibold text-text">Guide d'utilisation</h2>
+      <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
+        <h2 class="mb-6 text-base font-semibold text-text">Guide d'utilisation</h2>
 
-      @if (e.consignes_securite) {
-        <div class="bg-danger/5 border border-danger/20 rounded-lg p-4 mb-5">
-          <div class="flex items-center gap-2 mb-2">
-            <i class="pi pi-exclamation-triangle text-danger"></i>
-            <p class="text-sm font-semibold text-danger">Consignes de sécurité</p>
+        @if (e.consignes_securite) {
+          <div class="bg-danger/5 border border-danger/20 rounded-lg p-4 mb-5">
+            <div class="flex items-center gap-2 mb-2">
+              <i class="pi pi-exclamation-triangle text-danger"></i>
+              <p class="text-sm font-semibold text-danger">Consignes de sécurité</p>
+            </div>
+            <p class="text-sm text-text whitespace-pre-line">{{ e.consignes_securite }}</p>
           </div>
-          <p class="text-sm text-text whitespace-pre-line">{{ e.consignes_securite }}</p>
-        </div>
-      }
+        }
 
-      @if (e.instructions_utilisation) {
-        <div>
-          <p class="text-sm font-semibold text-text mb-2">Mode d'emploi</p>
-          <p class="text-sm text-text-secondary whitespace-pre-line leading-relaxed">{{ e.instructions_utilisation }}</p>
-        </div>
-      }
+        @if (e.instructions_utilisation) {
+          <div>
+            <p class="text-sm font-semibold text-text mb-2">Mode d'emploi</p>
+            <p class="text-sm text-text-secondary whitespace-pre-line leading-relaxed">{{ e.instructions_utilisation }}</p>
+          </div>
+        }
 
-      @if (e.manuel_pdf) {
-        <a [href]="e.manuel_pdf" target="_blank" rel="noopener"
-          class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
-          <i class="pi pi-file-pdf"></i> Télécharger le manuel complet (PDF)
-        </a>
-      }
-    </section>
-  }
+        @if (e.manuel_pdf) {
+          <a [href]="e.manuel_pdf" target="_blank" rel="noopener"
+            class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+            <i class="pi pi-file-pdf"></i> Télécharger le manuel complet (PDF)
+          </a>
+        }
+      </section>
+    }
 
     <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
       <h2 class="mb-6 text-base font-semibold text-text">Laboratoire</h2>
@@ -170,7 +204,7 @@
                   <span class="text-sm text-text-secondary">{{ formatDate(m.date_planifiee) }}</span>
                 </td>
                 <td class="!border-b !border-border !py-4">
-                  <span class="text-sm text-text-secondary">{{ m.technicien_nom ?? '—' }}</span>
+                  <span class="text-sm text-text-secondary">{{ m.technicien_nom ?? 'Non assigné' }}</span>
                 </td>
                 <td class="!border-b !border-border !py-4">
                   <p-tag [value]="getMaintenanceStatusLabel(m.statut)" [severity]="getMaintenanceStatusSeverity(m.statut)" />

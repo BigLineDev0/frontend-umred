@@ -52,4 +52,17 @@ export class UtilisateurService {
       tap(maj => this.utilisateurs.update(list => list.map(u => u.id === id ? maj : u)))
     );
   }
+
+  chargerMonProfil(): Observable<Utilisateur> {
+    return this.http.get<Utilisateur>(`${this.baseUrl}/utilisateurs/moi/`);
+  }
+  televerserMaPhoto(fichier: File): Observable<Utilisateur> {
+    const formData = new FormData();
+    formData.append('photo', fichier);
+    return this.http.patch<Utilisateur>(`${this.baseUrl}/utilisateurs/moi/`, formData);
+  }
+
+  modifierMonProfil(payload: { nom: string; prenom: string; telephone: string }): Observable<Utilisateur> {
+    return this.http.patch<Utilisateur>(`${this.baseUrl}/utilisateurs/moi/`, payload);
+  }
 }

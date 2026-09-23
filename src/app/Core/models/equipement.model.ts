@@ -15,6 +15,8 @@ export interface Equipement {
   instructions_utilisation: string;
   consignes_securite: string;
   manuel_pdf: string | null;
+  necessite_validation: boolean;
+  seuil_heures_maintenance: number;
 }
 
 export interface EquipementPayload {
@@ -29,4 +31,21 @@ export interface EquipementPayload {
   instructions_utilisation?: string;
   consignes_securite?: string;
   manuel_pdf?: string | null;
+
+}
+
+export interface AlerteUsure {
+  niveau: 'info' | 'attention' | 'critique' | null;
+  message?: string;
+  heures_cumulees?: number;
+  seuil?: number;
+  pannes_recentes?: number;
+}
+
+export interface AlerteUsureGlobale {
+  equipement_id: number;
+  equipement_nom: string;
+  laboratoire_nom: string;
+  niveau: 'attention' | 'critique';
+  message: string;
 }

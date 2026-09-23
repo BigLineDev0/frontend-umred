@@ -26,4 +26,27 @@ export interface ReservationPayload {
   heure_debut: string;
   heure_fin: string;
   motif: string;
+  projet?: number | null;
+}
+
+export interface AlternativeCreneau {
+  equipement: string;
+  date: string;
+  heure_debut: string;
+  heure_fin: string;
+}
+
+export interface EquipementEquivalent {
+  id: number;
+  nom: string;
+}
+
+export interface ReponseConflit {
+  conflit: true;
+  detail: string;
+  priorite_superieure: boolean;
+  alternatives: {
+    memes_equipements: AlternativeCreneau[];
+    equipements_equivalents: EquipementEquivalent[];
+  };
 }

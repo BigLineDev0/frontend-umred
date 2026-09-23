@@ -28,21 +28,12 @@
       <label class="block text-sm font-medium text-text mb-2">Rôle <span class="text-danger">*</span></label>
       <p-select [options]="roleOptions" optionLabel="label" optionValue="value" [(ngModel)]="form.role" class="w-full" />
     </div>
-
-    @if (!isEditMode) {
-      <div class="flex items-start gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2.5">
-        <i class="pi pi-info-circle text-primary mt-0.5 text-sm"></i>
-        <p class="text-xs text-text-secondary leading-relaxed">
-          Un mot de passe temporaire sera généré automatiquement et envoyé à cette adresse email, avec un lien de connexion.
-        </p>
-      </div>
-    }
   </div>
 
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-3">
       <p-button label="Annuler" severity="secondary" [outlined]="true" [disabled]="submitting()" (onClick)="onAnnuler()" />
-      <p-button [label]="isEditMode ? 'Enregistrer' : 'Créer et envoyer les identifiants'" icon="pi pi-check" [loading]="submitting()" (onClick)="onValider()" />
+      <p-button [label]="isEditMode ? 'Enregistrer' : 'Ajouter'" icon="pi pi-check" [loading]="submitting()" (onClick)="onValider()" />
     </div>
   </ng-template>
 </p-dialog>
