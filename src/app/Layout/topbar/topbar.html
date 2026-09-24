@@ -111,7 +111,7 @@
   <!-- Profil -->
   <div class="relative shrink-0">
     <button type="button" (click)="toggleProfileMenu()" class="flex items-center gap-2 cursor-pointer">
-      <p-avatar [label]="initials()" shape="circle" styleClass="!bg-primary/10 !text-primary" size="large" />
+      <p-avatar [label]="initials()" shape="circle" class="!bg-primary/10 !text-primary text-1xl" size="large" />
       <span class="hidden md:block text-sm font-medium text-text">{{ user()?.prenom }}</span>
       <i class="pi pi-chevron-down hidden md:block text-xs text-text-secondary transition-transform" [class.rotate-180]="profileMenuOpen()"></i>
     </button>

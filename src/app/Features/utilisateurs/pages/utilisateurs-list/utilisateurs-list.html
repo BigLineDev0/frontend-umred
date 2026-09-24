@@ -40,7 +40,7 @@
           </div>
         </ng-template>
 
-        <ng-template appColumnTemplate="role" let-row>{{ roleLabel(row.role) }}</ng-template>
+        <ng-template appColumnTemplate="statut_academique" let-row>{{ row.statut_academique || '—' }}</ng-template>
         <ng-template appColumnTemplate="telephone" let-row>{{ row.telephone || '—' }}</ng-template>
         <ng-template appColumnTemplate="statut_compte" let-row><app-status-badge [statut]="row.statut_compte" /></ng-template>
 

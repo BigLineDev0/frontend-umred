@@ -30,7 +30,9 @@ export interface EquipementPayload {
   statut: StatutEquipement;
   instructions_utilisation?: string;
   consignes_securite?: string;
+  necessite_validation?: boolean;
   manuel_pdf?: string | null;
+  seuil_heures_maintenance?: number;
 
 }
 

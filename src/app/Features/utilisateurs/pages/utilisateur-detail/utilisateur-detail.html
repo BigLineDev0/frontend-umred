@@ -45,7 +45,7 @@
     <section>
       <h2 class="mb-4 text-lg font-semibold text-text">Informations du compte</h2>
       <div class="rounded-xl border border-border bg-white p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Rôle</p><p class="mt-1 text-sm font-semibold text-text">{{ roleLabel(u.role) }}</p></div>
+        <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Statut académique</p><p class="mt-1 text-sm font-semibold text-text">{{ u.statut_academique || '—' }}</p></div>
         <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Statut</p><div class="mt-1"><app-status-badge [statut]="u.statut_compte" /></div></div>
         <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Date de création</p><p class="mt-1 text-sm font-semibold text-text">{{ u.date_creation | date: 'dd MMMM yyyy' }}</p></div>
         <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Dernière connexion</p><p class="mt-1 text-sm font-semibold text-text">{{ u.last_login ? (u.last_login | date: 'dd/MM/yyyy — HH:mm') : 'Jamais connecté' }}</p></div>

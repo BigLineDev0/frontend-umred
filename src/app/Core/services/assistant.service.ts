@@ -28,4 +28,8 @@ export class AssistantService {
     const payload: ChatRequest = { session_id: this.sessionId, message };
     return this.http.post<ChatResponse>(`${environment.aiApiUrl}/chat`, payload);
   }
+
+  chargerAccueil(): Observable<ChatResponse> {
+    return this.http.get<ChatResponse>(`${environment.aiApiUrl}/chat/accueil`);
+  }
 }

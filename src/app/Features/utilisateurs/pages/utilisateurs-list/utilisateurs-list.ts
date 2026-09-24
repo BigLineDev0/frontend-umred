@@ -61,9 +61,8 @@ export class UtilisateursList implements OnInit {
   columns: TableColumn<Utilisateur>[] = [
     { field: 'nom', header: 'Utilisateur' },
     { field: 'email', header: 'Email' },
-    { field: 'role', header: 'Rôle' },
     { field: 'telephone', header: 'Téléphone' },
-    { field: 'statut_compte', header: 'Statut' },
+    { field: 'statut_academique', header: 'Statut académique' },
     { field: 'actions', header: 'Actions', width: '130px' },
   ];
 

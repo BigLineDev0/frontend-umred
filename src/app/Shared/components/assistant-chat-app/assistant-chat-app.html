@@ -35,6 +35,34 @@
             }
 
             <p class="text-[10px] mt-1 opacity-60">{{ m.heure }}</p>
+
+            @if (m.details_confirmation; as d) {
+              <div class="bg-background rounded-lg p-3 mt-2 space-y-1.5 text-xs">
+                @if (d.laboratoire) {
+                  <div class="flex justify-between"><span class="text-text-secondary">Laboratoire</span><span class="font-medium text-text">{{ d.laboratoire }}</span></div>
+                }
+                @if (d.equipement) {
+                  <div class="flex justify-between"><span class="text-text-secondary">Équipement</span><span class="font-medium text-text">{{ d.equipement }}</span></div>
+                }
+                @if (d.date) {
+                  <div class="flex justify-between"><span class="text-text-secondary">Date</span><span class="font-medium text-text">{{ d.date }}</span></div>
+                }
+                @if (d.heure_debut) {
+                  <div class="flex justify-between"><span class="text-text-secondary">Horaire</span><span class="font-medium text-text">{{ d.heure_debut }} – {{ d.heure_fin }}</span></div>
+                }
+              </div>
+            }
+
+            @if (m.options && m.options.length > 0) {
+              <div class="flex flex-col gap-1.5 mt-2.5">
+                @for (opt of m.options; track opt.value) {
+                  <button type="button" (click)="selectionnerOption(opt)"
+                    class="text-left text-xs bg-white border border-primary/30 text-primary rounded-lg px-3 py-2 hover:bg-primary/5 transition-colors">
+                    {{ opt.label }}
+                  </button>
+                }
+              </div>
+            }
           </div>
         </div>
       }

@@ -159,8 +159,8 @@ export class EquipementForm implements OnInit {
       statut: value.statut! as any,
       instructions_utilisation: value.instructions_utilisation?.trim() || '',
       consignes_securite: value.consignes_securite?.trim() || '',
-      necessite_validation: value.necessite_validation,
-      seuil_heures_maintenance: value.seuil_heures_maintenance,
+      necessite_validation: value.necessite_validation ?? false,
+      seuil_heures_maintenance: value.seuil_heures_maintenance ?? 200,
     };
 
     this.loading.set(true);

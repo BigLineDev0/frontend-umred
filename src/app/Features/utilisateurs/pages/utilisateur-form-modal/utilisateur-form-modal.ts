@@ -8,12 +8,11 @@ import { MessageService } from 'primeng/api';
 import { Role, Utilisateur, UtilisateurPayload } from '../../../../Core/models/utilisateur.model';
 import { UtilisateurService } from '../../../../Core/services/utilisateur.service';
 
-
 @Component({
   selector: 'app-utilisateur-form-modal',
   standalone: true,
   imports: [DialogModule, InputTextModule, SelectModule, ButtonModule, FormsModule],
-  templateUrl: './utilisateur-form-modal.html'
+  templateUrl: './utilisateur-form-modal.html',
 })
 export class UtilisateurFormModal {
   visible = model(false);
@@ -23,7 +22,7 @@ export class UtilisateurFormModal {
   private messageService = inject(MessageService);
 
   submitting = signal(false);
-  form = { nom: '', prenom: '', email: '', telephone: '', role: 'ETUDIANT' as Role };
+  form = { nom: '', prenom: '', email: '', telephone: '', statut_academique: '',  role: 'ETUDIANT' as Role };
 
   roleOptions = [
     { label: 'Administrateur', value: 'ADMIN' },
@@ -41,23 +40,33 @@ export class UtilisateurFormModal {
       const u = this.utilisateurAModifier();
       if (this.visible()) {
         this.form = u
-          ? { nom: u.nom, prenom: u.prenom, email: u.email, telephone: u.telephone, role: u.role }
-          : { nom: '', prenom: '', email: '', telephone: '', role: 'ETUDIANT' };
+          ? { nom: u.nom, prenom: u.prenom, email: u.email, telephone: u.telephone, statut_academique: u.statut_academique, role: u.role }
+          : { nom: '', prenom: '', email: '', telephone: '', statut_academique: '', role: 'ETUDIANT' };
       }
     });
   }
 
-  onAnnuler(): void { this.visible.set(false); }
+  onAnnuler(): void {
+    this.visible.set(false);
+  }
 
   onValider(): void {
     if (!this.form.nom.trim() || !this.form.prenom.trim() || !this.form.email.trim()) {
-      this.messageService.add({ severity: 'warn', summary: 'Formulaire incomplet', detail: 'Merci de remplir les champs obligatoires.' });
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Formulaire incomplet',
+        detail: 'Merci de remplir les champs obligatoires.',
+      });
       return;
     }
 
     const payload: UtilisateurPayload = {
-      nom: this.form.nom.trim(), prenom: this.form.prenom.trim(),
-      email: this.form.email.trim(), telephone: this.form.telephone.trim(), role: this.form.role,
+      nom: this.form.nom.trim(),
+      prenom: this.form.prenom.trim(),
+      email: this.form.email.trim(),
+      telephone: this.form.telephone.trim(),
+      role: this.form.role,
+      // statut_academique: this.form.statut_academique.trim(),
     };
 
     this.submitting.set(true);
@@ -80,7 +89,11 @@ export class UtilisateurFormModal {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: err.error?.email?.[0] ?? 'Une erreur est survenue.' });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: err.error?.email?.[0] ?? 'Une erreur est survenue.',
+        });
       },
     });
   }

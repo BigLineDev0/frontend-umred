@@ -18,16 +18,17 @@
       <label class="block text-sm font-medium text-text mb-2">Email <span class="text-danger">*</span></label>
       <input pInputText type="email" [(ngModel)]="form.email" placeholder="fatou.ndiaye@umred.sn" class="w-full" />
     </div>
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Rôle <span class="text-danger">*</span></label>
+      <p-select [options]="roleOptions" optionLabel="label" optionValue="value" [(ngModel)]="form.role" class="w-full" />
+    </div>
 
     <div>
       <label class="block text-sm font-medium text-text mb-2">Téléphone</label>
       <input pInputText type="tel" [(ngModel)]="form.telephone" placeholder="+221 77 000 00 00" class="w-full" />
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-text mb-2">Rôle <span class="text-danger">*</span></label>
-      <p-select [options]="roleOptions" optionLabel="label" optionValue="value" [(ngModel)]="form.role" class="w-full" />
-    </div>
+
   </div>
 
   <ng-template pTemplate="footer">
