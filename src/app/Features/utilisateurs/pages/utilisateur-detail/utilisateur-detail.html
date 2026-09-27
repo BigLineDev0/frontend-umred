@@ -3,34 +3,21 @@
 } @else if (error()) {
   <div class="rounded-xl border border-red-200 bg-red-50 p-6"><p class="font-medium text-red-800">{{ error() }}</p></div>
 } @else if (utilisateur(); as u) {
-  <div class="space-y-8">
+  <div class="space-y-8 animate-stagger">
 
-    <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
-      <a routerLink="/utilisateurs" class="hover:text-primary transition-colors">Utilisateurs</a>
-      <i class="pi pi-angle-right text-xs"></i>
-      <span class="font-medium text-text">Détail</span>
-    </div>
-
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div class="flex items-center gap-4">
-        <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-xl font-bold shrink-0">
-          {{ u.prenom[0] }}{{ u.nom[0] }}
-        </div>
-        <div>
-          <h1 class="text-2xl font-bold text-text">{{ u.prenom }} {{ u.nom }}</h1>
-          <p class="text-text-secondary">{{ roleLabel(u.role) }}</p>
-          <div class="mt-1"><app-status-badge [statut]="u.statut_compte" /></div>
-        </div>
-      </div>
-
-      <div class="flex gap-2 shrink-0">
+    <app-page-header
+      [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Utilisateurs', link: '/utilisateurs' }, { label: u.prenom + ' ' + u.nom }]"
+      [title]="u.prenom + ' ' + u.nom"
+      [subtitle]="roleLabel(u.role)">
+      <app-status-badge badge [statut]="u.statut_compte" />
+      <div actions class="flex gap-2 shrink-0">
         <p-button label="Modifier" icon="pi pi-pencil" severity="secondary" [outlined]="true" (onClick)="ouvrirModification()" />
         <p-button [label]="statusAction() === 'desactiver' ? 'Désactiver le compte' : 'Activer le compte'"
           [icon]="statusAction() === 'desactiver' ? 'pi pi-power-off' : 'pi pi-check'"
           [severity]="statusAction() === 'desactiver' ? 'danger' : 'success'" [outlined]="statusAction() === 'desactiver'"
           (onClick)="ouvrirStatus()" />
       </div>
-    </div>
+    </app-page-header>
 
     <section>
       <h2 class="mb-4 text-lg font-semibold text-text">Informations personnelles</h2>

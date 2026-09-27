@@ -14,7 +14,7 @@ export function roleGuard(rolesAutorises: UserRole[]): CanActivateFn {
     if (role && rolesAutorises.includes(role)) {
       return true;
     }
-    router.navigate(['/']);
-    return false;
+    // Rôle non autorisé : retour au tableau de bord (et non à la landing page publique).
+    return router.parseUrl(authService.routeAccueil());
   };
 }

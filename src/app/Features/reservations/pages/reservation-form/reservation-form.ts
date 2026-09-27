@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { DatePipe, Location } from '@angular/common';
 
 import { ButtonModule } from 'primeng/button';
@@ -16,14 +16,14 @@ import { ReponseConflit, ReservationPayload } from '../../../../Core/models/rese
 import { ReservationService } from '../../../../Core/services/reservation.service';
 import { ProjetService } from '../../../../Core/services/projet.service';
 import { ProjetFormModal } from '../../../../Shared/components/projet-form-modal/projet-form-modal';
+import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 
 @Component({
   standalone: true,
   selector: 'app-reservation-form',
   templateUrl: './reservation-form.html',
   styleUrl: './reservation-form.css',
-  imports: [
-    RouterLink,
+  imports: [PageHeader, 
     ReactiveFormsModule,
     ButtonModule,
     SelectModule,

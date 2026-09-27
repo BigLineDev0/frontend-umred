@@ -1,0 +1,93 @@
+<app-site-header />
+
+<section class="relative isolate pt-32 pb-16 px-5 sm:px-8 bg-cover bg-center overflow-hidden"
+  style="background-image: url('/images/banner-bg.jpg');">
+  <div class="absolute inset-0 -z-10 bg-sidebar/85"></div>
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-4xl sm:text-5xl font-bold text-white hero-in">Contactez-nous</h1>
+    <p class="mt-4 text-white/75 text-base sm:text-lg max-w-xl hero-in" style="animation-delay:.15s">
+      Une question, un accès à demander ou un signalement à faire nous vous répondons sous 48 heures ouvrables.
+    </p>
+  </div>
+</section>
+
+<section class="py-20 px-5 sm:px-8">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+    <!-- Formulaire -->
+    <div class="lg:col-span-2" appReveal>
+      @if (envoye()) {
+        <div class="bg-success/5 border border-success/20 rounded-xl p-6 flex items-start gap-3">
+          <i class="pi pi-check-circle text-success mt-0.5"></i>
+          <div>
+            <p class="font-semibold text-text">Message envoyé</p>
+            <p class="text-sm text-text-secondary mt-1">Nous reviendrons vers vous sous 48 heures ouvrables.</p>
+          </div>
+        </div>
+      } @else {
+        <form (ngSubmit)="envoyer()" class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-text mb-2">Nom complet</label>
+              <input pInputText type="text" [ngModel]="nom()" (ngModelChange)="nom.set($event)" name="nom"
+                placeholder="Votre nom"
+                class="w-full" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-text mb-2">Adresse email</label>
+              <input pInputText type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email"
+                placeholder="vous@exemple.sn"
+                class="w-full" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-text mb-2">Sujet</label>
+            <p-select [options]="sujetOptions" [ngModel]="sujet()" (ngModelChange)="sujet.set($event)"
+              name="sujet" optionLabel="label" optionValue="value" placeholder="Sélectionnez un sujet" class="w-full" />
+
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-text mb-2">Message</label>
+            <textarea pTextarea [ngModel]="message()" (ngModelChange)="message.set($event)" name="message"
+              placeholder="Décrivez votre demande..."
+              class="w-full">
+            </textarea>
+          </div>
+
+          <p-button type="submit" label="Envoyer le message" [loading]="envoiEnCours()" />
+        </form>
+      }
+    </div>
+
+    <!-- Coordonnées -->
+    <div class="space-y-6" appReveal style="transition-delay:.1s">
+      <h2 class="text-2xl font-bold text-text">Coordonnées</h2>
+
+      <div class="flex gap-4">
+        <div class="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0"><i class="pi pi-map-marker"></i></div>
+        <div>
+          <p class="text-xs font-bold tracking-wide text-text-secondary uppercase mb-1">Adresse</p>
+          <p class="text-sm text-text leading-relaxed">UFR Santé<br>Université Iba Der Thiam de Thiès<br>Thiès, Sénégal</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4">
+        <div class="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0"><i class="pi pi-envelope"></i></div>
+        <div>
+          <p class="text-xs font-bold tracking-wide text-text-secondary uppercase mb-1">Email</p>
+          <p class="text-sm text-text">contact&#64;umredlabo.sn</p>
+        </div>
+      </div>
+
+      <div class="bg-sidebar rounded-xl p-5 mt-4">
+        <p class="text-[11px] font-bold tracking-wide text-white/50 uppercase mb-2">Délai de réponse</p>
+        <p class="text-sm text-white/85 leading-relaxed">
+          Nous répondons à toutes les demandes sous <span class="font-bold text-white">48 heures ouvrables</span>. Pour les urgences techniques, mentionnez-le explicitement dans votre message.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-site-footer />

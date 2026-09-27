@@ -11,32 +11,24 @@
     <p class="mt-1 text-sm text-red-700">{{ error() }}</p>
   </div>
 } @else if (equipement(); as e) {
-  <div class="space-y-6">
+  <div class="space-y-6 animate-stagger">
 
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div>
-        <div class="mb-3 flex flex-wrap items-center gap-2 text-sm text-text-secondary">
-          <a routerLink="/equipements" class="transition-colors hover:text-primary">Équipements</a>
-          <i class="pi pi-angle-right text-xs"></i>
-          <span class="font-medium text-text">{{ e.nom }}</span>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <h1 class="text-2xl font-semibold tracking-tight text-text">{{ e.nom }}</h1>
-          <p-tag [value]="getStatusLabel(e.statut)" [severity]="getStatusSeverity(e.statut)" styleClass="!text-xs !font-medium" />
-          @if (e.necessite_validation) {
-            <p-tag value="Validation requise" severity="warn" icon="pi pi-shield" [rounded]="true" styleClass="!text-xs !font-medium" />
-          }
-        </div>
+    <app-page-header
+      [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Équipements', link: '/equipements' }, { label: e.nom }]"
+      [title]="e.nom">
+      <div badge class="flex flex-wrap items-center gap-2">
+        <p-tag [value]="getStatusLabel(e.statut)" [severity]="getStatusSeverity(e.statut)" styleClass="!text-xs !font-medium" />
+        @if (e.necessite_validation) {
+          <p-tag value="Validation requise" severity="warn" icon="pi pi-shield" [rounded]="true" styleClass="!text-xs !font-medium" />
+        }
       </div>
-
       @if (canManage()) {
-        <div class="flex items-center gap-2">
+        <div actions class="flex items-center gap-2">
           <p-button label="Modifier" icon="pi pi-file-edit" (onClick)="modifierEquipement()" />
           <p-button label="Supprimer" icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="supprimerEquipement()" />
         </div>
       }
-    </div>
+    </app-page-header>
 
     <section class="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
       @if (canManage()) {

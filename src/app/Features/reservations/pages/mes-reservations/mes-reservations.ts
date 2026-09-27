@@ -16,6 +16,7 @@ import { RowActions } from '../../../../Shared/components/row-actions';
 import { Reservation } from '../../../../Core/models/reservation.model';
 import { ReservationService } from '../../../../Core/services/reservation.service';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
+import { AuthService } from '../../../../Core/services/auth.service';
 import { ReservationDetailModal } from '../../components/reservation-detail-modal/reservation-detail-modal';
 
 interface ReservationFilterValues {
@@ -51,6 +52,11 @@ export class MesReservations implements OnInit {
   readonly reservationService = inject(ReservationService);
   readonly laboratoireService = inject(LaboratoireService);
   private confirmationService = inject(ConfirmationService);
+  private authService = inject(AuthService);
+
+  // Même page pour tous les rôles : l'étudiant la voit comme "Mes demandes" dans la sidebar.
+  readonly estEtudiant = computed(() => this.authService.currentUser()?.role === 'ETUDIANT');
+  readonly titrePage = computed(() => (this.estEtudiant() ? 'Mes demandes' : 'Mes réservations'));
 
   detailModalVisible = signal(false);
   reservationSelectionnee = signal<Reservation | null>(null);

@@ -13,6 +13,18 @@ export const routes: Routes = [
   },
 
   {
+    path: 'a-propos',
+    title: 'À propos',
+    loadComponent: () => import('./about/about').then(m => m.About)
+  },
+
+  {
+    path: 'contact',
+    title: 'Contact',
+    loadComponent: () => import('./contact/contact').then(m => m.Contact)
+  },
+
+  {
     path: '',
     component: MainLayout,
     canActivate: [authGuard],
@@ -45,23 +57,30 @@ export const routes: Routes = [
         loadChildren: () => import('./Features/utilisateurs/utilisateurs.routes').then(m => m.UTILISATEURS_ROUTES)
       },
       {
-        path: 'journal-activite', canActivate: [roleGuard(['ADMIN'])],
+        path: 'journal-activite', title: "Journal d'activité", canActivate: [roleGuard(['ADMIN'])],
         loadComponent: () => import('./Features/journal/journal-list/journal-list').then(m => m.JournalList)
       },
       {
-        path: 'rapports', canActivate: [roleGuard(['ADMIN'])],
+        path: 'rapports', title: 'Rapports & statistiques', canActivate: [roleGuard(['ADMIN'])],
         loadComponent: () => import('./Features/rapports/rapports/rapports').then(m => m.Rapports)
       },
       {
         path: 'notifications',
+        title: 'Notifications',
         loadComponent: () => import('./Features/notifications/notifications-list/notifications-list').then(m => m.NotificationsList)
       },
       {
         path: 'profil',
+        title: 'Mon profil',
         loadComponent: () => import('./Features/profil/profil/profil').then(m => m.Profil)
       },
     ]
   },
 
-  { path: '**', redirectTo: '' }
+  // Page 404 : une URL inconnue n'est plus redirigée en silence vers l'accueil.
+  {
+    path: '**',
+    title: 'Page introuvable',
+    loadComponent: () => import('./not-found/not-found').then(m => m.NotFound)
+  }
 ];

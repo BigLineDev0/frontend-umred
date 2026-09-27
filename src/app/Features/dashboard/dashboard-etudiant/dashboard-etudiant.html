@@ -1,13 +1,13 @@
-<div class="w-full max-w-[1400px] mx-auto">
+<div class="w-full max-w-[1400px] mx-auto animate-stagger">
 
   <app-page-header
-    [breadcrumbs]="[{ label: 'Accueil', link: '/etudiant/dashboard' }, { label: 'Tableau de bord' }]"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Tableau de bord' }]"
     title="Tableau de bord"
     subtitle="Voici un aperçu de vos demandes et réservations.">
     <p-button actions label="Nouvelle demande" icon="pi pi-plus" routerLink="/reservations/ajouter" />
   </app-page-header>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-stagger">
     <app-mini-stat-card icon="pi pi-calendar" color="primary" [value]="total()" label="Total réservations" />
     <app-mini-stat-card icon="pi pi-check-circle" color="success" [value]="validees()" label="Demandes validées" />
     <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="enAttente()" label="Demandes en attente" />

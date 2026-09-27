@@ -6,7 +6,9 @@
       <label class="block text-sm font-medium text-text mb-2">Équipement <span class="text-danger">*</span></label>
       <p-select [options]="equipementOptions()" optionLabel="label" optionValue="value"
         [ngModel]="equipementId()" (ngModelChange)="equipementId.set($event)"
-        placeholder="Sélectionnez l'équipement en panne" class="w-full" [showClear]="true" />
+        placeholder="Sélectionnez l'équipement en panne" class="w-full" [showClear]="true"
+        appendTo="body" [filter]="true" filterBy="label" filterPlaceholder="Rechercher un équipement..."
+        emptyFilterMessage="Aucun équipement trouvé" scrollHeight="260px" panelStyleClass="max-w-[calc(100vw-2rem)]" />
     </div>
 
     <div>

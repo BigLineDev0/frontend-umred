@@ -1,9 +1,6 @@
 import { Directive, ElementRef, OnInit, inject } from '@angular/core';
 
-@Directive({
-  selector: '[appReveal]',
-  standalone: true,
-})
+@Directive({ selector: '[appReveal]', standalone: true })
 export class RevealDirective implements OnInit {
   private el = inject(ElementRef<HTMLElement>);
 

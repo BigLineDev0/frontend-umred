@@ -28,7 +28,7 @@ export class Login {
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]]
+    password: ['', [Validators.required]]
   });
 
 
@@ -59,7 +59,7 @@ export class Login {
         this.loading.set(false);
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         if (returnUrl) {
-          this.router.navigate([returnUrl]);
+          this.router.navigateByUrl(returnUrl);
         } else {
           this.authService.redirigerSelonRole();
         }

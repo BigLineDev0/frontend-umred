@@ -1,34 +1,11 @@
-<div class="min-h-full">
-  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-    <div>
-      <!-- Breadcrumb -->
-      <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
-        <a routerLink="/" class="transition-colors hover:text-primary"> Accueil </a>
+<div class="min-h-full animate-stagger">
 
-        <i class="pi pi-angle-right text-xs"></i>
-
-        <a routerLink="/equipements" class="transition-colors hover:text-primary"> Équipements </a>
-
-        <i class="pi pi-angle-right text-xs"></i>
-
-        <span class="font-medium text-text">
-          {{ pageTitle }}
-        </span>
-      </div>
-
-      <h1 class="text-2xl font-semibold tracking-tight text-text">
-        {{ pageTitle }}
-      </h1>
-
-      <p class="mt-1 text-sm text-text-secondary">
-        {{ pageDescription }}
-      </p>
-    </div>
-
-    <a routerLink="/equipements" class="shrink-0">
-      <p-button label="Retour aux équipements" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" />
-    </a>
-  </div>
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Équipements', link: '/equipements' }, { label: isEditMode() ? 'Modifier' : 'Nouvel équipement' }]"
+    [title]="pageTitle"
+    [subtitle]="pageDescription">
+    <p-button actions label="Retour aux équipements" severity="secondary" [outlined]="true" icon="pi pi-arrow-left" routerLink="/equipements" />
+  </app-page-header>
 
   @if (error()) {
   <div

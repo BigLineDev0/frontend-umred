@@ -18,6 +18,7 @@ import { ReservationService } from '../../../Core/services/reservation.service';
 import { MaintenanceService } from '../../../Core/services/maintenance.service';
 import { JournalService } from '../../../Core/services/journal.service';
 import { MaintenanceFormModal } from '../../maintenances/pages/maintenance-form-modal/maintenance-form-modal';
+import { UtilisateurFormModal } from '../../utilisateurs/pages/utilisateur-form-modal/utilisateur-form-modal';
 
 const MOIS_ABREGES = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
@@ -27,7 +28,8 @@ const MOIS_ABREGES = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août
   imports: [
     DatePipe, RouterLink, TagModule, ButtonModule, TableModule, ChartModule, TooltipModule,
     PageHeader, MiniStatCard, StatusBadge, MaintenanceFormModal,
-  ],
+    UtilisateurFormModal
+],
   templateUrl: './dashboard-admin.html',
 })
 export class DashboardAdmin implements OnInit {
@@ -39,6 +41,7 @@ export class DashboardAdmin implements OnInit {
   readonly journalService = inject(JournalService);
 
   maintenanceModalVisible = false;
+  utilisateurModalVisible = false;
 
   // --- KPI principaux ---
   readonly totalUtilisateurs = computed(() => this.utilisateurService.utilisateurs().length);

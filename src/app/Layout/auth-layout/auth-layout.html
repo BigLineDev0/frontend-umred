@@ -13,9 +13,21 @@
   </div>
 
   <!-- Panneau formulaire -->
-  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
-    <div class="w-full max-w-md">
-      <ng-content />
+  <div class="w-full lg:w-1/2 flex flex-col bg-white">
+    <!-- Sortie toujours visible, placée là où l'œil la cherche (en haut à gauche) :
+         l'utilisateur n'est jamais "enfermé" dans le formulaire. -->
+    <div class="px-6 pt-6 sm:px-8">
+      <a routerLink="/"
+         class="group inline-flex items-center gap-2 rounded-lg px-2 py-1.5 -ml-2 text-sm font-medium text-text-secondary transition-colors hover:text-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-primary">
+        <i class="pi pi-arrow-left text-xs transition-transform duration-200 group-hover:-translate-x-0.5"></i>
+        Retour à l'accueil
+      </a>
+    </div>
+
+    <div class="flex-1 flex items-center justify-center px-8 pb-8 pt-4">
+      <div class="w-full max-w-md animate-fade-in-up">
+        <ng-content />
+      </div>
     </div>
   </div>
 

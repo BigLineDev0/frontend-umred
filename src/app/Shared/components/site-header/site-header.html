@@ -1,0 +1,45 @@
+<header class="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-b border-border">
+  <nav class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+    <a routerLink="/" class="flex items-center gap-2.5">
+      <img src="images/logo_umred.png" alt="Logo Umred" class="h-10 w-auto" />
+    </a>
+
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-text-secondary">
+      <a routerLink="/" [routerLinkActive]="lienActif" [routerLinkActiveOptions]="optionsExactes" [class]="lienDesktop">Accueil</a>
+      <a routerLink="/a-propos" [routerLinkActive]="lienActif" [class]="lienDesktop">À propos</a>
+      <a routerLink="/" fragment="fonctionnalites" [routerLinkActive]="lienActif" [routerLinkActiveOptions]="optionsExactes" [class]="lienDesktop">Fonctionnalités</a>
+      <a routerLink="/contact" [routerLinkActive]="lienActif" [class]="lienDesktop">Contact</a>
+    </div>
+
+    <div class="hidden md:flex items-center gap-3">
+      @if (estConnecte()) {
+        <p-button label="Mon espace" icon="pi pi-th-large" [routerLink]="routeAccueil()" />
+      } @else {
+        <p-button label="Connexion" [outlined]="true" routerLink="/connexion" />
+        <p-button label="Inscription" routerLink="/inscription" />
+      }
+
+    </div>
+
+    <button type="button" (click)="toggleMobileMenu()" class="md:hidden text-text">
+      <i class="pi" [class.pi-bars]="!mobileMenuOpen()" [class.pi-times]="mobileMenuOpen()"></i>
+    </button>
+  </nav>
+
+  @if (mobileMenuOpen()) {
+    <div class="md:hidden bg-white border-t border-border px-5 py-4 space-y-3">
+      <a routerLink="/" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [routerLinkActiveOptions]="optionsExactes" [class]="lienMobile">Accueil</a>
+      <a routerLink="/a-propos" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [class]="lienMobile">À propos</a>
+      <a routerLink="/" fragment="fonctionnalites" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [routerLinkActiveOptions]="optionsExactes" [class]="lienMobile">Fonctionnalités</a>
+      <a routerLink="/contact" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [class]="lienMobile">Contact</a>
+      <div class="flex gap-2 pt-2">
+        @if (estConnecte()) {
+          <a [routerLink]="routeAccueil()" (click)="closeMobileMenu()" class="flex-1 text-center text-sm font-semibold text-white bg-primary rounded-lg px-4 py-2.5">Mon espace</a>
+        } @else {
+          <a routerLink="/connexion" (click)="closeMobileMenu()" class="flex-1 text-center text-sm font-semibold text-primary border border-primary rounded-lg px-4 py-2.5">Se connecter</a>
+          <a routerLink="/inscription" (click)="closeMobileMenu()" class="flex-1 text-center text-sm font-semibold text-white bg-primary rounded-lg px-4 py-2.5">Inscription</a>
+        }
+      </div>
+    </div>
+  }
+</header>

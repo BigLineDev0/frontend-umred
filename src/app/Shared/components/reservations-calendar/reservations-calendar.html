@@ -46,7 +46,7 @@
           <div class="flex items-center justify-between gap-3 bg-background rounded-lg px-3 py-2">
             <div class="min-w-0">
               <p class="text-sm font-medium text-text truncate">{{ r.laboratoire_nom }}</p>
-              <p class="text-xs text-text-secondary">{{ r.heure_debut.slice(0,5) }}–{{ r.heure_fin.slice(0,5) }} · {{ r.demandeur_nom }}</p>
+              <p class="text-xs text-text-secondary">{{ r.heure_debut.slice(0,5) }}-{{ r.heure_fin.slice(0,5) }} · {{ r.demandeur_nom }}</p>
             </div>
             <span class="w-2 h-2 rounded-full shrink-0" [class]="dotColor(r.statut)"></span>
           </div>

@@ -1,4 +1,4 @@
-import { Component, effect, input, signal } from '@angular/core';
+import { Component, effect, input, signal, untracked } from '@angular/core';
 
 @Component({
   selector: 'app-animated-number',
@@ -13,7 +13,12 @@ export class AnimatedNumber {
   constructor() {
     effect((onCleanup) => {
       const target = this.value();
-      const start = this.display();
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        this.display.set(target);
+        return;
+      }
+      // untracked : sinon l'effect dépend de display() et se relance à chaque image.
+      const start = untracked(() => this.display());
       const t0 = performance.now();
       const duree = 600;
       let frame: number;

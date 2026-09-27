@@ -18,8 +18,8 @@
     </tr>
   </ng-template>
 
-  <ng-template pTemplate="body" let-row>
-    <tr>
+  <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
+    <tr class="animate-fade-in-up" [style.animation-delay.ms]="rowDelay(rowIndex)">
       @for (col of columns(); track col.field) {
         <td class="!border-b !border-border !text-sm !text-text">
           @if (hasTemplate(col.field)) {

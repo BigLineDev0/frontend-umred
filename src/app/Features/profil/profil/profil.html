@@ -1,7 +1,7 @@
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="max-w-4xl mx-auto space-y-6 animate-stagger">
 
   <app-page-header
-    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Profil' }]"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Mon profil' }]"
     title="Mon profil"
     subtitle="Gérez vos informations personnelles et votre sécurité.">
   </app-page-header>
@@ -93,7 +93,7 @@
             <label class="block text-sm font-medium text-text mb-1.5">Téléphone</label>
             <input pInputText formControlName="telephone" class="w-full" />
           </div>
-          <p class="text-xs text-text-secondary">L'email ne peut pas être modifié — contactez un administrateur si nécessaire.</p>
+          <p class="text-xs text-text-secondary">L'email ne peut pas être modifié - contactez un administrateur si nécessaire.</p>
           <div class="flex gap-3 pt-1">
             <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="enregistrement()" (onClick)="annulerEdition()" />
             <p-button type="submit" label="Enregistrer" icon="pi pi-check" [loading]="enregistrement()" />

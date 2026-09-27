@@ -8,13 +8,14 @@ import { LaboratoireService } from '../../../../Core/services/laboratoire.servic
 import { EquipementService } from '../../../../Core/services/equipement.service';
 import { ReservationService } from '../../../../Core/services/reservation.service';
 import { DatePipe } from '@angular/common';
+import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 
 @Component({
   standalone: true,
   selector: 'app-laboratoire-detail',
   templateUrl: './laboratoire-detail.html',
   styleUrl: './laboratoire-detail.css',
-  imports: [RouterLink, ButtonModule, TagModule, DatePipe],
+  imports: [PageHeader, RouterLink, ButtonModule, TagModule, DatePipe],
 })
 export class LaboratoireDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);

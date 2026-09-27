@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 
@@ -9,12 +9,13 @@ import { JournalService } from '../../../../Core/services/journal.service';
 import { StatusBadge } from '../../../../Shared/components/status-badge';
 import { UserStatusModal } from '../../../../Shared/components/user-status-modal/user-status-modal';
 import { UtilisateurFormModal } from '../utilisateur-form-modal/utilisateur-form-modal';
+import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 
 @Component({
   standalone: true,
   selector: 'app-utilisateur-detail',
   templateUrl: './utilisateur-detail.html',
-  imports: [RouterLink, ButtonModule, DatePipe, StatusBadge, UserStatusModal, UtilisateurFormModal],
+  imports: [PageHeader, ButtonModule, DatePipe, StatusBadge, UserStatusModal, UtilisateurFormModal],
 })
 export class UtilisateurDetail implements OnInit {
   private route = inject(ActivatedRoute);

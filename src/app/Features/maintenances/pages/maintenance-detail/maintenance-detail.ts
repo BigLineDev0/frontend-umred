@@ -10,6 +10,7 @@ import { Maintenance } from '../../../../Core/models/maintenance.model';
 import { MaintenanceService } from '../../../../Core/services/maintenance.service';
 import { AuthService } from '../../../../Core/services/auth.service';
 import { MaintenanceClotureModal } from '../maintenance-cloture-modal/maintenance-cloture-modal';
+import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 
 interface EtapeHistorique { date: string; libelle: string; }
 
@@ -18,7 +19,7 @@ interface EtapeHistorique { date: string; libelle: string; }
   selector: 'app-maintenance-detail',
   templateUrl: './maintenance-detail.html',
   providers: [ConfirmationService],
-  imports: [RouterLink, ButtonModule, TagModule, ConfirmDialogModule, DatePipe, MaintenanceClotureModal],
+  imports: [PageHeader, RouterLink, ButtonModule, TagModule, ConfirmDialogModule, DatePipe, MaintenanceClotureModal],
 })
 export class MaintenanceDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -75,7 +76,7 @@ export class MaintenanceDetail implements OnInit {
       acceptLabel: 'Supprimer', rejectLabel: 'Annuler', acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
         this.maintenanceService.supprimer(m.id).subscribe({
-          next: () => { this.messageService.add({ severity: 'success', summary: 'Supprimée', detail: 'Intervention supprimée.' }); this.router.navigate(['/maintenances']); },
+          next: () => { this.messageService.add({ severity: 'success', summary: 'Maintenance supprimée', detail: "L'intervention a été supprimée." }); this.router.navigate(['/maintenances']); },
           error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Suppression impossible.' }),
         });
       },

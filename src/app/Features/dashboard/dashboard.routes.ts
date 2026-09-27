@@ -8,6 +8,7 @@ export const DASHBOARD_ROUTES: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
         path: 'dashboard',
+        title: 'Tableau de bord',
         loadComponent: () => import('./dashboard-technicien/dashboard-technicien').then(m => m.DashboardTechnicien)
       },
     ]
@@ -20,10 +21,12 @@ export const DASHBOARD_ROUTES: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
         path: 'dashboard',
+        title: 'Tableau de bord',
         loadComponent: () => import('./dashboard-chercheur/dashboard-chercheur').then(m => m.DashboardChercheur)
       },
       {
         path: 'reservations',
+        title: 'Mes réservations',
         loadComponent: () => import('../reservations/pages/mes-reservations/mes-reservations').then(m => m.MesReservations)
       },
     ]
@@ -36,10 +39,12 @@ export const DASHBOARD_ROUTES: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
         path: 'dashboard',
+        title: 'Tableau de bord',
         loadComponent: () => import('./dashboard-etudiant/dashboard-etudiant').then(m => m.DashboardEtudiant)
       },
       {
         path: 'mes-demandes',
+        title: 'Mes demandes',
         loadComponent: () => import('../reservations/pages/mes-reservations/mes-reservations').then(m => m.MesReservations)
 
       },
@@ -53,10 +58,12 @@ export const DASHBOARD_ROUTES: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
         path: 'dashboard',
+        title: 'Tableau de bord',
         loadComponent: () => import('./dashboard-admin/dashboard-admin').then(m => m.DashboardAdmin)
       },
       {
         path: 'reservations',
+        title: 'Mes réservations',
         loadComponent: () => import('../reservations/pages/mes-reservations/mes-reservations').then(m => m.MesReservations)
       },
 

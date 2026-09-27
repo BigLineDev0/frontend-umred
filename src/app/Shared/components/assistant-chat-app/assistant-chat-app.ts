@@ -1,4 +1,4 @@
-import { Component, signal, computed, ViewChild, ElementRef, AfterViewChecked, OnInit, inject } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef, AfterViewChecked, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AssistantService } from '../../../Core/services/assistant.service';
 import { AuthService } from '../../../Core/services/auth.service';
@@ -70,58 +70,53 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
 
   envoyer(): void {
     const texte = this.saisie().trim();
-    if (!texte) return;
-
-    this.messages.update(m => [...m, { role: 'user', texte, heure: this.heureActuelle() }]);
+    if (!texte || this.enTrainDecrire()) return;
     this.saisie.set('');
-    this.enTrainDecrire.set(true);
-    this.erreurConnexion.set(false);
-    this.scrollDemande = true;
-
-    this.assistantService.envoyerMessage(texte).subscribe({
-      next: (res) => {
-        this.messages.update(m => [...m, {
-          role: 'assistant', texte: res.reponse, heure: this.heureActuelle(),
-          options: res.options, details_confirmation: res.details_confirmation,
-        }]);
-        this.enTrainDecrire.set(false);
-        this.scrollDemande = true;
-      },
-      error: () => {
-        this.messages.update(m => [...m, {
-          role: 'assistant',
-          texte: "Désolé, je n'arrive pas à vous répondre pour le moment. Vous pouvez utiliser le formulaire classique en attendant.",
-          heure: this.heureActuelle(),
-        }]);
-        this.enTrainDecrire.set(false);
-        this.erreurConnexion.set(true);
-        this.scrollDemande = true;
-      },
-    });
+    this.echanger(texte, texte);
   }
 
   // Un clic sur une option (choix d'équipement, alternative, oui/non)
   // envoie sa VALEUR cachée au backend, mais affiche son LIBELLÉ lisible
   // dans la bulle utilisateur — la même mécanique que taper au clavier.
   selectionnerOption(option: ChatOption): void {
-    this.messages.update(m => [...m, { role: 'user', texte: option.label, heure: this.heureActuelle() }]);
+    if (this.enTrainDecrire()) return;
+    this.echanger(option.value, option.label);
+  }
+
+  // Tronc commun des deux modes d'envoi. Les boutons des réponses
+  // précédentes sont retirés : une fois la conversation avancée, ils ne
+  // correspondent plus à l'étape attendue par le serveur.
+  private echanger(valeurEnvoyee: string, texteAffiche: string): void {
+    this.messages.update(m => [
+      ...m.map(msg => ({ ...msg, options: undefined })),
+      { role: 'user' as const, texte: texteAffiche, heure: this.heureActuelle() },
+    ]);
     this.enTrainDecrire.set(true);
+    this.erreurConnexion.set(false);
     this.scrollDemande = true;
 
-    this.assistantService.envoyerMessage(option.value).subscribe({
+    this.assistantService.envoyerMessage(valeurEnvoyee).subscribe({
       next: (res) => {
-        this.messages.update(m => [...m, {
+        this.ajouterReponse({
           role: 'assistant', texte: res.reponse, heure: this.heureActuelle(),
           options: res.options, details_confirmation: res.details_confirmation,
-        }]);
-        this.enTrainDecrire.set(false);
-        this.scrollDemande = true;
+        });
       },
       error: () => {
-        this.enTrainDecrire.set(false);
         this.erreurConnexion.set(true);
+        this.ajouterReponse({
+          role: 'assistant',
+          texte: "Désolé, je n'arrive pas à vous répondre pour le moment. Vous pouvez utiliser le formulaire classique en attendant.",
+          heure: this.heureActuelle(),
+        });
       },
     });
+  }
+
+  private ajouterReponse(message: ChatMessage): void {
+    this.messages.update(m => [...m, message]);
+    this.enTrainDecrire.set(false);
+    this.scrollDemande = true;
   }
 
   segments(texte: string): Segment[] {

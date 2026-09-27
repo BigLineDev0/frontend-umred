@@ -34,6 +34,12 @@ export class DataTable<T extends Record<string, any>> implements AfterContentIni
     this.templateDirectives.forEach(t => this.templateMap.set(t.appColumnTemplate(), t.template));
   }
 
+  // Même effet que le journal d'activité : apparition ligne par ligne,
+  // plafonnée pour qu'une page complète ne mette pas plus de 300 ms à s'afficher.
+  rowDelay(rowIndex: number): number {
+    return Math.min(rowIndex % this.rows(), 10) * 30;
+  }
+
   hasTemplate(field: string): boolean {
     return this.templateMap.has(field);
   }

@@ -15,13 +15,14 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { Laboratoire, StatutLaboratoire } from '../../../../Core/models/laboratoire.model';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { AuthService } from '../../../../Core/services/auth.service';
+import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 
 @Component({
   standalone: true,
   selector: 'app-laboratoires-list',
   templateUrl: './laboratoires-list.html',
   styleUrl: './laboratoires-list.css',
-  imports: [
+  imports: [PageHeader, 
     RouterLink, FormsModule, ButtonModule, TagModule, InputTextModule,
     SelectModule, IconFieldModule, InputIconModule, TooltipModule, ConfirmDialogModule,
   ],
@@ -113,8 +114,8 @@ export class LaboratoiresList implements OnInit {
           next: () => {
             this.messageService.add({
               severity: 'success',
-              summary: 'Suppression Laboratoire',
-              detail: `« ${laboratoire.nom} » a été enregistré avec succès.`,
+              summary: 'Laboratoire supprimé',
+              detail: `« ${laboratoire.nom} » a été supprimé avec succès.`,
             });
           },
           error: (err) => this.laboratoireService.error.set(

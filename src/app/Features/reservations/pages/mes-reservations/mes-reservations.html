@@ -1,18 +1,18 @@
-<div class="space-y-8">
+<div class="space-y-8 animate-stagger">
   <app-page-header
-    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Réservations' }]"
-    title="Mes réservations"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: titrePage() }]"
+    [title]="titrePage()"
     subtitle="Consultez et suivez vos réservations de laboratoires et d'équipements."
   >
     <p-button
       actions
-      label="Nouvelle réservation"
+      [label]="estEtudiant() ? 'Nouvelle demande' : 'Nouvelle réservation'"
       icon="pi pi-plus"
       routerLink="/reservations/ajouter"
     />
   </app-page-header>
 
-  <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 animate-stagger">
     <app-mini-stat-card
       icon="pi pi-calendar"
       color="primary"

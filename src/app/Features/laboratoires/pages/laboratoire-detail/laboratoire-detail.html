@@ -6,38 +6,29 @@
     </div>
   </div>
 } @else if (laboratoire(); as labo) {
-  <div class="space-y-8">
+  <div class="space-y-8 animate-stagger">
     <div>
-      <div class="mb-4 flex items-center gap-2 text-sm text-text-secondary">
-        <a routerLink="/laboratoires" class="transition-colors hover:text-primary">Laboratoires</a>
-        <i class="pi pi-angle-right text-xs"></i>
-        <span class="font-medium text-text">{{ labo.nom }}</span>
-      </div>
-
-      <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-        <div class="max-w-3xl">
-          <div class="flex flex-wrap items-center gap-3">
-            <h1 class="text-3xl font-semibold tracking-tight text-text">{{ labo.nom }}</h1>
-            <p-tag
-              [value]="getStatusLabel(labo.statut)"
-              [severity]="getStatusSeverity(labo.statut)"
-              [rounded]="true"
-            />
-          </div>
-          <p class="mt-3 text-sm leading-6 text-text-secondary">{{ labo.description }}</p>
-          <p class="mt-3 text-sm font-medium text-text-secondary">
-            {{ labo.nombre_equipements }} équipement{{ labo.nombre_equipements > 1 ? 's' : '' }} au
-            total
-          </p>
-        </div>
-
+      <app-page-header
+        [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Laboratoires', link: '/laboratoires' }, { label: labo.nom }]"
+        [title]="labo.nom"
+        [subtitle]="labo.description">
+        <p-tag
+          badge
+          [value]="getStatusLabel(labo.statut)"
+          [severity]="getStatusSeverity(labo.statut)"
+          [rounded]="true"
+        />
         <p-button
+          actions
           label="Réserver ce laboratoire"
           icon="pi pi-calendar-plus"
           [disabled]="labo.statut === 'INDISPONIBLE'"
           (onClick)="reserver()"
         />
-      </div>
+      </app-page-header>
+      <p class="-mt-5 text-sm font-medium text-text-secondary">
+        {{ labo.nombre_equipements }} équipement{{ labo.nombre_equipements > 1 ? 's' : '' }} au total
+      </p>
     </div>
 
     <section>

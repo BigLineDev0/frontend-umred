@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8 animate-stagger">
   <app-page-header
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Utilisateurs' }]"
     title="Utilisateurs"
@@ -6,7 +6,7 @@
     <p-button actions label="Nouvel utilisateur" icon="pi pi-plus" (onClick)="ouvrirAjout()" />
   </app-page-header>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-stagger">
     <app-mini-stat-card icon="pi pi-users" color="primary" [value]="total()" label="Total utilisateurs" />
     <app-mini-stat-card icon="pi pi-check-circle" color="success" [value]="actifs()" label="Actifs" />
     <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="enAttente()" label="En attente" />

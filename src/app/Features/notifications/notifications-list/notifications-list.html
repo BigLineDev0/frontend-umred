@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8 animate-stagger">
   <app-page-header
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Notifications' }]"
     title="Notifications"
@@ -20,9 +20,9 @@
       <p class="text-sm text-text-secondary py-12 text-center">Aucune notification ne correspond à ces critères.</p>
     } @else {
       <div class="divide-y divide-border">
-        @for (notif of notificationService.entrees(); track notif.id) {
-          <button type="button" (click)="ouvrirNotification(notif)"
-            class="w-full text-left flex gap-4 px-6 py-4 hover:bg-background transition-colors"
+        @for (notif of notificationService.entrees(); track notif.id; let i = $index) {
+          <button type="button" (click)="ouvrirNotification(notif)" [style.animation-delay.ms]="i < 10 ? i * 30 : 300"
+            class="animate-fade-in-up w-full text-left flex gap-4 px-6 py-4 hover:bg-background transition-colors"
             [ngClass]="{ 'bg-primary/5': !notif.lu }">
             <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" [ngClass]="styleFor(notif.type).bg">
               <i [class]="styleFor(notif.type).icon" [ngClass]="styleFor(notif.type).color"></i>

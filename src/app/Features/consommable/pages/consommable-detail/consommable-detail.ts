@@ -9,12 +9,14 @@ import { Consommable, MouvementStock } from '../../../../Core/models/consommable
 import { ConsommableService } from '../../../../Core/services/consommable.service';
 import { AuthService } from '../../../../Core/services/auth.service';
 import { MouvementStockModal } from '../../../../Shared/components/mouvement-stock-modal/mouvement-stock-modal';
+import { PageHeader } from '../../../../Shared/components/page-header/page-header';
+import { StatusBadge } from '../../../../Shared/components/status-badge';
 
 @Component({
   standalone: true,
   selector: 'app-consommable-detail',
   templateUrl: './consommable-detail.html',
-  imports: [RouterLink, DatePipe, ButtonModule, TagModule, TableModule, MouvementStockModal],
+  imports: [PageHeader, StatusBadge, RouterLink, DatePipe, ButtonModule, TagModule, TableModule, MouvementStockModal],
 })
 export class ConsommableDetail implements OnInit {
   private route = inject(ActivatedRoute);

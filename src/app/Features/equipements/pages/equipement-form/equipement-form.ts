@@ -12,6 +12,7 @@ import { MessageService } from 'primeng/api';
 import { EquipementService } from '../../../../Core/services/equipement.service';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { CheckboxModule } from 'primeng/checkbox';
+import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 
 @Component({
   standalone: true,
@@ -25,7 +26,8 @@ import { CheckboxModule } from 'primeng/checkbox';
     TextareaModule,
     SelectModule,
     DatePickerModule,
-    CheckboxModule
+    CheckboxModule,
+    PageHeader
   ],
 })
 export class EquipementForm implements OnInit {

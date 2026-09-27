@@ -1,21 +1,11 @@
-<div class="min-h-full">
+<div class="min-h-full animate-stagger">
   <!-- Header -->
-  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-    <div>
-      <div class="mb-3 flex items-center gap-2 text-sm text-gray-500">
-        <a routerLink="/" class="hover:text-primary transition-colors">Accueil</a>
-        <i class="pi pi-angle-right text-xs"></i>
-        <span class="text-primary font-medium">Créer une réservation</span>
-      </div>
-
-      <h1 class="text-2xl font-semibold text-gray-900">Créer une réservation</h1>
-      <p class="mt-1 text-sm text-gray-500">
-        Sélectionnez un laboratoire, éventuellement des équipements, et la période souhaitée.
-      </p>
-    </div>
-
-    <p-button label="Retour" icon="pi pi-arrow-left" [outlined]="true" severity="secondary" (onClick)="goBack()" />
-  </div>
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Créer une réservation' }]"
+    title="Créer une réservation"
+    subtitle="Sélectionnez un laboratoire, éventuellement des équipements, et la période souhaitée.">
+    <p-button actions label="Retour" icon="pi pi-arrow-left" [outlined]="true" severity="secondary" (onClick)="goBack()" />
+  </app-page-header>
 
   @if (error()) {
     <div class="mx-auto max-w-4xl mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">

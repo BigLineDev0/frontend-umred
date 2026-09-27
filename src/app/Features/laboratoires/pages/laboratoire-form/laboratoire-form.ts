@@ -10,13 +10,14 @@ import { LaboratoireService } from '../../../../Core/services/laboratoire.servic
 import { MessageService } from 'primeng/api';
 import { StatutLaboratoire } from '../../../../Core/models/laboratoire.model';
 import { SelectModule } from 'primeng/select';
+import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 
 @Component({
   standalone: true,
   selector: 'app-laboratoire-form',
   templateUrl: './laboratoire-form.html',
   styleUrl: './laboratoire-form.css',
-  imports: [RouterLink, ReactiveFormsModule, ButtonModule, InputTextModule, TextareaModule, SelectModule],
+  imports: [PageHeader, RouterLink, ReactiveFormsModule, ButtonModule, InputTextModule, TextareaModule, SelectModule],
 })
 export class LaboratoireForm implements OnInit {
   private readonly fb = inject(FormBuilder);

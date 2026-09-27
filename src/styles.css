@@ -25,12 +25,37 @@ body {
   margin: 0;
 }
 
+/* "transform: none" en fin d'animation (et non translateY(0)) : un transform
+   résiduel ferait de l'élément le référentiel des position:fixed internes
+   (p-dialog, overlays) et casserait l'affichage des modales. */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: none; }
 }
 .animate-fade-in-up {
   animation: fadeInUp 0.4s ease both;
+}
+
+/* Entrée séquencée des blocs d'une page (en-tête, stats, filtres, contenu).
+   Appliquée au conteneur : seuls ses enfants directs "de mise en page"
+   sont animés, les modales et dialogues restent intacts. */
+.animate-stagger > :is(div, section, form, app-page-header, app-filter-bar, app-mini-stat-card) {
+  animation: fadeInUp 0.4s ease both;
+}
+.animate-stagger > :is(app-page-header, app-filter-bar) { display: block; }
+.animate-stagger > :nth-child(2) { animation-delay: 60ms; }
+.animate-stagger > :nth-child(3) { animation-delay: 120ms; }
+.animate-stagger > :nth-child(4) { animation-delay: 180ms; }
+.animate-stagger > :nth-child(5) { animation-delay: 240ms; }
+.animate-stagger > :nth-child(n+6) { animation-delay: 300ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @media print {
@@ -71,3 +96,11 @@ body {
 
 .reveal-init { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
 .reveal-visible { opacity: 1; transform: translateY(0); }
+
+/* Entrée des titres de bannière (accueil, à propos, contact, 404).
+   Global : home.css n'est rattaché à aucun composant, la classe n'était donc jamais définie. */
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.hero-in { opacity: 0; animation: heroFadeUp .7s ease forwards; }

@@ -1,31 +1,10 @@
-<div class="space-y-8">
-  <div>
-    <div class="mb-4 flex items-center gap-2 text-sm text-text-secondary">
-      <a routerLink="/laboratoires" class="transition-colors hover:text-primary"> Accueil </a>
-
-      <i class="pi pi-angle-right text-xs"></i>
-
-      <a routerLink="/laboratoires" class="transition-colors hover:text-primary"> Laboratoires </a>
-
-      <i class="pi pi-angle-right text-xs"></i>
-
-      <span class="font-medium text-text">
-        {{ isEditMode() ? 'Modifier' : 'Nouveau laboratoire' }}
-      </span>
-    </div>
-
-    <h1 class="text-3xl font-semibold tracking-tight text-text">
-      {{ isEditMode() ? 'Modifier le laboratoire' : 'Ajouter un laboratoire' }}
-    </h1>
-
-    <p class="mt-2 text-sm text-text-secondary">
-      {{
-        isEditMode()
-          ? 'Modifiez les informations du laboratoire.'
-          : 'Renseignez les informations du laboratoire à ajouter à la plateforme.'
-      }}
-    </p>
-  </div>
+<div class="space-y-8 animate-stagger">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Laboratoires', link: '/laboratoires' }, { label: isEditMode() ? 'Modifier' : 'Nouveau laboratoire' }]"
+    [title]="isEditMode() ? 'Modifier le laboratoire' : 'Ajouter un laboratoire'"
+    [subtitle]="isEditMode() ? 'Modifiez les informations du laboratoire.' : 'Renseignez les informations du laboratoire à ajouter à la plateforme.'">
+    <p-button actions label="Retour aux laboratoires" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" routerLink="/laboratoires" />
+  </app-page-header>
 
   <!-- Erreur globale -->
   @if (error()) {

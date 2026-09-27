@@ -91,7 +91,7 @@ export class Register {
       error: (err) => {
         this.loading.set(false);
         this.errorMessage.set(
-          err.error?.email?.[0] ?? "Une erreur est survenue lors de l'inscription.",
+          err.error?.email?.[0] ?? err.error?.password?.[0] ?? "Une erreur est survenue lors de l'inscription.",
         );
       },
     });

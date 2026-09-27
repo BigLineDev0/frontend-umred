@@ -1,10 +1,10 @@
 <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
   <div>
     @if (breadcrumbs().length) {
-      <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
-        @for (crumb of breadcrumbs(); track crumb.label; let last = $last) {
+      <div class="mb-3 flex flex-wrap items-center gap-2 text-sm text-text-secondary">
+        @for (crumb of breadcrumbs(); track $index; let last = $last) {
           @if (crumb.link && !last) {
-            <a [routerLink]="crumb.link" class="hover:text-primary transition-colors">{{ crumb.label }}</a>
+            <a [routerLink]="resoudreLien(crumb.link)" class="hover:text-primary transition-colors">{{ crumb.label }}</a>
             <i class="pi pi-angle-right text-xs"></i>
           } @else {
             <span class="text-primary font-medium">{{ crumb.label }}</span>
@@ -12,7 +12,10 @@
         }
       </div>
     }
-    <h1 class="text-2xl font-semibold text-text">{{ title() }}</h1>
+    <div class="flex flex-wrap items-center gap-3">
+      <h1 class="text-2xl font-semibold text-text">{{ title() }}</h1>
+      <ng-content select="[badge]" />
+    </div>
     @if (subtitle()) {
       <p class="mt-1 text-sm text-text-secondary">{{ subtitle() }}</p>
     }

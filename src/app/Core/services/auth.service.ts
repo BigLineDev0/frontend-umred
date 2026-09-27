@@ -74,6 +74,13 @@ export class AuthService {
     }
   }
 
+  // Page d'accueil de l'espace connecté (tableau de bord du rôle), ou la
+  // landing page publique si personne n'est connecté.
+  routeAccueil(): string {
+    const user = this._currentUser();
+    return user ? ROUTE_PAR_ROLE[user.role] : '/';
+  }
+
   private enregistrerSession(reponse: LoginResponse): void {
     localStorage.setItem('access_token', reponse.access);
     localStorage.setItem('refresh_token', reponse.refresh);
@@ -95,8 +102,22 @@ export class AuthService {
     return this.http.post<{ detail: string }>(`${this.baseUrl}/auth/definir-mot-de-passe/`, { jeton, password });
   }
 
-  changerMotDePasse(ancien_password: string, nouveau_password: string): Observable<{ detail: string }> {
-    return this.http.post<{ detail: string }>(`${this.baseUrl}/auth/changer-mot-de-passe/`, { ancien_password, nouveau_password });
+  // L'e-mail envoyé pointe vers /definir-mot-de-passe/:jeton (même page que l'invitation).
+  demanderReinitialisation(email: string): Observable<{ detail: string }> {
+    return this.http.post<{ detail: string }>(`${this.baseUrl}/auth/mot-de-passe-oublie/`, { email });
+  }
+
+  // Le backend révoque toutes les sessions après un changement de mot de
+  // passe et renvoie une nouvelle paire de tokens pour la session courante.
+  changerMotDePasse(ancien_password: string, nouveau_password: string): Observable<{ detail: string; access?: string; refresh?: string }> {
+    return this.http.post<{ detail: string; access?: string; refresh?: string }>(
+      `${this.baseUrl}/auth/changer-mot-de-passe/`, { ancien_password, nouveau_password }
+    ).pipe(
+      tap(reponse => {
+        if (reponse.access) localStorage.setItem('access_token', reponse.access);
+        if (reponse.refresh) localStorage.setItem('refresh_token', reponse.refresh);
+      })
+    );
   }
 
   // Le nom/prénom affiché dans la sidebar et le topbar vient du token de

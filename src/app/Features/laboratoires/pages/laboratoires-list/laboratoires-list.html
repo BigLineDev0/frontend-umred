@@ -1,27 +1,14 @@
-<div class="space-y-8">
+<div class="space-y-8 animate-stagger">
   <!-- En-tête -->
-  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-    <div>
-      <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
-        <span>Accueil</span>
-        <i class="pi pi-angle-right text-xs"></i>
-        <span class="font-medium text-text">Laboratoires</span>
-      </div>
-
-      <h1 class="text-3xl font-semibold tracking-tight text-text">Laboratoires</h1>
-
-      <p class="mt-2 text-sm text-text-secondary">
-        Consultez les laboratoires et les équipements disponibles pour vos activités de recherche.
-      </p>
-    </div>
-
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Laboratoires' }]"
+    title="Laboratoires"
+    subtitle="Consultez les laboratoires et les équipements disponibles pour vos activités de recherche.">
     <!-- Visible pour ADMIN -->
     @if (isAdmin()) {
-      <a routerLink="/laboratoires/ajouter" class="shrink-0">
-        <p-button label="Ajouter un laboratoire" icon="pi pi-plus" />
-      </a>
+      <p-button actions label="Ajouter un laboratoire" icon="pi pi-plus" routerLink="/laboratoires/ajouter" />
     }
-  </div>
+  </app-page-header>
 
   <!-- Filtres -->
   <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -89,7 +76,7 @@
   @else {
     @if (filteredLaboratoires().length > 0) {
 
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 animate-stagger">
         @for (laboratoire of filteredLaboratoires(); track laboratoire.id) {
           <article
             class="flex min-h-[315px] flex-col rounded-2xl border border-border bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"

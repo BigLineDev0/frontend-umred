@@ -3,36 +3,27 @@
 } @else if (error()) {
   <div class="rounded-xl border border-red-200 bg-red-50 p-6"><p class="font-medium text-red-800">{{ error() }}</p></div>
 } @else if (consommable(); as c) {
-  <div class="space-y-6">
+  <div class="space-y-6 animate-stagger">
 
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div>
-        <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
-          <a routerLink="/consommables" class="hover:text-primary transition-colors">Consommables</a>
-          <i class="pi pi-angle-right text-xs"></i>
-          <span class="font-medium text-text">{{ c.nom }}</span>
-        </div>
-        <div class="flex flex-wrap items-center gap-3">
-          <h1 class="text-2xl font-semibold text-text">{{ c.nom }}</h1>
-          <p-tag [value]="c.statut" severity="secondary" [rounded]="true" />
-        </div>
-        <p class="mt-1 text-sm text-text-secondary">{{ c.laboratoire_nom }} @if (c.reference) { · Réf. {{ c.reference }} }</p>
-      </div>
-
-      <div class="flex gap-2">
+    <app-page-header
+      [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Consommables', link: '/consommables' }, { label: c.nom }]"
+      [title]="c.nom"
+      [subtitle]="c.laboratoire_nom + (c.reference ? ' · Réf. ' + c.reference : '')">
+      <app-status-badge badge [statut]="c.statut" />
+      <div actions class="flex gap-2">
         <p-button label="Déclarer une utilisation" icon="pi pi-minus-circle" severity="secondary" [outlined]="true" (onClick)="ouvrirModale('retirer')" />
         @if (canManage()) {
           <p-button label="Réapprovisionner" icon="pi pi-plus-circle" (onClick)="ouvrirModale('reapprovisionner')" />
           <a [routerLink]="['/consommables', c.id, 'modifier']"><p-button icon="pi pi-pencil" severity="secondary" [outlined]="true" /></a>
         }
       </div>
-    </div>
+    </app-page-header>
 
     <section class="rounded-xl border border-border bg-white p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
       <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Stock actuel</p><p class="mt-1 text-lg font-semibold text-text">{{ c.quantite_stock }} {{ c.unite }}</p></div>
       <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Seuil d'alerte</p><p class="mt-1 text-lg font-semibold text-text">{{ c.seuil_alerte }} {{ c.unite }}</p></div>
       <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Péremption</p><p class="mt-1 text-lg font-semibold text-text">{{ c.date_peremption ? (c.date_peremption | date: 'dd/MM/yyyy') : '—' }}</p></div>
-      <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Statut</p><p class="mt-1 text-lg font-semibold text-text">{{ c.statut }}</p></div>
+      <div><p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Statut</p><div class="mt-1"><app-status-badge [statut]="c.statut" /></div></div>
     </section>
 
     <section>

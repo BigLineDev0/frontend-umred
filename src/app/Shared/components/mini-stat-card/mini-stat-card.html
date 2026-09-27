@@ -13,5 +13,7 @@
          [class.text-accent]="color() === 'accent'"></i>
     </div>
   </div>
-  <p class="text-3xl font-bold text-text">{{ value() }}</p>
+  <p class="text-3xl font-bold text-text">
+    @if (numericValue(); as n) { <app-animated-number [value]="n" /> } @else { {{ value() }} }
+  </p>
 </div>

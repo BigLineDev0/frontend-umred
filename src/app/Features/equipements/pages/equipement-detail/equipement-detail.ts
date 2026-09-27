@@ -14,11 +14,12 @@ import { LaboratoireService } from '../../../../Core/services/laboratoire.servic
 import { AuthService } from '../../../../Core/services/auth.service';
 
 import QRCode from 'qrcode';
+import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 @Component({
   standalone: true,
   selector: 'app-equipement-detail',
   templateUrl: './equipement-detail.html',
-  imports: [RouterLink, ButtonModule, TagModule, TableModule, TooltipModule, ConfirmDialogModule],
+  imports: [PageHeader, RouterLink, ButtonModule, TagModule, TableModule, TooltipModule, ConfirmDialogModule],
   providers: [ConfirmationService],
 })
 export class EquipementDetail implements OnInit {

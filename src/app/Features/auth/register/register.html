@@ -1,19 +1,19 @@
 <app-auth-layout>
 
   <img src="images/logo_umred.png" alt="UMRED Logo" class="mx-auto mb-2 w-48" />
-  <h2 class="text-3xl font-bold text-text mb-2">
+  <h1 class="text-3xl font-bold text-text mb-2">
     Créer un compte
-  </h2>
+  </h1>
 
   <p class="text-text-secondary mb-8">
-    Rejoignez UMRED Labo pour gérer votre laboratoire efficacement
+    Rejoignez UMRED pour réserver laboratoires et équipements en quelques clics.
   </p>
 
 
   <!-- Erreur API -->
   @if (errorMessage()) {
 
-  <div class="p-3 mb-3 rounded-lg bg-danger/5 border border-danger/20">
+  <div role="alert" class="p-3 mb-3 rounded-lg bg-danger/5 border border-danger/20">
 
     <p class="text-sm text-danger">
       {{ errorMessage() }}
@@ -39,7 +39,7 @@
 
           <p-inputicon class="pi pi-user" />
 
-          <input id="prenom" type="text" pInputText formControlName="prenom" placeholder="Jean"
+          <input id="prenom" type="text" pInputText formControlName="prenom" placeholder="Awa" autocomplete="given-name"
             class="w-full" />
 
         </p-iconfield>
@@ -74,7 +74,7 @@
 
           <p-inputicon class="pi pi-user" />
 
-          <input id="nom" type="text" pInputText formControlName="nom" placeholder="Diop"
+          <input id="nom" type="text" pInputText formControlName="nom" placeholder="Diop" autocomplete="family-name"
             class="w-full" />
 
         </p-iconfield>
@@ -111,7 +111,7 @@
 
         <p-inputicon class="pi pi-envelope" />
 
-        <input id="email" type="email" pInputText formControlName="email" placeholder="j.diop@umred.sn"
+        <input id="email" type="email" pInputText formControlName="email" placeholder="a.diop@umred.sn" autocomplete="email"
           class="w-full" />
 
       </p-iconfield>
@@ -142,8 +142,12 @@
         Mot de passe
       </label>
 
-      <p-password inputId="password" formControlName="password" placeholder="********" [feedback]="false"
-        [toggleMask]="true" fluid inputStyleClass="w-full" />
+      <p-password inputId="password" formControlName="password" placeholder="••••••••" autocomplete="new-password"
+        [feedback]="false" [toggleMask]="true" fluid inputStyleClass="w-full" />
+
+      @if (!(password.invalid && (password.touched || submitted))) {
+        <small class="text-text-secondary text-xs mt-1 block">8 caractères minimum.</small>
+      }
 
       @if (password.invalid && (password.touched || submitted)) {
 
@@ -172,7 +176,7 @@
       </label>
 
       <p-password inputId="passwordConfirmation" formControlName="passwordConfirmation"
-        placeholder="********" [feedback]="false" [toggleMask]="true" fluid
+        placeholder="••••••••" autocomplete="new-password" [feedback]="false" [toggleMask]="true" fluid
         inputStyleClass="w-full" />
 
       @if (

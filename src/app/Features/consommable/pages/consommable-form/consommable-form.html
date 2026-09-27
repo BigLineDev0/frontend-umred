@@ -1,17 +1,10 @@
-<div class="min-h-full">
-  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-    <div>
-      <div class="mb-3 flex items-center gap-2 text-sm text-text-secondary">
-        <a routerLink="/consommables" class="transition-colors hover:text-primary">Consommables</a>
-        <i class="pi pi-angle-right text-xs"></i>
-        <span class="font-medium text-text">{{ isEditMode() ? 'Modifier' : 'Nouveau' }}</span>
-      </div>
-      <h1 class="text-2xl font-semibold tracking-tight text-text">
-        {{ isEditMode() ? 'Modifier le consommable' : 'Ajouter un consommable' }}
-      </h1>
-    </div>
-    <p-button label="Retour" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (onClick)="annuler()" />
-  </div>
+<div class="min-h-full animate-stagger">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Consommables', link: '/consommables' }, { label: isEditMode() ? 'Modifier' : 'Nouveau consommable' }]"
+    [title]="isEditMode() ? 'Modifier le consommable' : 'Ajouter un consommable'"
+    [subtitle]="isEditMode() ? 'Modifiez les informations du consommable.' : 'Ajoutez un nouveau consommable ou réactif au stock du laboratoire.'">
+    <p-button actions label="Retour aux consommables" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (onClick)="annuler()" />
+  </app-page-header>
 
   @if (error()) {
     <div class="mx-auto mb-6 max-w-3xl flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

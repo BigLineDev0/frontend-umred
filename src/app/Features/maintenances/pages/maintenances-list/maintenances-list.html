@@ -1,14 +1,14 @@
-<div class="space-y-8">
+<div class="space-y-8 animate-stagger">
 
-  <app-page-header [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Maintenance' }]"
-    title="Maintenance" subtitle="Planifiez, suivez et consultez les interventions de maintenance des équipements.">
+  <app-page-header [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Maintenances' }]"
+    title="Maintenances" subtitle="Planifiez, suivez et consultez les interventions de maintenance des équipements.">
     <div actions class="flex gap-2">
       <p-button label="Équipements en panne" icon="pi pi-exclamation-triangle" severity="danger" [outlined]="true" routerLink="/maintenances/pannes" />
       <p-button label="Nouvelle maintenance" icon="pi pi-plus" (onClick)="formModalVisible.set(true)" />
     </div>
   </app-page-header>
 
-  <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+  <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6 animate-stagger">
     <app-mini-stat-card icon="pi pi-flag" color="primary" [value]="totalPlanifiees()" label="Planifiées" />
     <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="totalEnCours()" label="En cours" />
     <app-mini-stat-card icon="pi pi-ban" color="accent" [value]="totalAnnulees()" label="Annulées" />

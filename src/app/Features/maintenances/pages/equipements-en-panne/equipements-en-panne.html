@@ -1,6 +1,6 @@
-<div class="space-y-8">
+<div class="space-y-8 animate-stagger">
   <app-page-header
-    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Maintenance', link: '/maintenances' }, { label: 'Équipements en panne' }]"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Maintenances', link: '/maintenances' }, { label: 'Équipements en panne' }]"
     title="Équipements en panne"
     subtitle="Équipements actuellement signalés en panne, en attente d'une intervention corrective.">
     <p-button actions label="Retour aux maintenances" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" routerLink="/maintenances" />
@@ -19,7 +19,7 @@
       <p class="mt-1 text-sm text-text-secondary">Tous les équipements sont actuellement fonctionnels.</p>
     </div>
   } @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-stagger">
       @for (e of equipementsAffiches(); track e.id) {
         <div class="rounded-xl border border-danger/20 bg-danger/5 p-5 flex items-center justify-between gap-4">
           <div class="flex items-center gap-3 min-w-0">

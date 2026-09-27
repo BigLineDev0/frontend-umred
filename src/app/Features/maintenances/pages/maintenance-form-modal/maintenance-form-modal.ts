@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, model, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
@@ -40,12 +40,17 @@ export class MaintenanceFormModal {
     { label: 'Préventive', value: 'PREVENTIVE' },
   ];
 
-  get equipementOptions() {
-    const source = this.form.type === 'CORRECTIVE'
+  // Signal miroir de form.type : un getter recréait un nouveau tableau d'options
+  // à chaque détection de changement, ce qui faisait re-rendre la liste du
+  // p-select pendant le survol et rendait la sélection difficile.
+  private typeCourant = signal<'PREVENTIVE' | 'CORRECTIVE'>('CORRECTIVE');
+
+  equipementOptions = computed(() => {
+    const source = this.typeCourant() === 'CORRECTIVE'
       ? this.equipementService.equipements().filter(e => e.statut === 'EN_PANNE')
       : this.equipementService.equipements().filter(e => e.statut !== 'HORS_SERVICE');
     return source.map(e => ({ label: `${e.nom} — ${e.laboratoire_nom}`, value: e.id }));
-  }
+  });
 
   constructor() {
     effect(() => {
@@ -55,13 +60,15 @@ export class MaintenanceFormModal {
         if (preselection) {
           this.form.equipement = preselection;
           this.form.type = 'CORRECTIVE';
+          this.typeCourant.set('CORRECTIVE');
         }
       }
     });
   }
 
   onTypeChange(): void {
-    const ids = this.equipementOptions.map(o => o.value);
+    this.typeCourant.set(this.form.type);
+    const ids = this.equipementOptions().map(o => o.value);
     if (this.form.equipement && !ids.includes(this.form.equipement)) {
       this.form.equipement = null;
     }
@@ -100,5 +107,6 @@ export class MaintenanceFormModal {
 
   private resetForm(): void {
     this.form = { equipement: null, type: 'CORRECTIVE', datePlanifiee: null, description: '' };
+    this.typeCourant.set('CORRECTIVE');
   }
 }

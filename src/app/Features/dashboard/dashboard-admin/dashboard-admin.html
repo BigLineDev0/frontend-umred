@@ -1,14 +1,14 @@
-<div class="max-w-[1400px] mx-auto">
+<div class="max-w-[1400px] mx-auto animate-stagger">
 
   <app-page-header
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Tableau de bord' }]"
     title="Tableau de bord"
-    subtitle="Vue d'ensemble de l'activité du laboratoire.">
+    subtitle="Voici un aperçu de l'activité de la plateforme.">
     <p-button actions label="Gérer les utilisateurs" icon="pi pi-users" routerLink="/utilisateurs"/>
   </app-page-header>
 
   <!-- KPI principaux -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-stagger">
     <app-mini-stat-card icon="pi pi-users" color="primary" [value]="totalUtilisateurs()" label="Utilisateurs" />
     <app-mini-stat-card icon="pi pi-building" color="primary" [value]="totalLaboratoires()" label="Laboratoires" />
     <app-mini-stat-card icon="pi pi-cog" color="success" [value]="totalEquipements()" label="Équipements" />
@@ -191,7 +191,7 @@
     <div class="bg-white border border-border rounded-xl p-6">
       <h2 class="text-lg font-semibold text-text mb-5">Actions rapides</h2>
       <div class="grid grid-cols-2 gap-3">
-        <p-button label="Ajouter un utilisateur" icon="pi pi-user-plus" severity="secondary" [outlined]="true" styleClass="w-full" />
+        <p-button label="Ajouter un utilisateur" icon="pi pi-user-plus" severity="secondary" [outlined]="true" (onClick)="utilisateurModalVisible = true" styleClass="w-full" />
         <p-button label="Ajouter un laboratoire" icon="pi pi-building" severity="secondary" [outlined]="true" routerLink="/laboratoires/ajouter" styleClass="w-full" />
         <p-button label="Ajouter un équipement" icon="pi pi-cog" severity="secondary" [outlined]="true" routerLink="/equipements/ajouter" styleClass="w-full" />
         <p-button label="Planifier une maintenance" icon="pi pi-wrench" severity="secondary" [outlined]="true" (onClick)="maintenanceModalVisible = true" styleClass="w-full" />
@@ -203,3 +203,4 @@
 </div>
 
 <app-maintenance-form-modal [(visible)]="maintenanceModalVisible" />
+<app-utilisateur-form-modal [(visible)]="utilisateurModalVisible" />

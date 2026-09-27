@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -10,12 +10,13 @@ import { MessageService } from 'primeng/api';
 
 import { ConsommableService } from '../../../../Core/services/consommable.service';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
+import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 
 @Component({
   standalone: true,
   selector: 'app-consommable-form',
   templateUrl: './consommable-form.html',
-  imports: [RouterLink, ReactiveFormsModule, ButtonModule, InputTextModule, InputNumberModule, SelectModule, DatePickerModule],
+  imports: [PageHeader, ReactiveFormsModule, ButtonModule, InputTextModule, InputNumberModule, SelectModule, DatePickerModule],
 })
 export class ConsommableForm implements OnInit {
   private fb = inject(FormBuilder);

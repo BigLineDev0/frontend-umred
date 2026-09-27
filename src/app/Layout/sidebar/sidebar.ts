@@ -1,7 +1,8 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { AvatarModule } from 'primeng/avatar';
 import { DividerModule } from 'primeng/divider';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { filter } from 'rxjs';
 import { LayoutService } from '../../Core/services/layout.service';
 import { AuthService } from '../../Core/services/auth.service';
 import { NavItem } from '../../Core/models/nav-item.model';
@@ -17,6 +18,13 @@ export class Sidebar {
   layoutService = inject(LayoutService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private currentUrl = signal(this.router.url);
+
+  constructor() {
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe(event => this.currentUrl.set(event.urlAfterRedirects));
+  }
 
   user = this.authService.currentUser;
 
@@ -40,7 +48,7 @@ export class Sidebar {
   private commonItems: NavItem[] = [
     { label: 'Laboratoires', icon: 'pi pi-building', route: '/laboratoires' },
     { label: 'Équipements', icon: 'pi pi-cog', route: '/equipements' },
-    { label: 'Consommables', icon: 'pi pi-cog', route: '/consommables'},
+    { label: 'Consommables', icon: 'pi pi-box', route: '/consommables' },
     { label: 'Notifications', icon: 'pi pi-bell', route: '/notifications' },
   ];
 
@@ -56,7 +64,10 @@ export class Sidebar {
   };
 
   private reservationsAValiderItem: NavItem = {
-    label: 'Réservations à valider', icon: 'pi pi-check-square', route: '/reservations/a-valider',
+    label: 'Réservations à valider',
+    icon: 'pi pi-check-square',
+    route: '/reservations/a-valider',
+    activeRoutes: ['/reservations/a-valider'],
   };
 
   navItems = computed<NavItem[]>(() => {
@@ -87,7 +98,12 @@ export class Sidebar {
       case 'CHERCHEUR':
         return [
           { label: 'Tableau de bord', icon: 'pi pi-table', route: '/enseignant/dashboard', exact: true },
-          { label: 'Mes réservations', icon: 'pi pi-file-edit', route: '/enseignant/reservations' },
+          {
+            label: 'Mes réservations',
+            icon: 'pi pi-file-edit',
+            route: '/enseignant/reservations',
+            activeRoutes: ['/reservations/ajouter'],
+          },
           this.reservationsAValiderItem,
           ...this.commonItems,
         ];
@@ -95,7 +111,12 @@ export class Sidebar {
       case 'ETUDIANT':
         return [
           { label: 'Tableau de bord', icon: 'pi pi-table', route: '/etudiant/dashboard', exact: true },
-          { label: 'Mes demandes', icon: 'pi pi-file-edit', route: '/etudiant/mes-demandes' },
+          {
+            label: 'Mes demandes',
+            icon: 'pi pi-file-edit',
+            route: '/etudiant/mes-demandes',
+            activeRoutes: ['/reservations/ajouter'],
+          },
           ...this.commonItems,
         ];
 
@@ -105,13 +126,26 @@ export class Sidebar {
   });
 
   isItemActive(item: NavItem): boolean {
-    const url = this.router.url;
+    const url = this.normalizeUrl(this.currentUrl());
 
-    if (item.excludes?.some(exclu => url.startsWith(exclu))) {
+    if (item.excludes?.some(exclu => this.matchesRoute(url, exclu))) {
       return false;
     }
 
-    return item.exact ? url === item.route : url.startsWith(item.route);
+    const activeRoutes = [item.route, ...(item.activeRoutes ?? [])];
+    return item.exact
+      ? activeRoutes.some(route => url === this.normalizeUrl(route))
+      : activeRoutes.some(route => this.matchesRoute(url, route));
+  }
+
+  private matchesRoute(url: string, route: string): boolean {
+    const normalizedRoute = this.normalizeUrl(route);
+    return url === normalizedRoute || url.startsWith(`${normalizedRoute}/`);
+  }
+
+  private normalizeUrl(url: string): string {
+    const path = url.split(/[?#]/, 1)[0];
+    return path.length > 1 ? path.replace(/\/+$/, '') : path;
   }
 
   closeSidebar(): void {

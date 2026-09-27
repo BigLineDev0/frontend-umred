@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8 animate-stagger">
   <app-page-header
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Consommables & réactifs' }]"
     title="Consommables & réactifs"
@@ -8,7 +8,7 @@
     }
   </app-page-header>
 
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-stagger">
     <app-mini-stat-card icon="pi pi-exclamation-triangle" color="danger" [value]="totalStockFaible()" label="Stock faible ou épuisé" />
     <app-mini-stat-card icon="pi pi-calendar-times" color="danger" [value]="totalPerimes()" label="Périmés" />
     <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="totalPeremptionProche()" label="Péremption proche (15 j)" />

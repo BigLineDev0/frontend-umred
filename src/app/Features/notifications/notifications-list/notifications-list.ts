@@ -78,8 +78,8 @@ export class NotificationsList implements OnInit {
     }
     if (n.entite_type_nom === 'reservation') {
       const role = this.authService.currentUser()?.role;
-      const route = role === 'ETUDIANT' ? '/etudiant/dashboard/mes-demandes'
-        : role === 'CHERCHEUR' ? '/enseignant/dashboard/reservations'
+      const route = role === 'ETUDIANT' ? '/etudiant/mes-demandes'
+        : role === 'CHERCHEUR' ? '/enseignant/reservations'
         : '/reservations/a-valider';
       this.router.navigate([route]);
     }
