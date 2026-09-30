@@ -6,6 +6,7 @@ import { filter } from 'rxjs';
 import { LayoutService } from '../../Core/services/layout.service';
 import { AuthService } from '../../Core/services/auth.service';
 import { NavItem } from '../../Core/models/nav-item.model';
+import { OrganisationService } from '../../Core/services/organisation.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -17,6 +18,7 @@ import { NavItem } from '../../Core/models/nav-item.model';
 export class Sidebar {
   layoutService = inject(LayoutService);
   private authService = inject(AuthService);
+  private organisationService = inject(OrganisationService);
   private router = inject(Router);
   private currentUrl = signal(this.router.url);
 
@@ -28,6 +30,10 @@ export class Sidebar {
 
   user = this.authService.currentUser;
 
+  // Logo de l'établissement s'il en a configuré un, sinon celui de la plateforme.
+  logo = computed(() => this.organisationService.courante()?.logo ?? 'images/logo_umred.png');
+  nomEtablissement = computed(() => this.organisationService.courante()?.nom ?? 'UMRED');
+
   initials = computed(() => {
     const u = this.user();
     return u ? `${u.prenom[0]}${u.nom[0]}`.toUpperCase() : '';
@@ -35,6 +41,7 @@ export class Sidebar {
 
   roleLabel = computed(() => {
     const labels: Record<string, string> = {
+      SUPER_ADMIN: 'Éditeur de la plateforme',
       ADMIN: 'Administrateur',
       TECHNICIEN: 'Technicien de laboratoire',
       CHERCHEUR: 'Enseignant-chercheur',
@@ -63,6 +70,10 @@ export class Sidebar {
     label: 'Maintenances', icon: 'pi pi-wrench', route: '/maintenances', excludes: ['/maintenances/pannes']
   };
 
+  private pilotageItem: NavItem = {
+    label: 'Aide à la décision', icon: 'pi pi-sparkles', route: '/pilotage',
+  };
+
   private reservationsAValiderItem: NavItem = {
     label: 'Réservations à valider',
     icon: 'pi pi-check-square',
@@ -74,9 +85,16 @@ export class Sidebar {
     const role = this.user()?.role;
 
     switch (role) {
+      case 'SUPER_ADMIN':
+        return [
+          { label: 'Console plateforme', icon: 'pi pi-globe', route: '/plateforme', exact: true },
+          { label: 'Notifications', icon: 'pi pi-bell', route: '/notifications' },
+        ];
+
       case 'ADMIN':
         return [
           { label: 'Tableau de bord', icon: 'pi pi-table', route: '/admin/dashboard', exact: true },
+          this.pilotageItem,
           this.reservationsAValiderItem,
           ...this.commonItems,
           this.equipementsEnPanneItem,
@@ -84,11 +102,13 @@ export class Sidebar {
           { label: 'Utilisateurs', icon: 'pi pi-users', route: '/utilisateurs' },
           { label: 'Rapports', icon: 'pi pi-chart-line', route: '/rapports' },
           { label: "Journal d'activité", icon: 'pi pi-history', route: '/journal-activite' },
+          { label: 'Mon établissement', icon: 'pi pi-sliders-h', route: '/etablissement' },
         ];
 
       case 'TECHNICIEN':
         return [
           { label: 'Tableau de bord', icon: 'pi pi-table', route: '/technicien/dashboard', exact: true },
+          this.pilotageItem,
           this.maintenancesItem,
           this.reservationsAValiderItem,
           ...this.commonItems,
@@ -104,7 +124,7 @@ export class Sidebar {
             route: '/enseignant/reservations',
             activeRoutes: ['/reservations/ajouter'],
           },
-          this.reservationsAValiderItem,
+          { ...this.reservationsAValiderItem, label: 'Demandes de mes étudiants' },
           ...this.commonItems,
         ];
 

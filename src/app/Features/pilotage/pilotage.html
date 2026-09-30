@@ -1,0 +1,178 @@
+<div class="space-y-6 animate-stagger">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Aide à la décision' }]"
+    title="Aide à la décision"
+    subtitle="Tensions, capacités inutilisées, prévisions et recommandations calculées à partir de votre activité.">
+    <div actions class="flex flex-wrap gap-2">
+      <p-select [options]="periodeOptions" optionLabel="label" optionValue="value" [ngModel]="jours()"
+        (ngModelChange)="jours.set($event); charger()" />
+      <p-select [options]="laboratoireOptions()" optionLabel="label" optionValue="value" [ngModel]="laboratoire()"
+        (ngModelChange)="laboratoire.set($event); charger()" placeholder="Tous les laboratoires" />
+    </div>
+  </app-page-header>
+
+  @if (loading() && !indicateurs()) {
+    <div class="rounded-xl border border-border bg-white p-12 text-center">
+      <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+      <p class="mt-3 text-sm text-text-secondary">Analyse de l'activité...</p>
+    </div>
+  } @else if (erreur()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">{{ erreur() }}</div>
+  } @else if (indicateurs(); as ind) {
+
+    <!-- Indicateurs clés -->
+    <section class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div class="rounded-xl border border-border bg-white p-4">
+        <p class="text-xs text-text-secondary">Réservations</p>
+        <p class="text-2xl font-semibold text-text">{{ ind.volumes.reservations }}</p>
+      </div>
+      <div class="rounded-xl border border-border bg-white p-4">
+        <p class="text-xs text-text-secondary">Heures d'utilisation</p>
+        <p class="text-2xl font-semibold text-text">{{ ind.volumes.heures_utilisation }} h</p>
+      </div>
+      <div class="rounded-xl border border-border bg-white p-4">
+        <p class="text-xs text-text-secondary">Utilisateurs actifs</p>
+        <p class="text-2xl font-semibold text-text">{{ ind.volumes.utilisateurs_actifs }}</p>
+      </div>
+      <div class="rounded-xl border border-border bg-white p-4">
+        <p class="text-xs text-text-secondary">Délai moyen de validation</p>
+        <p class="text-2xl font-semibold text-text">{{ ind.volumes.delai_moyen_validation_h ?? '—' }}{{ ind.volumes.delai_moyen_validation_h !== null ? ' h' : '' }}</p>
+      </div>
+      <div class="rounded-xl border border-border bg-white p-4">
+        <p class="text-xs text-text-secondary">Taux d'annulation</p>
+        <p class="text-2xl font-semibold text-text">{{ ind.volumes.taux_annulation }} %</p>
+      </div>
+      <div class="rounded-xl border border-border bg-white p-4">
+        <p class="text-xs text-text-secondary">En attente &gt; 48 h</p>
+        <p class="text-2xl font-semibold" [class.text-accent]="ind.volumes.demandes_en_attente_48h" [class.text-text]="!ind.volumes.demandes_en_attente_48h">
+          {{ ind.volumes.demandes_en_attente_48h }}
+        </p>
+      </div>
+    </section>
+
+    <!-- Synthèse rédigée par le modèle de langage -->
+    <section class="rounded-xl border border-primary/20 bg-primary/5 p-5">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 class="flex items-center gap-2 text-base font-semibold text-text"><i class="pi pi-comment text-primary"></i> Synthèse de la période</h2>
+          <p class="mt-0.5 text-xs text-text-secondary">
+            Rédigée par le modèle de langage à partir des seuls indicateurs ci-dessous ; chaque chiffre est vérifié avant affichage.
+          </p>
+        </div>
+        <p-button [label]="synthese() ? 'Régénérer' : 'Rédiger la synthèse'" icon="pi pi-sparkles" size="small"
+          [loading]="syntheseEnCours()" (onClick)="genererSynthese()" />
+      </div>
+      @if (synthese(); as s) {
+        <p class="mt-4 text-sm leading-relaxed text-text">{{ s.synthese }}</p>
+        <p class="mt-2 text-xs text-text-secondary">
+          @if (s.source === 'modele') {
+            <i class="pi pi-verified mr-1"></i>Rédigée par le modèle de langage, chiffres contrôlés.
+          } @else {
+            <i class="pi pi-info-circle mr-1"></i>Version rédigée automatiquement par règles (modèle indisponible ou réponse non vérifiable).
+          }
+        </p>
+      } @else if (syntheseEnCours()) {
+        <p class="mt-4 text-sm text-text-secondary"><i class="pi pi-spin pi-spinner mr-2"></i>Rédaction en cours (quelques secondes)...</p>
+      }
+    </section>
+
+    <!-- Recommandations -->
+    <section class="rounded-xl border border-border bg-white p-5">
+      <h2 class="mb-1 flex items-center gap-2 text-base font-semibold text-text"><i class="pi pi-sparkles text-primary"></i> Recommandations</h2>
+      <p class="mb-4 text-xs text-text-secondary">Chaque recommandation cite les chiffres qui la justifient.</p>
+      <div class="space-y-3">
+        @for (r of ind.recommandations; track r.titre) {
+          <div class="flex items-start gap-3 rounded-lg border p-3" [class]="styles[r.niveau].classes">
+            <i class="mt-0.5" [class]="styles[r.niveau].icone"></i>
+            <div>
+              <p class="text-sm font-semibold">{{ r.titre }}</p>
+              <p class="text-sm opacity-90">{{ r.message }}</p>
+            </div>
+          </div>
+        } @empty {
+          <p class="text-sm text-text-secondary">Aucune recommandation : l'activité est équilibrée sur la période.</p>
+        }
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <!-- Occupation des équipements -->
+      <section class="rounded-xl border border-border bg-white p-5">
+        <h2 class="mb-4 text-base font-semibold text-text">Occupation des équipements</h2>
+        <div class="space-y-3">
+          @for (e of ind.occupation_equipements.slice(0, 10); track e.id) {
+            <div>
+              <div class="mb-1 flex justify-between text-sm">
+                <span class="text-text">{{ e.nom }} <span class="text-xs text-text-secondary">· {{ e.laboratoire }}</span></span>
+                <span class="font-medium text-text">{{ e.taux_occupation }} %</span>
+              </div>
+              <div class="h-2 rounded-full bg-gray-100">
+                <div class="h-2 rounded-full"
+                  [class.bg-red-500]="e.taux_occupation >= 75" [class.bg-primary]="e.taux_occupation < 75 && e.taux_occupation >= 10"
+                  [class.bg-gray-300]="e.taux_occupation < 10" [style.width]="largeur(e.taux_occupation)"></div>
+              </div>
+            </div>
+          } @empty {
+            <p class="text-sm text-text-secondary">Aucun équipement.</p>
+          }
+        </div>
+      </section>
+
+      <!-- Prévision -->
+      <section class="rounded-xl border border-border bg-white p-5">
+        <h2 class="text-base font-semibold text-text">Prévision de charge — semaine prochaine</h2>
+        <p class="mb-4 text-xs text-text-secondary">Moyenne des 4 dernières semaines, comparée à ce qui est déjà planifié.</p>
+        <div class="h-64">
+          @if (graphiquePrevision(); as data) {
+            <p-chart type="bar" [data]="data" [options]="optionsGraphique" height="16rem" />
+          }
+        </div>
+      </section>
+    </div>
+
+    <!-- Carte de chaleur -->
+    <section class="rounded-xl border border-border bg-white p-5">
+      <h2 class="text-base font-semibold text-text">Heures de pointe</h2>
+      <p class="mb-4 text-xs text-text-secondary">Nombre de réservations par jour et par heure : repérez les créneaux saturés et les créneaux creux.</p>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border-separate border-spacing-1 text-xs">
+          <thead>
+            <tr>
+              <th></th>
+              @for (h of ind.carte_chaleur.heures; track h) { <th class="px-1 font-medium text-text-secondary">{{ h }}</th> }
+            </tr>
+          </thead>
+          <tbody>
+            @for (ligne of ind.carte_chaleur.jours; track ligne.jour) {
+              <tr>
+                <td class="pr-2 font-medium text-text">{{ ligne.jour }}</td>
+                @for (v of ligne.valeurs; track $index) {
+                  <td class="h-8 min-w-9 rounded text-center" [style.background]="intensite(v)"
+                    [class.text-white]="v / maxChaleur() > 0.55" [class.text-text]="v / maxChaleur() <= 0.55"
+                    [title]="v + ' réservation(s)'">{{ v || '' }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Occupation des laboratoires -->
+    <section class="rounded-xl border border-border bg-white p-5">
+      <h2 class="mb-4 text-base font-semibold text-text">Occupation des laboratoires</h2>
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        @for (l of ind.occupation_laboratoires; track l.id) {
+          <div class="rounded-lg bg-gray-50 p-3">
+            <p class="text-sm font-medium text-text">{{ l.nom }}</p>
+            <p class="text-xs text-text-secondary">{{ l.heures }} h réservées · {{ l.taux_occupation }} % d'occupation</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <p class="text-xs text-text-secondary">
+      Période analysée : du {{ ind.periode.debut | date: 'dd/MM/yyyy' }} au {{ ind.periode.fin | date: 'dd/MM/yyyy' }}.
+    </p>
+  }
+</div>

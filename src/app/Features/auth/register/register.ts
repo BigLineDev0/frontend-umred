@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
@@ -9,6 +9,9 @@ import { InputIconModule } from 'primeng/inputicon';
 import { AuthLayout } from '../../../Layout/auth-layout/auth-layout';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../Core/services/auth.service';
+import { OrganisationService } from '../../../Core/services/organisation.service';
+import { OrganisationPublique } from '../../../Core/models/organisation.model';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-register',
@@ -22,16 +25,26 @@ import { AuthService } from '../../../Core/services/auth.service';
     IconFieldModule,
     InputIconModule,
     RouterLink,
+    SelectModule,
   ],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
-export class Register {
+export class Register implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private organisationService = inject(OrganisationService);
+
+  // Établissements clients de la plateforme : l'étudiant choisit le sien.
+  organisations = signal<OrganisationPublique[]>([]);
 
   loading = signal(false);
   errorMessage = signal('');
+  // Adresse à laquelle l'email d'activation a été envoyé : quand elle est
+  // renseignée, le formulaire laisse place au message « vérifiez vos emails ».
+  emailEnvoye = signal<string | null>(null);
+  renvoiEnCours = signal(false);
+  renvoiMessage = signal('');
 
   submitted = false;
 
@@ -41,7 +54,22 @@ export class Register {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
     passwordConfirmation: ['', [Validators.required]],
+    organisation: [null as number | null, [Validators.required]],
   });
+
+  ngOnInit(): void {
+    this.organisationService.publiques().subscribe({
+      next: (liste) => {
+        this.organisations.set(liste);
+        // Un seul établissement : inutile de demander.
+        if (liste.length === 1) this.registerForm.patchValue({ organisation: liste[0].id });
+      },
+    });
+  }
+
+  get organisation() {
+    return this.registerForm.controls.organisation;
+  }
 
   get prenom() {
     return this.registerForm.controls.prenom;
@@ -80,19 +108,37 @@ export class Register {
       return;
     }
 
-    const { prenom, nom, email, password } = this.registerForm.getRawValue();
+    const { prenom, nom, email, password, organisation } = this.registerForm.getRawValue();
     this.loading.set(true);
 
-    this.authService.register({ prenom, nom, email, password }).subscribe({
-      next: () => {
+    this.authService.register({ prenom, nom, email, password, organisation: organisation! }).subscribe({
+      next: (reponse) => {
         this.loading.set(false);
-        this.authService.redirigerSelonRole();
+        this.emailEnvoye.set(reponse.email);
       },
       error: (err) => {
         this.loading.set(false);
         this.errorMessage.set(
           err.error?.email?.[0] ?? err.error?.password?.[0] ?? "Une erreur est survenue lors de l'inscription.",
         );
+      },
+    });
+  }
+
+  renvoyerEmail() {
+    const email = this.emailEnvoye();
+    if (!email) return;
+
+    this.renvoiEnCours.set(true);
+    this.renvoiMessage.set('');
+    this.authService.renvoyerActivation(email).subscribe({
+      next: () => {
+        this.renvoiEnCours.set(false);
+        this.renvoiMessage.set('Un nouvel email vient de vous être envoyé.');
+      },
+      error: (err) => {
+        this.renvoiEnCours.set(false);
+        this.renvoiMessage.set(err.error?.detail ?? "Impossible de renvoyer l'email pour le moment.");
       },
     });
   }

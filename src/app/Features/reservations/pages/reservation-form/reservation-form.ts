@@ -12,7 +12,11 @@ import { DialogModule } from 'primeng/dialog';
 
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { EquipementService } from '../../../../Core/services/equipement.service';
-import { ReponseConflit, ReservationPayload } from '../../../../Core/models/reservation.model';
+import {
+  AlternativeCreneau, EquipementEquivalent, ReservationPayload, VerificationReservation,
+} from '../../../../Core/models/reservation.model';
+import { OrganisationService } from '../../../../Core/services/organisation.service';
+import { MessageService } from 'primeng/api';
 import { ReservationService } from '../../../../Core/services/reservation.service';
 import { ProjetService } from '../../../../Core/services/projet.service';
 import { ProjetFormModal } from '../../../../Shared/components/projet-form-modal/projet-form-modal';
@@ -44,9 +48,26 @@ export class ReservationForm {
   readonly equipementService = inject(EquipementService);
   private readonly reservationService = inject(ReservationService);
   readonly projetService = inject(ProjetService);
+  private readonly organisationService = inject(OrganisationService);
+  private readonly messageService = inject(MessageService);
 
-  reponseConflit = signal<ReponseConflit | null>(null);
+  // Analyse du serveur affichée dans le récapitulatif : conflits,
+  // alternatives, statut que prendra la demande, place dans la file.
+  readonly verification = signal<VerificationReservation | null>(null);
+  readonly verificationEnCours = signal(false);
+  readonly alerteCreee = signal(false);
   projetFormVisible = signal(false);
+
+  // Règles de l'établissement (durée minimale, horaires d'ouverture).
+  readonly regles = computed(() => {
+    const org = this.organisationService.courante();
+    return {
+      dureeMin: org?.duree_min_reservation ?? 30,
+      dureeMax: org?.duree_max_reservation ?? 480,
+      ouverture: org?.heure_ouverture?.slice(0, 5) ?? '08:00',
+      fermeture: org?.heure_fermeture?.slice(0, 5) ?? '19:00',
+    };
+  });
 
   readonly today = new Date();
 
@@ -127,10 +148,10 @@ export class ReservationForm {
     return !!(field && field.invalid && (field.touched || field.dirty));
   }
 
-  // --- Soumission : validations locales, puis ouverture du récapitulatif ---
-  // La vraie vérification de disponibilité (chevauchement de créneau) n'a
-  // lieu qu'à la confirmation, côté serveur — c'est lui qui a la donnée à
-  // jour, un contrôle uniquement local pourrait mentir entre deux instants.
+  // --- Soumission : validations locales, puis vérification serveur ---
+  // Les contrôles locaux donnent un retour immédiat ; la disponibilité est
+  // ensuite vérifiée par le serveur (seul à avoir le planning à jour) AVANT
+  // l'ouverture du récapitulatif, qui affiche conflits et alternatives.
 
   onSubmit(): void {
     this.error.set(null);
@@ -151,7 +172,65 @@ export class ReservationForm {
       return;
     }
 
-    this.showConfirmation.set(true);
+    const erreurDuree = this.verifierDureeEtHoraires();
+    if (erreurDuree) {
+      this.error.set(erreurDuree);
+      return;
+    }
+
+    this.lancerVerification();
+  }
+
+  // Durée minimale/maximale et heures d'ouverture, configurées par l'établissement.
+  private verifierDureeEtHoraires(): string | null {
+    const { heureDebut, heureFin } = this.reservationForm.getRawValue();
+    const duree = this.enMinutes(heureFin) - this.enMinutes(heureDebut);
+    const r = this.regles();
+    if (duree < r.dureeMin) {
+      return `Une réservation doit durer au moins ${r.dureeMin} minutes.`;
+    }
+    if (duree > r.dureeMax) {
+      return `Une réservation ne peut pas dépasser ${Math.floor(r.dureeMax / 60)}h${String(r.dureeMax % 60).padStart(2, '0')}.`;
+    }
+    if (heureDebut < r.ouverture || heureFin > r.fermeture) {
+      return `Les réservations sont possibles entre ${r.ouverture} et ${r.fermeture}.`;
+    }
+    return null;
+  }
+
+  private enMinutes(heure: string): number {
+    const [h, m] = heure.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  private lancerVerification(): void {
+    this.verificationEnCours.set(true);
+    this.alerteCreee.set(false);
+    this.reservationService.verifier(this.construirePayload()).subscribe({
+      next: (resultat) => {
+        this.verificationEnCours.set(false);
+        this.verification.set(resultat);
+        this.showConfirmation.set(true);
+      },
+      error: (err) => {
+        this.verificationEnCours.set(false);
+        this.showConfirmation.set(false);
+        this.error.set(this.extraireMessageErreur(err));
+      },
+    });
+  }
+
+  private construirePayload(): ReservationPayload {
+    const value = this.reservationForm.getRawValue();
+    return {
+      laboratoire: value.laboratoireId!,
+      equipements: value.equipementIds,
+      date: this.formatDate(value.date!),
+      heure_debut: value.heureDebut,
+      heure_fin: value.heureFin,
+      motif: value.motif.trim(),
+      projet: value.projetId,
+    };
   }
 
   private isHoraireValide(): boolean {
@@ -177,35 +256,32 @@ export class ReservationForm {
 
   // --- Confirmation finale : appel API réel ---
 
- confirmerReservation(): void {
-    const value = this.reservationForm.getRawValue();
-
-    const payload: ReservationPayload = {
-      laboratoire: value.laboratoireId!,
-      equipements: value.equipementIds,
-      date: this.formatDate(value.date!),
-      heure_debut: value.heureDebut,
-      heure_fin: value.heureFin,
-      motif: value.motif.trim(),
-      projet: value.projetId,
-    };
-
+  confirmerReservation(): void {
+    const payload = this.construirePayload();
     this.loading.set(true);
-    this.reponseConflit.set(null);
 
     this.reservationService.creer(payload).subscribe({
-      next: () => {
+      next: (reservation) => {
         this.loading.set(false);
         this.showConfirmation.set(false);
+        // Le toast est affiché par la mise en page principale : il reste
+        // visible après le retour à la page précédente.
+        const quand = `le ${this.getFormattedDate()} (${this.getHoraire()})`;
+        this.messageService.add(reservation.statut === 'VALIDEE'
+          ? { severity: 'success', summary: 'Réservation confirmée', detail: `Votre réservation ${quand} est confirmée.`, life: 5000 }
+          : { severity: 'info', summary: 'Demande envoyée', detail: `Votre demande ${quand} est en attente de validation. Vous serez notifié de la décision.`, life: 6000 });
         this.location.back();
       },
       error: (err) => {
         this.loading.set(false);
-        this.showConfirmation.set(false);
-
+        // Quelqu'un a pris le créneau entre la vérification et la
+        // confirmation : le récapitulatif affiche le conflit et ses alternatives.
         if (err.status === 409 && err.error?.conflit) {
-          this.reponseConflit.set(err.error as ReponseConflit);
+          this.verification.set({
+            disponible: false, conflits: err.error.conflits, alternatives: err.error.alternatives,
+          });
         } else {
+          this.showConfirmation.set(false);
           this.error.set(this.extraireMessageErreur(err));
         }
       },
@@ -274,22 +350,41 @@ export class ReservationForm {
     return `${debut} – ${fin}`;
   }
 
-  appliquerAlternative(alt: { date: string; heure_debut: string; heure_fin: string }): void {
+  // Choisir une alternative relance aussitôt la vérification : le
+  // récapitulatif se met à jour sans que l'utilisateur ait à tout ressaisir.
+  appliquerAlternative(alt: AlternativeCreneau): void {
+    const [annee, mois, jour] = alt.date.split('-').map(Number);
     this.reservationForm.patchValue({
-      date: new Date(alt.date),
+      date: new Date(annee, mois - 1, jour),
       heureDebut: alt.heure_debut,
       heureFin: alt.heure_fin,
     });
-    this.reponseConflit.set(null);
+    this.lancerVerification();
   }
 
-  appliquerEquipementEquivalent(equipementId: number): void {
-    this.reservationForm.patchValue({ equipementIds: [equipementId] });
-    this.reponseConflit.set(null);
+  // Remplace uniquement l'équipement en conflit ; le reste de la sélection est conservé.
+  appliquerEquipementEquivalent(equiv: EquipementEquivalent): void {
+    const selection = this.reservationForm.getRawValue().equipementIds;
+    this.reservationForm.patchValue({
+      equipementIds: selection.map((id) => (id === equiv.remplace ? equiv.id : id)),
+    });
+    if (!this.equipementService.equipements().some((e) => e.id === equiv.id)) {
+      const labo = this.reservationForm.getRawValue().laboratoireId;
+      if (labo) this.equipementService.chargerParLaboratoire(labo);
+    }
+    this.lancerVerification();
   }
 
-  fermerConflit(): void {
-    this.reponseConflit.set(null);
+  // Liste d'attente : l'utilisateur sera notifié si le créneau se libère.
+  alerterSiLibere(): void {
+    const p = this.construirePayload();
+    this.reservationService.creerAlerte({
+      laboratoire: p.laboratoire, equipements: p.equipements,
+      date: p.date, heure_debut: p.heure_debut, heure_fin: p.heure_fin,
+    }).subscribe({
+      next: () => this.alerteCreee.set(true),
+      error: (err) => this.error.set(this.extraireMessageErreur(err)),
+    });
   }
 
   onProjetCree(projetId: number): void {

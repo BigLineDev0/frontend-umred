@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Utilisateur, UtilisateurPayload } from '../models/utilisateur.model';
+import { Utilisateur, UtilisateurPayload, Encadrant } from '../models/utilisateur.model';
 
 @Injectable({ providedIn: 'root' })
 export class UtilisateurService {
@@ -29,6 +29,11 @@ export class UtilisateurService {
     return this.http.get<Utilisateur>(`${this.baseUrl}/utilisateurs/${id}/`);
   }
 
+  // Enseignants-chercheurs de l'établissement, pour rattacher un étudiant.
+  encadrants(): Observable<Encadrant[]> {
+    return this.http.get<Encadrant[]>(`${this.baseUrl}/utilisateurs/encadrants/`);
+  }
+
   creer(payload: UtilisateurPayload): Observable<Utilisateur> {
     return this.http.post<Utilisateur>(`${this.baseUrl}/utilisateurs/`, payload).pipe(
       tap(nouveau => this.utilisateurs.update(list => [nouveau, ...list]))
@@ -37,6 +42,13 @@ export class UtilisateurService {
 
   modifier(id: number, payload: UtilisateurPayload): Observable<Utilisateur> {
     return this.http.patch<Utilisateur>(`${this.baseUrl}/utilisateurs/${id}/`, payload).pipe(
+      tap(maj => this.utilisateurs.update(list => list.map(u => u.id === id ? maj : u)))
+    );
+  }
+
+  // Rattachement d'un étudiant à son encadrant (null pour le détacher).
+  assignerEncadrant(id: number, encadrant: number | null): Observable<Utilisateur> {
+    return this.http.patch<Utilisateur>(`${this.baseUrl}/utilisateurs/${id}/`, { encadrant }).pipe(
       tap(maj => this.utilisateurs.update(list => list.map(u => u.id === id ? maj : u)))
     );
   }
@@ -51,6 +63,11 @@ export class UtilisateurService {
     return this.http.post<Utilisateur>(`${this.baseUrl}/utilisateurs/${id}/desactiver/`, {}).pipe(
       tap(maj => this.utilisateurs.update(list => list.map(u => u.id === id ? maj : u)))
     );
+  }
+
+  // Étudiants encadrés par l'enseignant-chercheur connecté.
+  mesEtudiants(): Observable<Utilisateur[]> {
+    return this.http.get<Utilisateur[]>(`${this.baseUrl}/utilisateurs/mes_etudiants/`);
   }
 
   chargerMonProfil(): Observable<Utilisateur> {

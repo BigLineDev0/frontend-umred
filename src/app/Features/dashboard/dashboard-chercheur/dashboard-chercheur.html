@@ -14,6 +14,28 @@
     <app-mini-stat-card icon="pi pi-cog" color="success" [value]="equipementsDisponibles()" label="Équipements disponibles" />
   </div>
 
+  <!-- Encadrement -->
+  <div class="mb-6 flex flex-col gap-4 rounded-xl border border-border bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex items-start gap-3">
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><i class="pi pi-users"></i></div>
+      <div>
+        <h2 class="text-base font-semibold text-text">Mes étudiants</h2>
+        @if (etudiants().length) {
+          <p class="text-sm text-text-secondary">
+            {{ etudiants().length }} étudiant(s) encadré(s) :
+            {{ etudiants().slice(0, 4).map(e => e.prenom + ' ' + e.nom).join(', ') }}{{ etudiants().length > 4 ? '…' : '' }}
+          </p>
+        } @else {
+          <p class="text-sm text-text-secondary">Aucun étudiant ne vous est rattaché. L'administrateur les assigne depuis la page Utilisateurs.</p>
+        }
+      </div>
+    </div>
+    @if (demandesEtudiants().length) {
+      <p-button [label]="demandesEtudiants().length + ' demande(s) à traiter'" icon="pi pi-arrow-right" iconPos="right"
+        severity="warn" routerLink="/reservations/a-valider" />
+    }
+  </div>
+
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-7">
 
     <div class="bg-white border border-border rounded-xl p-5 sm:p-6">

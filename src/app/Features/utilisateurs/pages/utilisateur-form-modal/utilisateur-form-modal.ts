@@ -5,7 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
-import { Role, Utilisateur, UtilisateurPayload } from '../../../../Core/models/utilisateur.model';
+import { Encadrant, Role, StatutAcademique, Utilisateur, UtilisateurPayload } from '../../../../Core/models/utilisateur.model';
 import { UtilisateurService } from '../../../../Core/services/utilisateur.service';
 
 @Component({
@@ -22,7 +22,23 @@ export class UtilisateurFormModal {
   private messageService = inject(MessageService);
 
   submitting = signal(false);
-  form = { nom: '', prenom: '', email: '', telephone: '', statut_academique: '',  role: 'ETUDIANT' as Role };
+  encadrants = signal<Encadrant[]>([]);
+  form = this.formulaireVide();
+
+  // Le statut académique départage les demandes concurrentes (priorité) :
+  // il doit donc pouvoir être saisi pour un enseignant-chercheur.
+  statutAcademiqueOptions = [
+    { label: 'Doctorant', value: 'DOCTORANT' },
+    { label: 'Maître de conférences', value: 'MAITRE_DE_CONFERENCES' },
+    { label: 'Professeur des universités', value: 'PROFESSEUR' },
+  ];
+
+  private formulaireVide() {
+    return {
+      nom: '', prenom: '', email: '', telephone: '', role: 'ETUDIANT' as Role,
+      statut_academique: null as StatutAcademique | null, encadrant: null as number | null,
+    };
+  }
 
   roleOptions = [
     { label: 'Administrateur', value: 'ADMIN' },
@@ -40,8 +56,10 @@ export class UtilisateurFormModal {
       const u = this.utilisateurAModifier();
       if (this.visible()) {
         this.form = u
-          ? { nom: u.nom, prenom: u.prenom, email: u.email, telephone: u.telephone, statut_academique: u.statut_academique, role: u.role }
-          : { nom: '', prenom: '', email: '', telephone: '', statut_academique: '', role: 'ETUDIANT' };
+          ? { nom: u.nom, prenom: u.prenom, email: u.email, telephone: u.telephone, role: u.role,
+              statut_academique: u.statut_academique, encadrant: u.encadrant }
+          : this.formulaireVide();
+        this.utilisateurService.encadrants().subscribe({ next: (liste) => this.encadrants.set(liste) });
       }
     });
   }
@@ -66,7 +84,10 @@ export class UtilisateurFormModal {
       email: this.form.email.trim(),
       telephone: this.form.telephone.trim(),
       role: this.form.role,
-      // statut_academique: this.form.statut_academique.trim(),
+      // Chaque champ n'a de sens que pour un rôle : on vide l'autre pour ne
+      // pas garder un encadrant à un chercheur (refusé par le serveur).
+      statut_academique: this.form.role === 'CHERCHEUR' ? this.form.statut_academique : null,
+      encadrant: this.form.role === 'ETUDIANT' ? this.form.encadrant : null,
     };
 
     this.submitting.set(true);
@@ -92,7 +113,7 @@ export class UtilisateurFormModal {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: err.error?.email?.[0] ?? 'Une erreur est survenue.',
+          detail: err.error?.email?.[0] ?? err.error?.encadrant?.[0] ?? 'Une erreur est survenue.',
         });
       },
     });

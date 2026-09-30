@@ -23,6 +23,12 @@ export const AUTH_ROUTES: Routes = [
   },
 
   {
+    path: 'activer-compte/:jeton',
+    title: 'Activation du compte',
+    loadComponent: () => import('./activer-compte/activer-compte').then(m => m.ActiverCompte)
+  },
+
+  {
     path: 'definir-mot-de-passe/:jeton',
     title: 'Activer mon compte',
     loadComponent: () => import('./definir-mot-de-passe/definir-mot-de-passe').then(m => m.DefinirMotDePasse)

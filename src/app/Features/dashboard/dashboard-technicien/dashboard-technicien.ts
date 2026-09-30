@@ -13,6 +13,9 @@ import { MaintenanceFormModal } from '../../maintenances/pages/maintenance-form-
 import { ReservationService } from '../../../Core/services/reservation.service';
 import { SignalerPanneModal } from '../../maintenances/pages/signaler-panne-modal/signaler-panne-modal';
 import { DatePipe } from '@angular/common';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DemandeEnAttente } from '../../../Core/models/reservation.model';
 import { ConsommableService } from '../../../Core/services/consommable.service';
 
 @Component({
@@ -28,11 +31,15 @@ import { ConsommableService } from '../../../Core/services/consommable.service';
     MaintenanceFormModal,
     SignalerPanneModal,
     DatePipe,
+    ConfirmDialogModule,
   ],
   templateUrl: './dashboard-technicien.html',
+  providers: [ConfirmationService],
 })
 export class DashboardTechnicien implements OnInit {
   private router = inject(Router);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
 
   readonly equipementService = inject(EquipementService);
   readonly maintenanceService = inject(MaintenanceService);
@@ -56,8 +63,11 @@ export class DashboardTechnicien implements OnInit {
     () => this.maintenanceService.maintenances().filter((m) => m.statut === 'PLANIFIEE').length,
   );
 
-  // --- Demandes à valider : les 3 plus récentes seulement, le dashboard n'est qu'un aperçu ---
-  readonly demandesAValider = computed(() => this.reservationService.reservations().slice(0, 3));
+  // --- Demandes à valider : aperçu de la file analysée (3 premières), avec
+  // la recommandation du serveur ; la page dédiée affiche la file complète.
+  readonly file = signal<DemandeEnAttente[]>([]);
+  readonly demandesAValider = computed(() => this.file().slice(0, 3));
+  readonly actionEnCours = signal<number | null>(null);
 
   // Alerte usure
   readonly alertesUsure = computed(() => this.equipementService.alertesUsureActives().slice(0, 3));
@@ -106,10 +116,15 @@ export class DashboardTechnicien implements OnInit {
 
   ngOnInit(): void {
     this.equipementService.charger();
-    this.equipementService.alertesUsureActives();
+    // Corrigé : l'ancien appel lisait le signal sans jamais charger les alertes.
+    this.equipementService.chargerAlertesUsure();
     this.consommableService.chargerAlertes();
     this.maintenanceService.charger();
-    this.reservationService.charger({ all: true, statut: 'EN_ATTENTE' });
+    this.chargerFile();
+  }
+
+  private chargerFile(): void {
+    this.reservationService.fileAttente().subscribe({ next: (demandes) => this.file.set(demandes) });
   }
 
   getMaintenanceStatusLabel(s: string) {
@@ -127,11 +142,45 @@ export class DashboardTechnicien implements OnInit {
     );
   }
 
-  valider(reservationId: number): void {
-    this.reservationService.valider(reservationId).subscribe();
+  // Toute décision est confirmée : un clic involontaire ne doit pas
+  // valider une demande (ni en refuser automatiquement les concurrentes).
+  valider(demande: DemandeEnAttente): void {
+    this.confirmationService.confirm({
+      header: 'Valider la demande',
+      message: `Valider la demande de ${demande.demandeur_nom} ?`
+        + (demande.analyse.concurrentes ? ` ${demande.analyse.concurrentes} demande(s) concurrente(s) seront refusées automatiquement.` : ''),
+      acceptLabel: 'Valider', rejectLabel: 'Retour',
+      acceptButtonProps: { severity: 'success' }, rejectButtonProps: { severity: 'secondary', outlined: true },
+      accept: () => this.decider(demande, this.reservationService.valider(demande.id), 'Demande validée'),
+    });
   }
-  refuser(reservationId: number): void {
-    this.reservationService.refuser(reservationId).subscribe();
+
+  refuser(demande: DemandeEnAttente): void {
+    this.confirmationService.confirm({
+      header: 'Refuser la demande',
+      message: `Refuser la demande de ${demande.demandeur_nom} ? Pour indiquer un motif, utilisez la page « Réservations à valider ».`,
+      acceptLabel: 'Refuser', rejectLabel: 'Retour',
+      acceptButtonProps: { severity: 'danger' }, rejectButtonProps: { severity: 'secondary', outlined: true },
+      accept: () => this.decider(demande, this.reservationService.refuser(demande.id), 'Demande refusée'),
+    });
+  }
+
+  private decider(demande: DemandeEnAttente, requete: ReturnType<ReservationService['valider']>, titre: string): void {
+    this.actionEnCours.set(demande.id);
+    requete.subscribe({
+      next: () => {
+        this.actionEnCours.set(null);
+        this.messageService.add({ severity: 'success', summary: titre, detail: `Le demandeur (${demande.demandeur_nom}) a été notifié.` });
+        this.chargerFile();
+      },
+      error: (err) => {
+        this.actionEnCours.set(null);
+        this.messageService.add({
+          severity: 'error', summary: 'Action impossible',
+          detail: Array.isArray(err.error) ? err.error[0] : err.error?.detail ?? 'Une erreur est survenue.',
+        });
+      },
+    });
   }
 
   voirEquipements(): void {

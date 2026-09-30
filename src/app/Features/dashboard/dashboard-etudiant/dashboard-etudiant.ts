@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TagModule } from 'primeng/tag';
@@ -11,6 +11,8 @@ import { ReservationsCalendar } from '../../../Shared/components/reservations-ca
 import { LaboratoireService } from '../../../Core/services/laboratoire.service';
 import { NotificationService } from '../../../Core/services/notification.service';
 import { ReservationService } from '../../../Core/services/reservation.service';
+import { UtilisateurService } from '../../../Core/services/utilisateur.service';
+import { isoDate } from '../../../Shared/utils/date-range';
 
 @Component({
   selector: 'app-dashboard-etudiant',
@@ -22,6 +24,10 @@ export class DashboardEtudiant implements OnInit {
   readonly reservationService = inject(ReservationService);
   readonly laboratoireService = inject(LaboratoireService);
   readonly notificationService = inject(NotificationService);
+  private readonly utilisateurService = inject(UtilisateurService);
+
+  // Qui traitera mes demandes : mon encadrant, sinon un technicien.
+  readonly encadrant = signal<string | null | undefined>(undefined);
 
   readonly reservations = this.reservationService.reservations;
 
@@ -31,7 +37,7 @@ export class DashboardEtudiant implements OnInit {
   readonly refusees = computed(() => this.reservations().filter(r => r.statut === 'REFUSEE').length);
 
   readonly prochainesReservations = computed(() => {
-    const aujourdHui = new Date().toISOString().split('T')[0];
+    const aujourdHui = isoDate(new Date());
     return this.reservations()
       .filter(r => (r.statut === 'VALIDEE' || r.statut === 'EN_ATTENTE') && r.date >= aujourdHui)
       .sort((a, b) => a.date.localeCompare(b.date) || a.heure_debut.localeCompare(b.heure_debut))
@@ -45,6 +51,7 @@ export class DashboardEtudiant implements OnInit {
     this.reservationService.charger();
     this.laboratoireService.charger();
     this.notificationService.chargerRecentes();
+    this.utilisateurService.chargerMonProfil().subscribe({ next: (moi) => this.encadrant.set(moi.encadrant_nom) });
   }
 
   statusLabel(s: string) { return { EN_ATTENTE: 'En attente', VALIDEE: 'Validée', REFUSEE: 'Refusée', ANNULEE: 'Annulée', TERMINEE: 'Terminée' }[s] ?? s; }

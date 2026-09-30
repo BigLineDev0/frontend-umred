@@ -7,6 +7,7 @@ import { PageHeader } from '../../../Shared/components/page-header/page-header';
 import { JournalService } from '../../../Core/services/journal.service';
 import { UtilisateurService } from '../../../Core/services/utilisateur.service';
 import { badgeAction } from '../../../Shared/utils/journal-badge';
+import { isoDate } from '../../../Shared/utils/date-range';
 
 
 const PAGE_SIZE = 9;
@@ -88,7 +89,7 @@ export class JournalList implements OnInit {
     if (p === '7d') debut.setDate(debut.getDate() - 7);
     if (p === '30d') debut.setDate(debut.getDate() - 30);
     if (p === '3m') debut.setMonth(debut.getMonth() - 3);
-    const iso = (d: Date) => d.toISOString().split('T')[0];
+    const iso = isoDate;
     return { dateDebut: iso(debut), dateFin: iso(fin) };
   }
 

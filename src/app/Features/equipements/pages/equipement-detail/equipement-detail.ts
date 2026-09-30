@@ -6,8 +6,9 @@ import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { ChartModule } from 'primeng/chart';
 
-import { AlerteUsure, Equipement, StatutEquipement } from '../../../../Core/models/equipement.model';
+import { AlerteUsure, Equipement, StatistiquesEquipement, StatutEquipement } from '../../../../Core/models/equipement.model';
 import { EquipementService } from '../../../../Core/services/equipement.service';
 import { MaintenanceService } from '../../../../Core/services/maintenance.service';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
@@ -19,7 +20,7 @@ import { PageHeader } from '../../../../Shared/components/page-header/page-heade
   standalone: true,
   selector: 'app-equipement-detail',
   templateUrl: './equipement-detail.html',
-  imports: [PageHeader, RouterLink, ButtonModule, TagModule, TableModule, TooltipModule, ConfirmDialogModule],
+  imports: [PageHeader, RouterLink, ButtonModule, TagModule, TableModule, TooltipModule, ConfirmDialogModule, ChartModule],
   providers: [ConfirmationService],
 })
 export class EquipementDetail implements OnInit {
@@ -40,6 +41,33 @@ export class EquipementDetail implements OnInit {
   qrCodeUrl = signal<string | null>(null);
 
   alerteUsure = signal<AlerteUsure | null>(null);
+  statistiques = signal<StatistiquesEquipement | null>(null);
+
+  // Utilisation sur 12 mois : réservations (barres) et heures (courbe).
+  readonly graphiqueMensuel = computed(() => {
+    const stats = this.statistiques();
+    if (!stats) return null;
+    const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    const primaire = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#1848D9';
+    return {
+      labels: stats.usage.mensuel.map((m) => mois[Number(m.mois.slice(5, 7)) - 1]),
+      datasets: [
+        { type: 'bar', label: 'Réservations', data: stats.usage.mensuel.map((m) => m.reservations),
+          backgroundColor: primaire, borderRadius: 4, yAxisID: 'y' },
+        { type: 'line', label: 'Heures', data: stats.usage.mensuel.map((m) => m.heures),
+          borderColor: '#F24C27', backgroundColor: '#F24C27', tension: 0.3, yAxisID: 'y1' },
+      ],
+    };
+  });
+
+  readonly optionsGraphique = {
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' } },
+    scales: {
+      y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Réservations' } },
+      y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Heures' } },
+    },
+  };
 
   readonly canManage = computed(() => {
     const role = this.authService.currentUser()?.role;
@@ -71,6 +99,7 @@ export class EquipementDetail implements OnInit {
         this.equipementService.chargerAlerteUsure(e.id).subscribe(a => {
           if (a.niveau) this.alerteUsure.set(a);
         });
+        this.equipementService.statistiques(e.id).subscribe({ next: (s) => this.statistiques.set(s) });
         this.genererQrCode(e.id);
         this.loading.set(false);
         this.maintenanceService.chargerParEquipement(id);

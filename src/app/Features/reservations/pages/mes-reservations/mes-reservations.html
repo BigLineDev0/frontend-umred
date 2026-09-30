@@ -34,7 +34,7 @@
     <app-mini-stat-card
       icon="pi pi-ban"
       color="accent"
-      [value]="reservationsTerminees()"
+      [value]="reservationsAnnulees()"
       label="Annulées"
     />
   </div>
@@ -113,7 +113,7 @@
         <ng-template appColumnTemplate="actions" let-row>
           <app-row-actions
             [showEdit]="false"
-            [showDelete]="row.statut === 'EN_ATTENTE' || row.statut === 'VALIDEE'"
+            [showDelete]="row.annulable"
             deleteIcon="pi pi-ban"
             (view)="voirReservation(row)"
             (delete)="annulerReservation(row)"

@@ -18,6 +18,9 @@ import { PageHeader } from '../../../../Shared/components/page-header/page-heade
   imports: [PageHeader, ButtonModule, DatePipe, StatusBadge, UserStatusModal, UtilisateurFormModal],
 })
 export class UtilisateurDetail implements OnInit {
+  readonly statutsAcademiques: Record<string, string> = {
+    DOCTORANT: 'Doctorant', MAITRE_DE_CONFERENCES: 'Maître de conférences', PROFESSEUR: 'Professeur',
+  };
   private route = inject(ActivatedRoute);
   private utilisateurService = inject(UtilisateurService);
   readonly journalService = inject(JournalService);

@@ -63,6 +63,13 @@
         </div>
       }
 
+      @if (r.statut === 'REFUSEE' && r.motif_refus) {
+        <div class="rounded-lg bg-red-50 p-3">
+          <p class="text-sm font-medium text-red-800 mb-1">Motif du refus</p>
+          <p class="text-sm text-red-700">{{ r.motif_refus }}</p>
+        </div>
+      }
+
       <div class="border-t border-border"></div>
 
       <p class="text-xs text-text-secondary">

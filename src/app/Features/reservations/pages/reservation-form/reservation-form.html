@@ -14,59 +14,6 @@
     </div>
   }
 
-  @if (reponseConflit(); as conflit) {
-    <div class="mx-auto max-w-4xl mb-6 rounded-xl border border-accent/30 bg-accent/5 p-5">
-      <div class="flex items-start gap-3">
-        <i class="pi pi-exclamation-triangle text-accent mt-0.5"></i>
-        <div class="flex-1">
-          <p class="font-medium text-text">{{ conflit.detail }}</p>
-          @if (conflit.priorite_superieure) {
-            <p class="text-sm text-accent mt-1">
-              Votre demande est prioritaire — les techniciens ont été alertés du conflit, mais vous pouvez aussi choisir une alternative ci-dessous.
-            </p>
-          }
-        </div>
-        <button type="button" class="text-text-secondary hover:text-text" (click)="fermerConflit()">
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
-
-      @if (conflit.alternatives.memes_equipements.length > 0) {
-        <div class="mt-4">
-          <p class="text-sm font-medium text-text mb-2">Créneaux disponibles sur le même équipement</p>
-          <div class="flex flex-wrap gap-2">
-            @for (alt of conflit.alternatives.memes_equipements; track alt.date + alt.heure_debut) {
-              <button type="button"
-                class="text-sm bg-white border border-border rounded-lg px-3 py-2 hover:border-primary hover:text-primary transition-colors"
-                (click)="appliquerAlternative(alt)">
-                {{ alt.date | date: 'dd/MM' }} · {{ alt.heure_debut }}–{{ alt.heure_fin }}
-              </button>
-            }
-          </div>
-        </div>
-      }
-
-      @if (conflit.alternatives.equipements_equivalents.length > 0) {
-        <div class="mt-4">
-          <p class="text-sm font-medium text-text mb-2">Équipements équivalents libres sur ce créneau</p>
-          <div class="flex flex-wrap gap-2">
-            @for (equiv of conflit.alternatives.equipements_equivalents; track equiv.id) {
-              <button type="button"
-                class="text-sm bg-white border border-border rounded-lg px-3 py-2 hover:border-primary hover:text-primary transition-colors"
-                (click)="appliquerEquipementEquivalent(equiv.id)">
-                <i class="pi pi-cog mr-1.5"></i>{{ equiv.nom }}
-              </button>
-            }
-          </div>
-        </div>
-      }
-
-      @if (conflit.alternatives.memes_equipements.length === 0 && conflit.alternatives.equipements_equivalents.length === 0) {
-        <p class="text-sm text-text-secondary mt-3">Aucune alternative disponible dans les prochains jours. Contactez un technicien.</p>
-      }
-    </div>
-  }
-
   <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
     <div class="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
 
@@ -166,7 +113,11 @@
 
         <div class="mt-4 flex items-start gap-2 text-xs text-gray-500">
           <i class="pi pi-info-circle mt-0.5 text-primary"></i>
-          <span>La disponibilité du créneau est vérifiée au moment de la confirmation.</span>
+          <span>
+            Réservations possibles de {{ regles().ouverture }} à {{ regles().fermeture }}, pour une durée d'au moins
+            {{ regles().dureeMin }} minutes. La disponibilité est vérifiée à l'étape suivante, avec des créneaux
+            alternatifs si besoin.
+          </span>
         </div>
       </section>
 
@@ -258,47 +209,126 @@
       <!-- Actions -->
       <div class="flex flex-col-reverse justify-end gap-3 border-t border-gray-200 bg-gray-50/60 p-5 sm:flex-row sm:p-7">
         <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" (onClick)="goBack()" />
-        <p-button type="submit" label="Vérifier et continuer" icon="pi pi-arrow-right" iconPos="right" [disabled]="loading()" />
+        <p-button type="submit" label="Vérifier et continuer" icon="pi pi-arrow-right" iconPos="right"
+          [loading]="verificationEnCours()" [disabled]="loading() || verificationEnCours()" />
       </div>
     </div>
   </form>
 
-  <!-- Récapitulatif avant envoi -->
+  <!-- Récapitulatif avant envoi, enrichi de l'analyse du serveur -->
   <p-dialog [(visible)]="showConfirmation" [modal]="true" [draggable]="false" [resizable]="false"
-    [style]="{ width: '520px', maxWidth: 'calc(100vw - 2rem)' }" header="Vérifier votre réservation">
-    <div class="space-y-5">
-      <div>
-        <p class="mb-1 text-sm text-gray-500">Laboratoire</p>
-        <p class="text-lg font-semibold text-gray-900">{{ getLaboratoireName() }}</p>
+    [style]="{ width: '600px', maxWidth: 'calc(100vw - 2rem)' }" header="Vérifier votre réservation">
+    <div class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <p class="mb-1 text-xs text-gray-500">Laboratoire</p>
+          <p class="font-semibold text-gray-900">{{ getLaboratoireName() }}</p>
+        </div>
+        <div>
+          <p class="mb-1 text-xs text-gray-500">Équipements</p>
+          <p class="font-semibold text-gray-900">{{ getEquipementsNames() }}</p>
+        </div>
+        <div>
+          <p class="mb-1 text-xs text-gray-500">Date</p>
+          <p class="font-semibold text-gray-900">{{ getFormattedDate() }}</p>
+        </div>
+        <div>
+          <p class="mb-1 text-xs text-gray-500">Horaire</p>
+          <p class="font-semibold text-gray-900">{{ getHoraire() }}</p>
+        </div>
       </div>
-      <div class="border-t border-gray-200"></div>
       <div>
-        <p class="mb-1 text-sm text-gray-500">Équipements</p>
-        <p class="text-lg font-semibold text-gray-900">{{ getEquipementsNames() }}</p>
+        <p class="mb-1 text-xs text-gray-500">Motif</p>
+        <p class="text-sm text-gray-900">{{ reservationForm.get('motif')?.value }}</p>
       </div>
-      <div class="border-t border-gray-200"></div>
-      <div>
-        <p class="mb-1 text-sm text-gray-500">Date</p>
-        <p class="text-lg font-semibold text-gray-900">{{ getFormattedDate() }}</p>
-      </div>
-      <div class="border-t border-gray-200"></div>
-      <div>
-        <p class="mb-1 text-sm text-gray-500">Horaire</p>
-        <p class="text-lg font-semibold text-gray-900">{{ getHoraire() }}</p>
-      </div>
-      <div class="border-t border-gray-200"></div>
-      <div>
-        <p class="mb-1 text-sm text-gray-500">Motif</p>
-        <p class="text-lg font-semibold text-gray-900">{{ reservationForm.get('motif')?.value }}</p>
-      </div>
+
+      @if (verification(); as v) {
+        @if (v.disponible) {
+          <!-- Créneau libre : ce qui va se passer après confirmation -->
+          <div class="rounded-xl border p-4"
+            [class.border-green-200]="v.statut_prevu === 'VALIDEE'" [class.bg-green-50]="v.statut_prevu === 'VALIDEE'"
+            [class.border-amber-200]="v.statut_prevu !== 'VALIDEE'" [class.bg-amber-50]="v.statut_prevu !== 'VALIDEE'">
+            <p class="flex items-center gap-2 text-sm font-semibold"
+              [class.text-green-800]="v.statut_prevu === 'VALIDEE'" [class.text-amber-800]="v.statut_prevu !== 'VALIDEE'">
+              <i class="pi" [class.pi-check-circle]="v.statut_prevu === 'VALIDEE'" [class.pi-hourglass]="v.statut_prevu !== 'VALIDEE'"></i>
+              {{ v.statut_prevu === 'VALIDEE' ? 'Créneau libre : confirmation immédiate' : 'Créneau libre : demande soumise à validation' }}
+            </p>
+            <p class="mt-1 text-sm text-gray-700">{{ v.raison_statut }}</p>
+            @if (v.file_attente?.nombre) {
+              <p class="mt-2 flex items-start gap-2 text-sm text-gray-700">
+                <i class="pi pi-users mt-0.5 text-primary"></i>
+                <span>{{ v.file_attente?.message }}</span>
+              </p>
+            }
+          </div>
+        } @else {
+          <!-- Conflit : détail et alternatives calculées par le serveur -->
+          <div class="rounded-xl border border-red-200 bg-red-50 p-4">
+            <p class="flex items-center gap-2 text-sm font-semibold text-red-800">
+              <i class="pi pi-exclamation-triangle"></i> Ce créneau n'est pas disponible
+            </p>
+            <ul class="mt-2 space-y-1 text-sm text-red-700">
+              @for (c of v.conflits; track c.equipement_id + c.heure_debut) {
+                <li>{{ c.equipement }} est déjà réservé de {{ c.heure_debut }} à {{ c.heure_fin }}.</li>
+              }
+            </ul>
+          </div>
+
+          @if (v.alternatives?.creneaux?.length) {
+            <div>
+              <p class="mb-2 text-sm font-medium text-gray-900">Créneaux proposés</p>
+              <div class="space-y-2">
+                @for (alt of v.alternatives!.creneaux; track alt.date + alt.heure_debut) {
+                  <button type="button"
+                    class="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-white px-3 py-2.5 text-left transition-colors hover:border-primary"
+                    (click)="appliquerAlternative(alt)">
+                    <span>
+                      <span class="block text-sm font-medium text-gray-900">{{ alt.message }}</span>
+                      <span class="text-xs text-gray-500">{{ alt.date | date: 'EEEE d MMMM' }} · {{ alt.heure_debut }}–{{ alt.heure_fin }}</span>
+                    </span>
+                    <span class="shrink-0 text-xs font-medium text-primary">Choisir</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          @if (v.alternatives?.equipements_equivalents?.length) {
+            <div>
+              <p class="mb-2 text-sm font-medium text-gray-900">Même créneau, équipement équivalent</p>
+              <div class="flex flex-wrap gap-2">
+                @for (equiv of v.alternatives!.equipements_equivalents; track equiv.id) {
+                  <button type="button"
+                    class="rounded-lg border border-border bg-white px-3 py-2 text-sm transition-colors hover:border-primary hover:text-primary"
+                    (click)="appliquerEquipementEquivalent(equiv)">
+                    <i class="pi pi-sync mr-1.5"></i>{{ equiv.nom }}
+                    <span class="text-xs text-gray-500">au lieu de {{ equiv.remplace_nom }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-gray-50 px-3 py-2.5">
+            <span class="text-sm text-gray-600">Ce créneau précis vous intéresse ?</span>
+            @if (alerteCreee()) {
+              <span class="text-sm font-medium text-green-700"><i class="pi pi-bell mr-1"></i>Vous serez prévenu s'il se libère.</span>
+            } @else {
+              <p-button label="M'alerter s'il se libère" icon="pi pi-bell" size="small" [text]="true" (onClick)="alerterSiLibere()" />
+            }
+          </div>
+        }
+      }
     </div>
 
     <ng-template pTemplate="footer">
       <div class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <p-button type="button" label="Modifier" severity="secondary" [outlined]="true"
           [disabled]="loading()" (onClick)="annulerConfirmation()" />
-        <p-button type="button" label="Confirmer la réservation" icon="pi pi-check"
-          [loading]="loading()" [disabled]="loading()" (onClick)="confirmerReservation()" />
+        <p-button type="button"
+          [label]="verification()?.statut_prevu === 'EN_ATTENTE' ? 'Envoyer la demande' : 'Confirmer la réservation'"
+          icon="pi pi-check" [loading]="loading() || verificationEnCours()"
+          [disabled]="loading() || verificationEnCours() || !verification()?.disponible" (onClick)="confirmerReservation()" />
       </div>
     </ng-template>
   </p-dialog>

@@ -1,0 +1,100 @@
+<div class="space-y-6 animate-stagger">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Mon établissement' }]"
+    title="Mon établissement"
+    subtitle="Identité visuelle et règles de réservation, appliquées à tous les utilisateurs de votre établissement.">
+    <p-button actions label="Enregistrer" icon="pi pi-check" [loading]="enregistrement()" (onClick)="enregistrer()" />
+  </app-page-header>
+
+  <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+    <section class="rounded-xl border border-border bg-white p-6">
+      <h2 class="mb-5 text-base font-semibold text-text">Identité</h2>
+      <div class="space-y-4">
+        <div>
+          <label for="nom" class="mb-2 block text-sm font-medium text-text">Nom de l'établissement</label>
+          <input id="nom" pInputText [(ngModel)]="form.nom" class="w-full" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="ville" class="mb-2 block text-sm font-medium text-text">Ville</label>
+            <input id="ville" pInputText [(ngModel)]="form.ville" class="w-full" />
+          </div>
+          <div>
+            <label for="email" class="mb-2 block text-sm font-medium text-text">Email de contact</label>
+            <input id="email" type="email" pInputText [(ngModel)]="form.email_contact" class="w-full" />
+          </div>
+        </div>
+
+        <div>
+          <p class="mb-2 text-sm font-medium text-text">Logo</p>
+          <div class="flex items-center gap-4">
+            <div class="flex h-20 w-32 items-center justify-center rounded-lg border border-dashed border-border bg-gray-50">
+              @if (apercuLogo(); as logo) {
+                <img [src]="logo" alt="Logo de l'établissement" class="max-h-16 max-w-28 object-contain" />
+              } @else {
+                <i class="pi pi-image text-2xl text-text-secondary"></i>
+              }
+            </div>
+            <label class="cursor-pointer rounded-lg border border-border px-3 py-2 text-sm font-medium text-text hover:border-primary">
+              <i class="pi pi-upload mr-1.5"></i>Choisir une image
+              <input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="hidden" (change)="onLogo($event)" />
+            </label>
+          </div>
+          <small class="mt-1 block text-xs text-text-secondary">PNG, JPG ou WebP, 2 Mo maximum. Affiché dans le menu et sur les rapports PDF.</small>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="primaire" class="mb-2 block text-sm font-medium text-text">Couleur principale</label>
+            <div class="flex items-center gap-2">
+              <input id="primaire" type="color" [(ngModel)]="form.couleur_primaire" class="h-10 w-14 cursor-pointer rounded border border-border" />
+              <input pInputText [(ngModel)]="form.couleur_primaire" maxlength="7" class="w-full" aria-label="Code couleur principale" />
+            </div>
+          </div>
+          <div>
+            <label for="secondaire" class="mb-2 block text-sm font-medium text-text">Couleur du menu</label>
+            <div class="flex items-center gap-2">
+              <input id="secondaire" type="color" [(ngModel)]="form.couleur_secondaire" class="h-10 w-14 cursor-pointer rounded border border-border" />
+              <input pInputText [(ngModel)]="form.couleur_secondaire" maxlength="7" class="w-full" aria-label="Code couleur du menu" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="rounded-xl border border-border bg-white p-6">
+      <h2 class="mb-5 text-base font-semibold text-text">Règles de réservation</h2>
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="ouverture" class="mb-2 block text-sm font-medium text-text">Ouverture</label>
+            <input id="ouverture" type="time" pInputText [(ngModel)]="form.heure_ouverture" class="w-full" />
+          </div>
+          <div>
+            <label for="fermeture" class="mb-2 block text-sm font-medium text-text">Fermeture</label>
+            <input id="fermeture" type="time" pInputText [(ngModel)]="form.heure_fermeture" class="w-full" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="dureeMin" class="mb-2 block text-sm font-medium text-text">Durée minimale (min)</label>
+            <p-inputNumber inputId="dureeMin" [(ngModel)]="form.duree_min_reservation" [min]="5" [max]="600" [step]="5" class="w-full" inputStyleClass="w-full" />
+          </div>
+          <div>
+            <label for="dureeMax" class="mb-2 block text-sm font-medium text-text">Durée maximale (min)</label>
+            <p-inputNumber inputId="dureeMax" [(ngModel)]="form.duree_max_reservation" [min]="5" [max]="1440" [step]="30" class="w-full" inputStyleClass="w-full" />
+          </div>
+        </div>
+        <div>
+          <label for="delai" class="mb-2 block text-sm font-medium text-text">Réservation au plus tard (jours à l'avance)</label>
+          <p-inputNumber inputId="delai" [(ngModel)]="form.delai_max_reservation_jours" [min]="1" [max]="365" class="w-full" inputStyleClass="w-full" />
+        </div>
+        <div class="flex items-start gap-2 rounded-lg bg-gray-50 p-3 text-xs text-text-secondary">
+          <i class="pi pi-info-circle mt-0.5 text-primary"></i>
+          <span>Ces règles s'appliquent aux nouvelles demandes et au calcul des créneaux proposés en cas de conflit.
+            Une durée minimale évite les réservations qui morcellent le planning (ex. 10h00–10h05).</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

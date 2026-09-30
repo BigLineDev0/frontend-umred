@@ -70,6 +70,110 @@
     }
     </section>
 
+    @if (statistiques(); as st) {
+    <!-- Usage, fiabilité et prévision de maintenance -->
+    <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-semibold text-text">Utilisation et fiabilité</h2>
+          <p class="mt-0.5 text-xs text-text-secondary">Calculées à partir de l'historique des réservations et des maintenances.</p>
+        </div>
+        <div class="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium"
+          [class.bg-green-50]="st.sante.etat === 'bon'" [class.text-green-700]="st.sante.etat === 'bon'"
+          [class.bg-amber-50]="st.sante.etat === 'surveiller'" [class.text-amber-700]="st.sante.etat === 'surveiller'"
+          [class.bg-red-50]="st.sante.etat === 'critique'" [class.text-red-700]="st.sante.etat === 'critique'"
+          pTooltip="Score calculé à partir de l'usure (heures depuis la dernière maintenance) et des pannes récentes.">
+          <i class="pi pi-heart-fill"></i> Santé {{ st.sante.score }}/100
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div class="rounded-lg bg-gray-50 p-3">
+          <p class="text-xs text-text-secondary">Utilisations</p>
+          <p class="text-xl font-semibold text-text">{{ equipement()?.nombre_utilisations ?? 0 }}</p>
+          <p class="text-xs text-text-secondary">{{ st.usage.reservations_a_venir }} à venir</p>
+        </div>
+        <div class="rounded-lg bg-gray-50 p-3">
+          <p class="text-xs text-text-secondary">Heures d'utilisation</p>
+          <p class="text-xl font-semibold text-text">{{ st.usage.heures_totales }} h</p>
+          <p class="text-xs text-text-secondary">{{ st.usage.heures_periode }} h sur {{ st.usage.periode_jours }} jours</p>
+        </div>
+        <div class="rounded-lg bg-gray-50 p-3">
+          <p class="text-xs text-text-secondary">Taux d'occupation</p>
+          <p class="text-xl font-semibold text-text">{{ st.usage.taux_occupation }} %</p>
+          <p class="text-xs text-text-secondary">des heures ouvrées, {{ st.usage.periode_jours }} j</p>
+        </div>
+        <div class="rounded-lg bg-gray-50 p-3">
+          <p class="text-xs text-text-secondary">Utilisateurs distincts</p>
+          <p class="text-xl font-semibold text-text">{{ st.usage.utilisateurs_distincts }}</p>
+          <p class="text-xs text-text-secondary">{{ st.usage.taux_annulation }} % d'annulations</p>
+        </div>
+        <div class="rounded-lg bg-gray-50 p-3" pTooltip="Temps moyen entre deux pannes (Mean Time Between Failures).">
+          <p class="text-xs text-text-secondary">MTBF</p>
+          <p class="text-xl font-semibold text-text">{{ st.fiabilite.mtbf_jours !== null ? st.fiabilite.mtbf_jours + ' j' : '—' }}</p>
+          <p class="text-xs text-text-secondary">{{ st.fiabilite.pannes_total }} panne(s) au total</p>
+        </div>
+        <div class="rounded-lg bg-gray-50 p-3" pTooltip="Temps moyen de réparation après un signalement (Mean Time To Repair).">
+          <p class="text-xs text-text-secondary">MTTR</p>
+          <p class="text-xl font-semibold text-text">{{ st.fiabilite.mttr_heures !== null ? st.fiabilite.mttr_heures + ' h' : '—' }}</p>
+          <p class="text-xs text-text-secondary">{{ st.fiabilite.pannes_90_jours }} panne(s) sur 90 j</p>
+        </div>
+        <div class="rounded-lg bg-gray-50 p-3">
+          <p class="text-xs text-text-secondary">Dernière maintenance</p>
+          <p class="text-base font-semibold text-text">{{ formatDate(st.fiabilite.derniere_maintenance) }}</p>
+        </div>
+        <div class="rounded-lg bg-gray-50 p-3">
+          <p class="text-xs text-text-secondary">Usure avant maintenance</p>
+          <p class="text-xl font-semibold text-text">{{ st.prevision.usure_pourcentage }} %</p>
+          <p class="text-xs text-text-secondary">{{ st.prevision.heures_depuis_maintenance }} / {{ st.prevision.seuil_heures }} h</p>
+        </div>
+      </div>
+
+      @if (st.prevision.maintenance_estimee; as prev) {
+        <div class="mt-4 flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+          <i class="pi pi-sparkles mt-0.5 text-primary"></i>
+          <div>
+            <p class="text-sm font-semibold text-text">Prévision de maintenance</p>
+            <p class="text-sm text-text-secondary">{{ prev.message }}</p>
+          </div>
+        </div>
+      }
+
+      <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          <p class="mb-2 text-sm font-medium text-text">Utilisation sur 12 mois</p>
+          <div class="h-64">
+            @if (graphiqueMensuel(); as data) {
+              <p-chart type="bar" [data]="data" [options]="optionsGraphique" height="16rem" />
+            }
+          </div>
+        </div>
+        <div class="space-y-5">
+          <div>
+            <p class="mb-2 text-sm font-medium text-text">Principaux utilisateurs</p>
+            @for (u of st.usage.top_utilisateurs; track u.nom) {
+              <div class="flex justify-between py-1 text-sm">
+                <span class="text-text">{{ u.nom }}</span><span class="text-text-secondary">{{ u.reservations }}</span>
+              </div>
+            } @empty {
+              <p class="text-sm text-text-secondary">Aucune utilisation pour l'instant.</p>
+            }
+          </div>
+          <div>
+            <p class="mb-2 text-sm font-medium text-text">Heures de pointe</p>
+            @for (p of st.usage.heures_de_pointe; track p.jour + p.heure) {
+              <div class="flex justify-between py-1 text-sm">
+                <span class="text-text">{{ p.jour }} {{ p.heure }}</span><span class="text-text-secondary">{{ p.reservations }} rés.</span>
+              </div>
+            } @empty {
+              <p class="text-sm text-text-secondary">Pas encore assez de données.</p>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+    }
+
     <section class="rounded-xl border border-border bg-white p-6 lg:p-7">
       <h2 class="mb-7 text-base font-semibold text-text">Informations générales</h2>
       <div class="grid grid-cols-1 gap-x-12 gap-y-7 md:grid-cols-2 lg:grid-cols-3">

@@ -1,5 +1,34 @@
 <app-auth-layout>
 
+  @if (emailEnvoye(); as adresse) {
+
+  <!-- Inscription réussie : le compte attend la confirmation de l'email -->
+  <div class="text-center py-8">
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
+      <i class="pi pi-envelope text-xl"></i>
+    </div>
+    <h1 class="text-2xl font-bold text-text mb-2">Vérifiez vos emails</h1>
+    <p class="text-text-secondary mb-2">
+      Un lien d'activation a été envoyé à <span class="font-semibold text-text">{{ adresse }}</span>.
+    </p>
+    <p class="text-sm text-text-secondary mb-6">
+      Cliquez sur ce lien pour activer votre compte, puis connectez-vous. Il est valable 24 heures.
+    </p>
+
+    @if (renvoiMessage()) {
+    <p role="status" class="text-sm text-text-secondary mb-4">{{ renvoiMessage() }}</p>
+    }
+
+    <p-button label="Renvoyer l'email" icon="pi pi-refresh" [text]="true" [loading]="renvoiEnCours()"
+      (onClick)="renvoyerEmail()" />
+
+    <p class="mt-6 text-sm">
+      <a routerLink="/connexion" class="font-semibold text-primary hover:underline">Aller à la connexion</a>
+    </p>
+  </div>
+
+  } @else {
+
   <img src="images/logo_umred.png" alt="UMRED Logo" class="mx-auto mb-2 w-48" />
   <h1 class="text-3xl font-bold text-text mb-2">
     Créer un compte
@@ -99,6 +128,23 @@
 
     </div>
 
+
+    <!-- Établissement -->
+    @if (organisations().length > 1) {
+    <div>
+      <label for="organisation" class="block text-sm font-semibold text-text mb-2">Établissement</label>
+      <p-select inputId="organisation" formControlName="organisation" [options]="organisations()" optionLabel="nom"
+        optionValue="id" placeholder="Choisissez votre établissement" [filter]="true" filterBy="nom,ville" class="w-full">
+        <ng-template #item let-org>
+          <span>{{ org.nom }}</span>
+          @if (org.ville) { <span class="ml-2 text-xs text-text-secondary">{{ org.ville }}</span> }
+        </ng-template>
+      </p-select>
+      @if (organisation.invalid && (organisation.touched || submitted)) {
+      <small class="text-danger text-xs mt-1 block">Choisissez votre établissement.</small>
+      }
+    </div>
+    }
 
     <!-- Email -->
     <div>
@@ -239,5 +285,7 @@
     </p>
 
   </form>
+
+  }
 
 </app-auth-layout>

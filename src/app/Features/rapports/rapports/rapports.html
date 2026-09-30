@@ -4,8 +4,10 @@
     title="Rapports & statistiques"
     subtitle="Analysez l'activité et l'utilisation des ressources du laboratoire.">
     <div actions class="flex gap-2">
-      <p-button label="Exporter en PDF" icon="pi pi-file-pdf" severity="secondary" [outlined]="true" class="no-print" (onClick)="exporterPdf()" />
-      <p-button label="Exporter en Excel" icon="pi pi-file-excel" class="no-print" (onClick)="exporterExcel()" />
+      <p-button label="Exporter en PDF" icon="pi pi-file-pdf" severity="secondary" [outlined]="true" class="no-print"
+        [loading]="exportEnCours() === 'pdf'" [disabled]="exportEnCours() !== null" (onClick)="exporterPdf()" />
+      <p-button label="Exporter en Excel" icon="pi pi-file-excel" class="no-print"
+        [loading]="exportEnCours() === 'xlsx'" [disabled]="exportEnCours() !== null" (onClick)="exporterExcel()" />
     </div>
   </app-page-header>
 

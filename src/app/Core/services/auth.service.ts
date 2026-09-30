@@ -2,10 +2,14 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
-import { CurrentUser, LoginResponse, RegisterPayload, UserRole } from '../models/auth.model';
+import {
+  ActivationResponse, CurrentUser, LoginResponse, RegisterPayload, RegisterResponse, UserRole,
+} from '../models/auth.model';
 import { environment } from '../../../environments/environment';
+import { OrganisationService } from './organisation.service';
 
 const ROUTE_PAR_ROLE: Record<UserRole, string> = {
+  SUPER_ADMIN: '/plateforme',
   ADMIN: '/admin/dashboard',
   TECHNICIEN: '/technicien/dashboard',
   CHERCHEUR: '/enseignant/dashboard',
@@ -16,6 +20,7 @@ const ROUTE_PAR_ROLE: Record<UserRole, string> = {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private organisationService = inject(OrganisationService);
   private baseUrl = environment.apiUrl;
 
   private _currentUser = signal<CurrentUser | null>(this.lireUtilisateurStocke());
@@ -28,10 +33,19 @@ export class AuthService {
     );
   }
 
-  register(payload: RegisterPayload): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/register/`, payload).pipe(
-      tap(reponse => this.enregistrerSession(reponse))
-    );
+  // Pas de session ouverte : le backend crée un compte bloqué et envoie
+  // un email d'activation.
+  register(payload: RegisterPayload): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.baseUrl}/auth/register/`, payload);
+  }
+
+  // Appelé par la page /activer-compte/:jeton (lien reçu par email).
+  activerCompte(jeton: string): Observable<ActivationResponse> {
+    return this.http.post<ActivationResponse>(`${this.baseUrl}/auth/activer-compte/`, { jeton });
+  }
+
+  renvoyerActivation(email: string): Observable<{ detail: string }> {
+    return this.http.post<{ detail: string }>(`${this.baseUrl}/auth/renvoyer-activation/`, { email });
   }
 
   logout(): void {
@@ -43,6 +57,8 @@ export class AuthService {
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('current_user');
     this._currentUser.set(null);
+    // L'écran de connexion retrouve le thème par défaut de la plateforme.
+    this.organisationService.reinitialiser();
     this.router.navigate(['/connexion']);
   }
 

@@ -6,6 +6,73 @@
     [subtitle]="isAdmin() ? 'Vue d\'ensemble de toutes les réservations de la plateforme.' : 'Consultez et traitez les demandes de réservation.'">
   </app-page-header>
 
+  <!-- File d'attente intelligente : ordonnée par créneau, chaque demande
+       porte une recommandation motivée calculée par le serveur. -->
+  <section class="rounded-xl border border-border bg-white">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
+      <div>
+        <h2 class="flex items-center gap-2 text-base font-semibold text-text">
+          <i class="pi pi-sparkles text-primary"></i> File d'attente
+          <span class="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">{{ file().length }}</span>
+        </h2>
+        <p class="mt-0.5 text-xs text-text-secondary">
+          Demandes que vous pouvez traiter, avec leur rang de priorité (projet, puis statut académique) et une recommandation.
+        </p>
+      </div>
+      <p-button icon="pi pi-refresh" [text]="true" [rounded]="true" (onClick)="chargerFile()" [loading]="fileLoading()" ariaLabel="Actualiser" />
+    </div>
+
+    @if (fileLoading() && file().length === 0) {
+      <p class="p-6 text-center text-sm text-text-secondary"><i class="pi pi-spin pi-spinner mr-2"></i>Analyse des demandes...</p>
+    } @else if (file().length === 0) {
+      <p class="p-6 text-center text-sm text-text-secondary">Aucune demande en attente. Tout est à jour.</p>
+    } @else {
+      <ul class="divide-y divide-border">
+        @for (d of file(); track d.id) {
+          <li class="flex flex-col gap-3 px-5 py-4 lg:flex-row lg:items-center">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-medium text-text">{{ d.demandeur_nom }}</span>
+                <span class="text-xs text-text-secondary">{{ d.analyse.profil_demandeur }} · projet {{ d.analyse.priorite_projet.toLowerCase() }}</span>
+                @if (d.analyse.concurrentes > 0) {
+                  <span class="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                    Rang {{ d.analyse.rang }} / {{ d.analyse.concurrentes + 1 }}
+                  </span>
+                }
+              </div>
+              <p class="mt-1 text-sm text-text">
+                {{ d.date | date: 'EEE d MMM' }} · {{ d.heure_debut.slice(0, 5) }}–{{ d.heure_fin.slice(0, 5) }} ·
+                {{ d.laboratoire_nom }}
+                @if (d.equipements_noms.length) { · {{ d.equipements_noms.join(', ') }} }
+              </p>
+              <p class="mt-1 text-xs text-text-secondary">Motif : {{ d.motif }}</p>
+            </div>
+
+            <div class="flex shrink-0 flex-col gap-2 lg:w-80">
+              <div class="rounded-lg px-3 py-2 text-xs"
+                [class.bg-green-50]="d.analyse.recommandation === 'valider'" [class.text-green-800]="d.analyse.recommandation === 'valider'"
+                [class.bg-red-50]="d.analyse.recommandation === 'refuser'" [class.text-red-800]="d.analyse.recommandation === 'refuser'"
+                [class.bg-amber-50]="d.analyse.recommandation === 'arbitrer'" [class.text-amber-800]="d.analyse.recommandation === 'arbitrer'">
+                <p class="font-semibold">{{ recommandationLibelle[d.analyse.recommandation] }}</p>
+                <p class="mt-0.5">{{ d.analyse.raison }}</p>
+              </div>
+              <div class="flex gap-2">
+                <p-button label="Valider" icon="pi pi-check" size="small" severity="success" styleClass="w-full" class="flex-1"
+                  [disabled]="d.analyse.creneau_passe || d.analyse.conflit_avec_reservation_validee"
+                  [loading]="actionEnCours() === d.id" (onClick)="valider(d)" />
+                <p-button label="Refuser" icon="pi pi-times" size="small" severity="danger" [outlined]="true" styleClass="w-full" class="flex-1"
+                  [disabled]="actionEnCours() === d.id" (onClick)="refuser(d)" />
+                <p-button icon="pi pi-eye" size="small" [text]="true" (onClick)="voir(d)" ariaLabel="Détails" />
+              </div>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  @if (!isEncadrant()) {
+  <h2 class="text-base font-semibold text-text">Historique des réservations</h2>
   <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md animate-stagger">
     <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="totalEnAttente()" label="En attente de validation" />
     <app-mini-stat-card icon="pi pi-list" color="primary" [value]="reservations().length" label="Total (tous statuts)" />
@@ -67,6 +134,25 @@
       </app-data-table>
     </div>
   }
+
+  }
+
+  <!-- Refus motivé : le motif est transmis au demandeur -->
+  <p-dialog [visible]="refusCible() !== null" (visibleChange)="!$event && refusCible.set(null)" [modal]="true"
+    [draggable]="false" header="Refuser la demande" [style]="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }">
+    <p class="mb-3 text-sm text-text-secondary">
+      Demande de <span class="font-medium text-text">{{ refusCible()?.demandeur_nom }}</span>.
+      Le motif lui sera communiqué.
+    </p>
+    <label for="motifRefus" class="mb-1 block text-sm font-medium text-text">Motif (recommandé)</label>
+    <textarea pTextarea id="motifRefus" rows="3" class="w-full" maxlength="500" [(ngModel)]="motifRefus"
+      placeholder="Ex. Équipement réservé pour une séance de TP ce jour-là."></textarea>
+    <ng-template pTemplate="footer">
+      <p-button label="Retour" severity="secondary" [outlined]="true" (onClick)="refusCible.set(null)" />
+      <p-button label="Refuser" icon="pi pi-times" severity="danger" [loading]="actionEnCours() === refusCible()?.id"
+        (onClick)="confirmerRefus()" />
+    </ng-template>
+  </p-dialog>
 
   <app-reservation-detail-modal [(visible)]="detailModalVisible" [reservation]="reservationSelectionnee()" />
   <p-confirmDialog [style]="{ width: '25rem' }"/>

@@ -17,6 +17,7 @@ import { EquipementService } from '../../../Core/services/equipement.service';
 import { ReservationService } from '../../../Core/services/reservation.service';
 import { MaintenanceService } from '../../../Core/services/maintenance.service';
 import { JournalService } from '../../../Core/services/journal.service';
+import { dateLocale } from '../../../Shared/utils/date-range';
 import { MaintenanceFormModal } from '../../maintenances/pages/maintenance-form-modal/maintenance-form-modal';
 import { UtilisateurFormModal } from '../../utilisateurs/pages/utilisateur-form-modal/utilisateur-form-modal';
 
@@ -52,7 +53,7 @@ export class DashboardAdmin implements OnInit {
   readonly totalReservationsCeMois = computed(() => {
     const now = new Date();
     return this.reservationService.reservations().filter(r => {
-      const d = new Date(r.date);
+      const d = dateLocale(r.date);
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
     }).length;
   });
@@ -89,7 +90,7 @@ export class DashboardAdmin implements OnInit {
         backgroundColor: '#1848D9',
         borderRadius: 6,
         data: mois.map(m => this.reservationService.reservations().filter(r => {
-          const d = new Date(r.date);
+          const d = dateLocale(r.date);
           return d.getMonth() === m.month && d.getFullYear() === m.year;
         }).length),
       }],
@@ -107,7 +108,7 @@ export class DashboardAdmin implements OnInit {
     depuis.setDate(depuis.getDate() - 30);
     const compteur = new Map<string, number>();
     for (const r of this.reservationService.reservations()) {
-      if (new Date(r.date) < depuis) continue;
+      if (dateLocale(r.date) < depuis) continue;
       for (const nom of (r as any).equipements_noms ?? []) {
         compteur.set(nom, (compteur.get(nom) ?? 0) + 1);
       }

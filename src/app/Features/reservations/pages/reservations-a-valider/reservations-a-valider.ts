@@ -2,11 +2,13 @@ import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
+import { DialogModule } from 'primeng/dialog';
+import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
-import { Reservation } from '../../../../Core/models/reservation.model';
+import { DemandeEnAttente, Recommandation, Reservation } from '../../../../Core/models/reservation.model';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { AuthService } from '../../../../Core/services/auth.service';
 
@@ -35,6 +37,8 @@ interface FilterValues {
     DatePipe,
     FormsModule,
     SelectModule,
+    DialogModule,
+    TextareaModule,
     ButtonModule,
     ConfirmDialogModule,
     PageHeader,
@@ -61,6 +65,24 @@ export class ReservationsAValider implements OnInit {
   // Seul l'admin voit archiver/supprimer — les deux autres rôles ne
   // peuvent que consulter et valider/refuser.
   readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'ADMIN');
+  // Un enseignant-chercheur ne traite que les demandes de ses étudiants :
+  // il n'a que la file, pas l'historique de tout l'établissement.
+  readonly isEncadrant = computed(() => this.authService.currentUser()?.role === 'CHERCHEUR');
+
+  // File d'attente analysée par le serveur (priorité, concurrence, recommandation).
+  readonly file = signal<DemandeEnAttente[]>([]);
+  readonly fileLoading = signal(false);
+  readonly actionEnCours = signal<number | null>(null);
+
+  // Refus motivé
+  readonly refusCible = signal<Reservation | null>(null);
+  motifRefus = '';
+
+  readonly recommandationLibelle: Record<Recommandation, string> = {
+    valider: 'Recommandé : valider',
+    refuser: 'Recommandé : refuser',
+    arbitrer: 'À arbitrer',
+  };
 
   private readonly statutParDefaut: Reservation['statut'] | null =
     this.authService.currentUser()?.role === 'ADMIN' ? null : 'EN_ATTENTE';
@@ -102,9 +124,36 @@ export class ReservationsAValider implements OnInit {
   reservationSelectionnee = signal<Reservation | null>(null);
 
   ngOnInit(): void {
-    // ?all=true : on veut voir les demandes de TOUT LE MONDE, pas les siennes.
-    this.reservationService.charger({ all: true });
+    this.chargerFile();
+    if (!this.isEncadrant()) {
+      // ?all=true : on veut voir les demandes de TOUT LE MONDE, pas les siennes.
+      this.reservationService.charger({ all: true });
+    }
     this.laboratoireService.charger();
+  }
+
+  chargerFile(): void {
+    this.fileLoading.set(true);
+    this.reservationService.fileAttente().subscribe({
+      next: (demandes) => { this.file.set(demandes); this.fileLoading.set(false); },
+      error: () => this.fileLoading.set(false),
+    });
+  }
+
+  // Après une décision, la file et l'historique sont rechargés : valider une
+  // demande peut refuser automatiquement ses concurrentes.
+  private apresDecision(titre: string, detail: string): void {
+    this.actionEnCours.set(null);
+    this.messageService.add({ severity: 'success', summary: titre, detail });
+    this.chargerFile();
+    if (!this.isEncadrant()) this.reservationService.charger({ all: true });
+  }
+
+  private enErreur(err: any): void {
+    this.actionEnCours.set(null);
+    const corps = err.error;
+    const detail = Array.isArray(corps) ? corps[0] : corps?.detail ?? "L'action n'a pas pu être effectuée.";
+    this.messageService.add({ severity: 'error', summary: 'Action impossible', detail });
   }
 
   setFilter<K extends keyof FilterValues>(key: K, value: FilterValues[K]): void {
@@ -136,23 +185,35 @@ export class ReservationsAValider implements OnInit {
       message: `Valider la demande de ${reservation.demandeur_nom} ?`,
       header: 'Confirmer la validation',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Oui, Valider',
+      acceptLabel: 'Oui, valider',
       rejectLabel: 'Retour',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.reservationService.valider(reservation.id).subscribe()
+      rejectButtonStyleClass: 'p-button-secondary',
+      accept: () => {
+        this.actionEnCours.set(reservation.id);
+        this.reservationService.valider(reservation.id).subscribe({
+          next: () => this.apresDecision('Demande validée',
+            'Les demandes concurrentes éventuelles ont été refusées et prévenues avec des alternatives.'),
+          error: (err) => this.enErreur(err),
+        });
+      },
     });
-
   }
 
   refuser(reservation: Reservation): void {
-    this.confirmationService.confirm({
-      message: `Refuser la demande de ${reservation.demandeur_nom} ?`,
-      header: 'Confirmer le refus',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Oui, refuser',
-      rejectLabel: 'Retour',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.reservationService.refuser(reservation.id).subscribe(),
+    this.motifRefus = '';
+    this.refusCible.set(reservation);
+  }
+
+  confirmerRefus(): void {
+    const cible = this.refusCible();
+    if (!cible) return;
+    this.actionEnCours.set(cible.id);
+    this.reservationService.refuser(cible.id, this.motifRefus.trim()).subscribe({
+      next: () => {
+        this.refusCible.set(null);
+        this.apresDecision('Demande refusée', 'Le demandeur a été notifié du motif.');
+      },
+      error: (err) => this.enErreur(err),
     });
   }
 

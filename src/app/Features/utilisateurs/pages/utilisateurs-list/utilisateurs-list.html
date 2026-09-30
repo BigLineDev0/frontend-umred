@@ -13,6 +13,17 @@
     <app-mini-stat-card icon="pi pi-ban" color="danger" [value]="inactifs()" label="Inactifs" />
   </div>
 
+  @if (sansEncadrant() > 0) {
+    <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+      <p class="flex items-center gap-2 text-sm text-amber-800">
+        <i class="pi pi-user-plus"></i>
+        {{ sansEncadrant() }} étudiant(s) n'ont pas d'encadrant : leurs demandes de réservation sont traitées par les techniciens.
+      </p>
+      <p-button [label]="filtreSansEncadrant() ? 'Afficher tout le monde' : 'Afficher ces étudiants'" size="small" [text]="true"
+        (onClick)="filtreSansEncadrant.set(!filtreSansEncadrant())" />
+    </div>
+  }
+
   <app-filter-bar searchPlaceholder="Rechercher un utilisateur..." (searchChange)="search.set($event)">
     <p-select [options]="roleOptions" optionLabel="label" optionValue="value" placeholder="Rôle : Tous"
       [ngModel]="selectedRole()" (ngModelChange)="selectedRole.set($event)" />
@@ -40,7 +51,19 @@
           </div>
         </ng-template>
 
-        <ng-template appColumnTemplate="statut_academique" let-row>{{ row.statut_academique || '—' }}</ng-template>
+        <ng-template appColumnTemplate="statut_academique" let-row>{{ statutsAcademiques[row.statut_academique] || '—' }}</ng-template>
+        <ng-template appColumnTemplate="encadrant_nom" let-row>
+          @if (row.role === 'ETUDIANT') {
+            @if (row.encadrant_nom) {
+              <button type="button" class="text-sm text-text hover:text-primary hover:underline" (click)="ouvrirAssignation(row)"
+                pTooltip="Changer d'encadrant">{{ row.encadrant_nom }}</button>
+            } @else {
+              <p-button label="Assigner" icon="pi pi-user-plus" size="small" severity="warn" [outlined]="true" (onClick)="ouvrirAssignation(row)" />
+            }
+          } @else {
+            <span class="text-text-secondary">—</span>
+          }
+        </ng-template>
         <ng-template appColumnTemplate="telephone" let-row>{{ row.telephone || '—' }}</ng-template>
         <ng-template appColumnTemplate="statut_compte" let-row><app-status-badge [statut]="row.statut_compte" /></ng-template>
 
@@ -48,9 +71,9 @@
           <div class="flex gap-1">
             <p-button icon="pi pi-eye" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="voirUtilisateur(row)" pTooltip="Voir" />
             <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="ouvrirModification(row)" pTooltip="Modifier" />
-            <p-button [icon]="row.statut_compte === 'INACTIF' ? 'pi pi-check-circle' : 'pi pi-power-off'"
-              [text]="true" [rounded]="true" [severity]="row.statut_compte === 'INACTIF' ? 'success' : 'danger'" size="small"
-              (onClick)="ouvrirStatus(row)" [pTooltip]="row.statut_compte === 'INACTIF' ? 'Activer' : 'Désactiver'" />
+            <p-button [icon]="row.statut_compte === 'ACTIF' ? 'pi pi-power-off' : 'pi pi-check-circle'"
+              [text]="true" [rounded]="true" [severity]="row.statut_compte === 'ACTIF' ? 'danger' : 'success'" size="small"
+              (onClick)="ouvrirStatus(row)" [pTooltip]="row.statut_compte === 'ACTIF' ? 'Désactiver' : 'Activer'" />
           </div>
         </ng-template>
 
@@ -60,4 +83,19 @@
 </div>
 
 <app-utilisateur-form-modal [(visible)]="formModalVisible" [utilisateurAModifier]="utilisateurAModifier()" />
+
+<p-dialog [visible]="etudiantCible() !== null" (visibleChange)="!$event && etudiantCible.set(null)" [modal]="true"
+  [draggable]="false" header="Encadrant de l'étudiant" [style]="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }">
+  <p class="mb-3 text-sm text-text-secondary">
+    <span class="font-medium text-text">{{ etudiantCible()?.prenom }} {{ etudiantCible()?.nom }}</span> :
+    son encadrant reçoit ses demandes de réservation et les valide (sauf équipement sensible, traité par un technicien).
+  </p>
+  <p-select [options]="encadrants()" optionLabel="nom_complet" optionValue="id" [(ngModel)]="encadrantChoisi"
+    placeholder="Aucun encadrant" [showClear]="true" [filter]="true" filterBy="nom_complet" appendTo="body" class="w-full"
+    emptyMessage="Aucun enseignant-chercheur actif dans l'établissement" />
+  <ng-template pTemplate="footer">
+    <p-button label="Annuler" severity="secondary" [outlined]="true" (onClick)="etudiantCible.set(null)" />
+    <p-button label="Enregistrer" icon="pi pi-check" [loading]="assignationEnCours()" (onClick)="confirmerAssignation()" />
+  </ng-template>
+</p-dialog>
 <app-user-status-modal [(visible)]="statusModalVisible" [utilisateur]="utilisateurStatusCible()" [action]="statusAction()" [loading]="statusLoading()" (confirmed)="confirmerStatus()" />

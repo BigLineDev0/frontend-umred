@@ -14,6 +14,17 @@
     <app-mini-stat-card icon="pi pi-times-circle" color="danger" [value]="refusees()" label="Demandes refusées" />
   </div>
 
+  @if (encadrant() !== undefined) {
+    <div class="mb-6 flex items-center gap-3 rounded-xl border border-border bg-white px-5 py-4 text-sm">
+      <i class="pi pi-user text-primary"></i>
+      @if (encadrant()) {
+        <span class="text-text">Votre encadrant, <span class="font-semibold">{{ encadrant() }}</span>, reçoit et valide vos demandes de réservation.</span>
+      } @else {
+        <span class="text-text-secondary">Aucun encadrant ne vous est encore rattaché : vos demandes sont traitées par les techniciens du laboratoire.</span>
+      }
+    </div>
+  }
+
   <div class="flex items-center gap-3 bg-secondary/10 border border-secondary/20 rounded-xl px-5 py-4 mb-7">
     <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
       <i class="pi pi-info-circle text-secondary text-sm"></i>

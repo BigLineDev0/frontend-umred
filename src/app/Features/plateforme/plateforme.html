@@ -1,0 +1,124 @@
+<div class="space-y-6 animate-stagger">
+  <app-page-header
+    [breadcrumbs]="[{ label: 'Console plateforme' }]"
+    title="Console plateforme"
+    subtitle="Établissements clients de la solution et leur niveau d'utilisation.">
+    <p-button actions label="Nouvel établissement" icon="pi pi-plus" (onClick)="ouvrirCreation()" />
+  </app-page-header>
+
+  @if (statistiques(); as s) {
+    <section class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div class="rounded-xl border border-border bg-white p-4">
+        <p class="text-xs text-text-secondary">Établissements</p>
+        <p class="text-2xl font-semibold text-text">{{ s.organisations_total }}</p>
+        <p class="text-xs text-text-secondary">{{ s.organisations_actives }} actif(s)</p>
+      </div>
+      <div class="rounded-xl border border-border bg-white p-4">
+        <p class="text-xs text-text-secondary">Utilisateurs actifs</p>
+        <p class="text-2xl font-semibold text-text">{{ s.utilisateurs_actifs }}</p>
+      </div>
+      <div class="rounded-xl border border-border bg-white p-4">
+        <p class="text-xs text-text-secondary">Réservations (30 jours)</p>
+        <p class="text-2xl font-semibold text-text">{{ s.reservations_30j }}</p>
+      </div>
+      <div class="rounded-xl border border-border bg-white p-4">
+        <p class="text-xs text-text-secondary">Évolution (6 mois)</p>
+        <div class="mt-2 flex h-10 items-end gap-1">
+          @for (m of s.evolution; track m.mois) {
+            <div class="flex-1 rounded-t bg-primary/70" [title]="m.mois + ' : ' + m.reservations + ' réservation(s)'"
+              [style.height.%]="hauteur(m.reservations)"></div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  <section class="overflow-hidden rounded-xl border border-border bg-white">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 text-left text-xs text-text-secondary">
+          <tr>
+            <th class="px-4 py-3 font-medium">Établissement</th>
+            <th class="px-4 py-3 font-medium">Laboratoires</th>
+            <th class="px-4 py-3 font-medium">Équipements</th>
+            <th class="px-4 py-3 font-medium">Utilisateurs</th>
+            <th class="px-4 py-3 font-medium">Réservations 30 j</th>
+            <th class="px-4 py-3 font-medium">Client depuis</th>
+            <th class="px-4 py-3 font-medium">Statut</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          @for (org of organisations(); track org.id) {
+            <tr>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <span class="h-8 w-8 shrink-0 rounded-lg" [style.background]="org.couleur_primaire"></span>
+                  <div>
+                    <p class="font-medium text-text">{{ org.nom }}</p>
+                    <p class="text-xs text-text-secondary">{{ org.slug }}@if (org.ville) { · {{ org.ville }} }</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">{{ org.nb_laboratoires }}</td>
+              <td class="px-4 py-3">{{ org.nb_equipements }}</td>
+              <td class="px-4 py-3">{{ org.nb_utilisateurs }}</td>
+              <td class="px-4 py-3">{{ org.nb_reservations_30j }}</td>
+              <td class="px-4 py-3">{{ org.date_creation | date: 'dd/MM/yyyy' }}</td>
+              <td class="px-4 py-3">
+                <span class="rounded-full px-2 py-0.5 text-xs font-medium"
+                  [class.bg-green-100]="org.est_active" [class.text-green-700]="org.est_active"
+                  [class.bg-gray-100]="!org.est_active" [class.text-gray-600]="!org.est_active">
+                  {{ org.est_active ? 'Actif' : 'Suspendu' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <p-button [label]="org.est_active ? 'Suspendre' : 'Réactiver'" size="small" [text]="true"
+                  [severity]="org.est_active ? 'danger' : 'success'" (onClick)="basculer(org)" />
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="8" class="px-4 py-8 text-center text-text-secondary">
+              {{ loading() ? 'Chargement...' : 'Aucun établissement pour le moment.' }}
+            </td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p-dialog [(visible)]="creationVisible" [modal]="true" [draggable]="false" header="Nouvel établissement"
+    [style]="{ width: '34rem', maxWidth: 'calc(100vw - 2rem)' }">
+    <div class="space-y-4">
+      <div>
+        <label for="orgNom" class="mb-2 block text-sm font-medium text-text">Nom</label>
+        <input id="orgNom" pInputText class="w-full" [(ngModel)]="nouvelle.nom" (ngModelChange)="proposerSlug()"
+          placeholder="Faculté des Sciences et Techniques — UCAD" />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="orgSlug" class="mb-2 block text-sm font-medium text-text">Identifiant</label>
+          <input id="orgSlug" pInputText class="w-full" [(ngModel)]="nouvelle.slug" placeholder="ucad-fst" />
+        </div>
+        <div>
+          <label for="orgVille" class="mb-2 block text-sm font-medium text-text">Ville</label>
+          <input id="orgVille" pInputText class="w-full" [(ngModel)]="nouvelle.ville" placeholder="Dakar" />
+        </div>
+      </div>
+      <p class="pt-2 text-sm font-semibold text-text">Administrateur de l'établissement</p>
+      <div class="grid grid-cols-2 gap-4">
+        <input pInputText [(ngModel)]="nouvelle.admin_prenom" placeholder="Prénom" aria-label="Prénom de l'administrateur" />
+        <input pInputText [(ngModel)]="nouvelle.admin_nom" placeholder="Nom" aria-label="Nom de l'administrateur" />
+      </div>
+      <input pInputText type="email" class="w-full" [(ngModel)]="nouvelle.admin_email" placeholder="admin@etablissement.sn"
+        aria-label="Email de l'administrateur" />
+      <p class="text-xs text-text-secondary">Il recevra un email pour choisir son mot de passe, puis configurera le logo, les couleurs et les règles de l'établissement.</p>
+    </div>
+    <ng-template pTemplate="footer">
+      <p-button label="Annuler" severity="secondary" [outlined]="true" (onClick)="creationVisible.set(false)" />
+      <p-button label="Créer et inviter" icon="pi pi-send" [loading]="creationEnCours()" (onClick)="creer()" />
+    </ng-template>
+  </p-dialog>
+
+  <p-confirmDialog [style]="{ width: '26rem' }" />
+</div>

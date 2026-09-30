@@ -65,6 +65,18 @@ export const routes: Routes = [
         loadComponent: () => import('./Features/rapports/rapports/rapports').then(m => m.Rapports)
       },
       {
+        path: 'pilotage', title: 'Aide à la décision', canActivate: [roleGuard(['ADMIN', 'TECHNICIEN'])],
+        loadComponent: () => import('./Features/pilotage/pilotage').then(m => m.Pilotage)
+      },
+      {
+        path: 'etablissement', title: 'Mon établissement', canActivate: [roleGuard(['ADMIN'])],
+        loadComponent: () => import('./Features/etablissement/etablissement').then(m => m.Etablissement)
+      },
+      {
+        path: 'plateforme', title: 'Console plateforme', canActivate: [roleGuard(['SUPER_ADMIN'])],
+        loadComponent: () => import('./Features/plateforme/plateforme').then(m => m.Plateforme)
+      },
+      {
         path: 'notifications',
         title: 'Notifications',
         loadComponent: () => import('./Features/notifications/notifications-list/notifications-list').then(m => m.NotificationsList)

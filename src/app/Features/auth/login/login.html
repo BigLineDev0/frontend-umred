@@ -18,6 +18,15 @@
         {{ errorMessage() }}
       </p>
 
+      @if (emailNonVerifie()) {
+      <p-button label="Renvoyer l'email d'activation" icon="pi pi-envelope" [text]="true" size="small"
+        [loading]="renvoiEnCours()" (onClick)="renvoyerActivation()" styleClass="mt-2 p-0" />
+      }
+
+      @if (renvoiMessage()) {
+      <p role="status" class="text-sm text-text-secondary mt-2">{{ renvoiMessage() }}</p>
+      }
+
     </div>
 
     }

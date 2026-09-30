@@ -2,7 +2,9 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AlerteUsure, AlerteUsureGlobale, Equipement, EquipementPayload } from '../models/equipement.model';
+import {
+  AlerteUsure, AlerteUsureGlobale, Equipement, EquipementPayload, StatistiquesEquipement,
+} from '../models/equipement.model';
 
 @Injectable({ providedIn: 'root' })
 export class EquipementService {
@@ -34,6 +36,10 @@ export class EquipementService {
 
   chargerParLaboratoire(laboratoireId: number): void {
     this.charger({ laboratoire: laboratoireId });
+  }
+
+  statistiques(id: number): Observable<StatistiquesEquipement> {
+    return this.http.get<StatistiquesEquipement>(`${this.baseUrl}/equipements/${id}/statistiques/`);
   }
 
   chargerUn(id: number): Observable<Equipement> {

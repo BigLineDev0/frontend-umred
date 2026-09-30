@@ -12,9 +12,9 @@
     <a routerLink="/" (click)="closeSidebar()"
        title="Aller au site vitrine UMRED"
        class="group block rounded-md bg-white px-3 py-2.5 shadow-sm ring-1 ring-white/10 transition duration-200 hover:ring-white/40 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-      <img src="images/logo_umred.png"
-           alt="UMRED — Unité Mixte de Recherche d'Exploration et de Diagnostic, retour au site vitrine"
-           class="w-full h-auto transition-transform duration-200 group-hover:scale-[1.02]" />
+      <img [src]="logo()"
+           [alt]="nomEtablissement() + ', retour au site vitrine'"
+           class="w-full h-auto max-h-16 object-contain transition-transform duration-200 group-hover:scale-[1.02]" />
     </a>
   </div>
 

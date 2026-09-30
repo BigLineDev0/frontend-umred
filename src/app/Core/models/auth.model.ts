@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'TECHNICIEN' | 'CHERCHEUR' | 'ETUDIANT';
+export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'TECHNICIEN' | 'CHERCHEUR' | 'ETUDIANT';
 
 export interface LoginResponse {
   id:number | number;
@@ -8,6 +8,7 @@ export interface LoginResponse {
   nom: string;
   prenom: string;
   photo: string | null;
+  organisation: number | null;
 }
 
 export interface CurrentUser {
@@ -18,9 +19,22 @@ export interface CurrentUser {
   photo: string | null;
 }
 
+// L'inscription ne connecte pas : le compte doit d'abord être activé
+// via le lien envoyé par email.
+export interface RegisterResponse {
+  detail: string;
+  email: string;
+}
+
+export interface ActivationResponse {
+  detail: string;
+  deja_active: boolean;
+}
+
 export interface RegisterPayload {
   prenom: string;
   nom: string;
   email: string;
   password: string;
+  organisation: number;
 }

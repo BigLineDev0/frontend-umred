@@ -23,6 +23,26 @@
       <p-select [options]="roleOptions" optionLabel="label" optionValue="value" [(ngModel)]="form.role" appendTo="body" class="w-full" />
     </div>
 
+    @if (form.role === 'CHERCHEUR') {
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Statut académique</label>
+      <p-select [options]="statutAcademiqueOptions" optionLabel="label" optionValue="value" [(ngModel)]="form.statut_academique"
+        placeholder="Non renseigné" [showClear]="true" appendTo="body" class="w-full" />
+      <small class="mt-1 block text-xs text-text-secondary">Départage les demandes concurrentes à priorité de projet égale.</small>
+    </div>
+    }
+
+    @if (form.role === 'ETUDIANT') {
+    <div>
+      <label class="block text-sm font-medium text-text mb-2">Encadrant</label>
+      <p-select [options]="encadrants()" optionLabel="nom_complet" optionValue="id" [(ngModel)]="form.encadrant"
+        placeholder="Aucun encadrant" [showClear]="true" [filter]="true" filterBy="nom_complet" appendTo="body" class="w-full" />
+      <small class="mt-1 block text-xs text-text-secondary">
+        L'encadrant reçoit et valide en priorité les demandes de réservation de l'étudiant.
+      </small>
+    </div>
+    }
+
     <div>
       <label class="block text-sm font-medium text-text mb-2">Téléphone</label>
       <input pInputText type="tel" [(ngModel)]="form.telephone" placeholder="+221 77 000 00 00" class="w-full" />

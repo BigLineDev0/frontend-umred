@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -13,6 +13,10 @@ import { LaboratoireService } from '../../../Core/services/laboratoire.service';
 import { EquipementService } from '../../../Core/services/equipement.service';
 import { NotificationService } from '../../../Core/services/notification.service';
 import { ReservationService } from '../../../Core/services/reservation.service';
+import { UtilisateurService } from '../../../Core/services/utilisateur.service';
+import { Utilisateur } from '../../../Core/models/utilisateur.model';
+import { DemandeEnAttente } from '../../../Core/models/reservation.model';
+import { isoDate } from '../../../Shared/utils/date-range';
 
 @Component({
   selector: 'app-dashboard-chercheur',
@@ -25,6 +29,11 @@ export class DashboardChercheur implements OnInit {
   readonly laboratoireService = inject(LaboratoireService);
   readonly equipementService = inject(EquipementService);
   readonly notificationService = inject(NotificationService);
+  private readonly utilisateurService = inject(UtilisateurService);
+
+  // Encadrement : étudiants rattachés et demandes qu'ils attendent de moi.
+  readonly etudiants = signal<Utilisateur[]>([]);
+  readonly demandesEtudiants = signal<DemandeEnAttente[]>([]);
 
   readonly reservations = this.reservationService.reservations;
 
@@ -34,7 +43,7 @@ export class DashboardChercheur implements OnInit {
   readonly equipementsDisponibles = computed(() => this.equipementService.equipements().filter(e => e.statut === 'DISPONIBLE').length);
 
   readonly prochainesReservations = computed(() => {
-    const aujourdHui = new Date().toISOString().split('T')[0];
+    const aujourdHui = isoDate(new Date());
     return this.reservations()
       .filter(r => r.statut === 'VALIDEE' && r.date >= aujourdHui)
       .sort((a, b) => a.date.localeCompare(b.date) || a.heure_debut.localeCompare(b.heure_debut))
@@ -49,6 +58,8 @@ export class DashboardChercheur implements OnInit {
     this.laboratoireService.charger();
     this.equipementService.charger();
     this.notificationService.chargerRecentes();
+    this.utilisateurService.mesEtudiants().subscribe({ next: (liste) => this.etudiants.set(liste) });
+    this.reservationService.fileAttente().subscribe({ next: (file) => this.demandesEtudiants.set(file) });
   }
 
   statusLabel(s: string) { return { EN_ATTENTE: 'En attente', VALIDEE: 'Validée', REFUSEE: 'Refusée', ANNULEE: 'Annulée', TERMINEE: 'Terminée' }[s] ?? s; }

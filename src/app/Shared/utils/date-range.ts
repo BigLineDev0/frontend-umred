@@ -12,6 +12,15 @@ export function calculerPlage(cle: PeriodeCle, customDebut?: Date | null, custom
   return { debut, fin };
 }
 
+// Date au format AAAA-MM-JJ dans le fuseau LOCAL. toISOString() convertit
+// en UTC : hors UTC+0, une date choisie à 00h30 devenait la veille.
 export function isoDate(d: Date): string {
-  return d.toISOString().split('T')[0];
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Inverse : new Date('2026-10-01') est interprété en UTC (minuit UTC),
+// ce qui peut donner le 30 septembre en heure locale.
+export function dateLocale(iso: string): Date {
+  const [annee, mois, jour] = iso.slice(0, 10).split('-').map(Number);
+  return new Date(annee, mois - 1, jour);
 }

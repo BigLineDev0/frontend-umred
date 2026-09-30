@@ -2,7 +2,9 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Reservation, ReservationPayload } from '../models/reservation.model';
+import {
+  AlerteCreneau, AlerteCreneauPayload, DemandeEnAttente, Reservation, ReservationPayload, VerificationReservation,
+} from '../models/reservation.model';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
@@ -36,6 +38,26 @@ export class ReservationService {
     });
   }
 
+  verifier(payload: ReservationPayload): Observable<VerificationReservation> {
+    return this.http.post<VerificationReservation>(`${this.baseUrl}/reservations/verifier/`, payload);
+  }
+
+  fileAttente(): Observable<DemandeEnAttente[]> {
+    return this.http.get<DemandeEnAttente[]>(`${this.baseUrl}/reservations/file_attente/`);
+  }
+
+  mesAlertes(): Observable<AlerteCreneau[]> {
+    return this.http.get<AlerteCreneau[]>(`${this.baseUrl}/reservations/alertes/`);
+  }
+
+  creerAlerte(payload: AlerteCreneauPayload): Observable<AlerteCreneau> {
+    return this.http.post<AlerteCreneau>(`${this.baseUrl}/reservations/alertes/`, payload);
+  }
+
+  supprimerAlerte(id: number): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/reservations/alertes/${id}/supprimer/`, {});
+  }
+
   creer(payload: ReservationPayload): Observable<Reservation> {
     return this.http.post<Reservation>(`${this.baseUrl}/reservations/`, payload).pipe(
       tap(nouvelle => this.reservations.update(list => [nouvelle, ...list]))
@@ -60,8 +82,8 @@ export class ReservationService {
     );
   }
 
-  refuser(id: number): Observable<Reservation> {
-    return this.http.post<Reservation>(`${this.baseUrl}/reservations/${id}/refuser/`, {}).pipe(
+  refuser(id: number, motif = ''): Observable<Reservation> {
+    return this.http.post<Reservation>(`${this.baseUrl}/reservations/${id}/refuser/`, { motif }).pipe(
       tap(maj => this.reservations.update(list => list.map(r => r.id === id ? maj : r)))
     );
   }

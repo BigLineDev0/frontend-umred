@@ -81,6 +81,10 @@ export const appConfig: ApplicationConfig = {
     MessageService,
     providePrimeNG({
       translation: TRADUCTION_FR,
+      // L'animation .animate-stagger crée un contexte d'empilement par section :
+      // les overlays (select, datepicker...) restés dans leur section passaient
+      // sous le tableau suivant. On les attache au body pour tous les composants.
+      overlayAppendTo: 'body',
       theme: {
           preset: UmredPreset,
           options: {

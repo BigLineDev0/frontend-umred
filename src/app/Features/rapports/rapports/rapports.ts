@@ -5,6 +5,7 @@ import { ChartModule } from 'primeng/chart';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 
 import { ReservationService } from '../../../Core/services/reservation.service';
 import { MaintenanceService } from '../../../Core/services/maintenance.service';
@@ -12,7 +13,7 @@ import { JournalService } from '../../../Core/services/journal.service';
 import { LaboratoireService } from '../../../Core/services/laboratoire.service';
 import { PageHeader } from '../../../Shared/components/page-header/page-header';
 import { AnimatedNumber } from '../../../Shared/components/animated-number/animated-number';
-import { calculerPlage, isoDate, PeriodeCle } from '../../../Shared/utils/date-range';
+import { calculerPlage, dateLocale, isoDate, PeriodeCle } from '../../../Shared/utils/date-range';
 import { environment } from '../../../../environments/environment';
 
 const MOIS_ABREGES = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
@@ -38,6 +39,7 @@ export class Rapports implements OnInit {
   private maintenanceService = inject(MaintenanceService);
   private journalService = inject(JournalService);
   private laboratoireService = inject(LaboratoireService);
+  private messageService = inject(MessageService);
 
   periode = signal<PeriodeCle>('7j');
   customDebut = signal<Date | null>(null);
@@ -98,7 +100,7 @@ export class Rapports implements OnInit {
 
     const compteur = new Map(cles.map(c => [c, 0]));
     for (const r of this.reservationsPeriode()) {
-      const d = new Date(r.date);
+      const d = dateLocale(r.date);
       const cle = parJour ? r.date : `${d.getFullYear()}-${d.getMonth()}`;
       if (compteur.has(cle)) compteur.set(cle, (compteur.get(cle) ?? 0) + 1);
     }
@@ -178,30 +180,48 @@ export class Rapports implements OnInit {
     });
   }
 
-  exporterPdf(): void { window.print(); }
+  // Export en cours : 'pdf', 'xlsx' ou null (désactive les boutons).
+  exportEnCours = signal<'pdf' | 'xlsx' | null>(null);
 
-  // ajouté : télécharge le classeur Excel généré par Django. On utilise
+  // Le PDF est généré par le serveur à partir des données (indicateurs,
+  // recommandations, occupation, prévision, détail), aux couleurs de
+  // l'établissement : ce n'est plus une impression de la page.
+  exporterPdf(): void {
+    this.telecharger('rapports/export-pdf/', 'pdf');
+  }
+
+  exporterExcel(): void {
+    this.telecharger('rapports/export/', 'xlsx');
+  }
+
   // responseType: 'blob' car la réponse n'est pas du JSON mais un vrai
   // fichier binaire — sans ce réglage, Angular tenterait de le parser
-  // comme du JSON et échouerait silencieusement.
-  exporterExcel(): void {
+  // comme du JSON et échouerait.
+  private telecharger(chemin: string, extension: 'pdf' | 'xlsx'): void {
     const { debut, fin } = calculerPlage(this.periode(), this.customDebut(), this.customFin());
     let params = new HttpParams().set('date_debut', isoDate(debut)).set('date_fin', isoDate(fin));
     if (this.laboratoireFiltre()) {
       params = params.set('laboratoire', String(this.laboratoireFiltre()));
     }
 
-    this.http.get(`${environment.apiUrl}/rapports/export/`, { params, responseType: 'blob' }).subscribe(blob => {
-      // Un blob n'est pas cliquable tel quel : on crée une URL temporaire
-      // en mémoire, on simule un clic sur un lien invisible pour déclencher
-      // le téléchargement, puis on libère cette URL (sinon elle reste en
-      // mémoire tant que la page est ouverte).
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `rapport_umred_labo_${isoDate(new Date())}.xlsx`;
-      a.click();
-      window.URL.revokeObjectURL(url);
+    this.exportEnCours.set(extension);
+    this.http.get(`${environment.apiUrl}/${chemin}`, { params, responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        this.exportEnCours.set(null);
+        // Un blob n'est pas cliquable tel quel : on crée une URL temporaire
+        // en mémoire, on simule un clic sur un lien invisible pour déclencher
+        // le téléchargement, puis on libère cette URL.
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `rapport_activite_${isoDate(new Date())}.${extension}`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.exportEnCours.set(null);
+        this.messageService.add({ severity: 'error', summary: 'Export impossible', detail: "Le rapport n'a pas pu être généré." });
+      },
     });
   }
 }
