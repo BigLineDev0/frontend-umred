@@ -9,6 +9,8 @@ import { AuthService } from '../../../../Core/services/auth.service';
 import { Maintenance } from '../../../../Core/models/maintenance.model';
 import { PriseEnChargeModal } from '../prise-en-charge-modal/prise-en-charge-modal';
 
+const STATUTS_ACTIFS = ['SIGNALEE', 'PLANIFIEE', 'EN_COURS'];
+
 interface EquipementEnPanneAffiche {
   id: number;
   nom: string;
@@ -41,7 +43,12 @@ export class EquipementsEnPanne implements OnInit {
     const utilisateurId = this.authService.currentUser()?.id;
 
     return this.equipementService.equipements().map(e => {
-      const maintenance = maintenances.find(m => m.equipement === e.id) ?? null;
+      // Corrigé : find() renvoyait la PREMIÈRE maintenance de l'équipement,
+      // parfois une préventive annulée ; la prise en charge était alors
+      // refusée par le serveur (« Seule une panne signalée… »). On ne
+      // retient que la panne active (corrective non close).
+      const maintenance = maintenances.find(m =>
+        m.equipement === e.id && m.type === 'CORRECTIVE' && STATUTS_ACTIFS.includes(m.statut)) ?? null;
       return {
         id: e.id,
         nom: e.nom,
@@ -49,7 +56,8 @@ export class EquipementsEnPanne implements OnInit {
         numero_serie: e.numero_serie,
         maintenance,
         dejaPriseEnCharge: maintenance?.statut === 'PLANIFIEE' || maintenance?.statut === 'EN_COURS',
-        parMoi: maintenance?.technicien === utilisateurId,
+        // Sans maintenance (ou sans id connu), undefined === undefined donnait « pris en charge par moi ».
+        parMoi: !!maintenance && utilisateurId != null && maintenance.technicien === utilisateurId,
       };
     });
   });

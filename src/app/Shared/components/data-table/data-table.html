@@ -6,6 +6,9 @@
   [rowHover]="true"
   [totalRecords]="totalRecords() ?? data().length"
   (onLazyLoad)="onLazyLoad($event)"
+  [scrollable]="true"
+  [tableStyle]="{ 'min-width': '44rem' }"
+  [pageLinks]="3"
   styleClass="!border-none"
 >
   <ng-template pTemplate="header">

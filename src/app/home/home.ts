@@ -15,12 +15,9 @@ import { AuthService } from '../Core/services/auth.service';
 export class Home {
   private authService = inject(AuthService);
 
-  videoOuverte = signal(false);
   faqOuverte = signal<number | null>(0);
 
   toggleFaq(i: number): void { this.faqOuverte.update(c => (c === i ? null : i)); }
-  ouvrirVideo(): void { this.videoOuverte.set(true); }
-  fermerVideo(): void { this.videoOuverte.set(false); }
 
   // Connecté → tableau de bord du rôle ; sinon → page de connexion.
   routeAccueil(): string {

@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 
 import { Consommable } from '../../../Core/models/consommable.model';
 import { ConsommableService } from '../../../Core/services/consommable.service';
+import { messageErreur } from '../../utils/message-erreur';
 
 @Component({
   selector: 'app-mouvement-stock-modal',
@@ -64,7 +65,7 @@ export class MouvementStockModal {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: err.error?.[0] ?? 'Une erreur est survenue.' });
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: messageErreur(err) });
       },
     });
   }

@@ -12,6 +12,7 @@ import { AuthService } from '../../../Core/services/auth.service';
 import { OrganisationService } from '../../../Core/services/organisation.service';
 import { OrganisationPublique } from '../../../Core/models/organisation.model';
 import { SelectModule } from 'primeng/select';
+import { messageErreur } from '../../../Shared/utils/message-erreur';
 
 @Component({
   selector: 'app-register',
@@ -63,7 +64,10 @@ export class Register implements OnInit {
         this.organisations.set(liste);
         // Un seul établissement : inutile de demander.
         if (liste.length === 1) this.registerForm.patchValue({ organisation: liste[0].id });
+        // Sans établissement, le formulaire restait invalide sans explication.
+        if (liste.length === 0) this.errorMessage.set("Aucun établissement n'est ouvert aux inscriptions pour le moment.");
       },
+      error: () => this.errorMessage.set('Impossible de charger la liste des établissements. Réessayez dans quelques instants.'),
     });
   }
 
@@ -118,9 +122,7 @@ export class Register implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(
-          err.error?.email?.[0] ?? err.error?.password?.[0] ?? "Une erreur est survenue lors de l'inscription.",
-        );
+        this.errorMessage.set(messageErreur(err, "Une erreur est survenue lors de l'inscription."));
       },
     });
   }

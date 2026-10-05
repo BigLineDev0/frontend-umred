@@ -6,6 +6,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
+import { messageErreur } from '../../../../Shared/utils/message-erreur';
 
 import { MaintenanceService } from '../../../../Core/services/maintenance.service';
 import { EquipementService } from '../../../../Core/services/equipement.service';
@@ -100,7 +101,7 @@ export class MaintenanceFormModal {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: err.error?.detail ?? "Une erreur est survenue." });
+        this.messageService.add({ severity: 'error', summary: 'Planification impossible', detail: messageErreur(err) });
       },
     });
   }

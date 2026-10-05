@@ -11,6 +11,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './Core/interceptors/auth.interceptor';
 import { MessageService } from 'primeng/api';
 import { PageTitleStrategy } from './Core/services/page-title.strategy';
+import { PALETTE_PRIMAIRE_SENLAB, PALETTE_SURFACE_SENLAB } from './Core/theme/senlab-palette';
 
 // Sans locale française, le DatePipe affichait les mois en anglais ("12 March 2026").
 registerLocaleData(localeFr);
@@ -45,26 +46,15 @@ const TRADUCTION_FR = {
   noFilter: 'Aucun filtre',
 };
 
-const UmredPreset = definePreset(Aura, {
+const SenlabPreset = definePreset(Aura, {
   semantic: {
-    primary: {
-      50: '#EBF1FD',
-      100: '#D6E3FB',
-      200: '#ADC7F7',
-      300: '#84AAF3',
-      400: '#5B8EEF',
-      500: '#1848D9', // Bleu principal
-      600: '#1540BF', // Bleu foncé
-      700: '#123699',
-      800: '#0E2B7A',
-      900: '#0B215C',
-      950: '#07173D'
-    },
+    primary: PALETTE_PRIMAIRE_SENLAB,
     colorScheme: {
       light: {
+        surface: PALETTE_SURFACE_SENLAB,
         text: {
-          color: '#111827',       // Texte
-          mutedColor: '#6B7280'   // Texte secondaire
+          color: '#0E1538',       // Texte
+          mutedColor: '#5B6385'   // Texte secondaire
         }
       }
     }
@@ -86,7 +76,7 @@ export const appConfig: ApplicationConfig = {
       // sous le tableau suivant. On les attache au body pour tous les composants.
       overlayAppendTo: 'body',
       theme: {
-          preset: UmredPreset,
+          preset: SenlabPreset,
           options: {
           darkModeSelector: false,
           cssLayer: {

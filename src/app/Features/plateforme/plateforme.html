@@ -36,7 +36,7 @@
   <section class="overflow-hidden rounded-xl border border-border bg-white">
     <div class="overflow-x-auto">
       <table class="min-w-full text-sm">
-        <thead class="bg-gray-50 text-left text-xs text-text-secondary">
+        <thead class="bg-background text-left text-xs text-text-secondary">
           <tr>
             <th class="px-4 py-3 font-medium">Établissement</th>
             <th class="px-4 py-3 font-medium">Laboratoires</th>
@@ -68,7 +68,7 @@
               <td class="px-4 py-3">
                 <span class="rounded-full px-2 py-0.5 text-xs font-medium"
                   [class.bg-green-100]="org.est_active" [class.text-green-700]="org.est_active"
-                  [class.bg-gray-100]="!org.est_active" [class.text-gray-600]="!org.est_active">
+                  [class.bg-background]="!org.est_active" [class.text-text-secondary]="!org.est_active">
                   {{ org.est_active ? 'Actif' : 'Suspendu' }}
                 </span>
               </td>

@@ -21,8 +21,11 @@ import { NotificationService } from '../../Core/services/notification.service';
 import { Notification, TypeNotification } from '../../Core/models/notification.model';
 import { RechercheService } from '../../Core/services/recherche.service';
 import { ResultatRecherche } from '../../Core/models/recherche.model';
-import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, of, Subject, switchMap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { routeNotification } from '../../Shared/utils/notification-route';
+
+const RESULTAT_VIDE: ResultatRecherche = { equipements: [], laboratoires: [] };
 
 const NOTIF_STYLE: Record<TypeNotification, { icon: string; bg: string; color: string }> = {
   RESERVATION: { icon: 'pi pi-calendar', bg: 'bg-primary/10', color: 'text-primary' },
@@ -61,7 +64,7 @@ export class Topbar {
 
   rechercheTerme = signal('');
   rechercheOuverte = signal(false);
-  resultats = signal<ResultatRecherche>({ equipements: [], laboratoires: [] });
+  resultats = signal<ResultatRecherche>(RESULTAT_VIDE);
   private rechercheSubject = new Subject<string>();
 
   onRechercheInput(valeur: string): void {
@@ -94,7 +97,12 @@ export class Topbar {
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        switchMap((terme) => (terme.length >= 2 ? this.rechercheService.rechercher(terme) : [])),
+        // catchError DANS le switchMap : une requête en échec ne doit pas
+        // terminer le flux, sinon la recherche cessait de fonctionner
+        // jusqu'au rechargement de la page.
+        switchMap((terme) => (terme.length >= 2
+          ? this.rechercheService.rechercher(terme).pipe(catchError(() => of(RESULTAT_VIDE)))
+          : [])),
       )
       .subscribe((resultat) => {
         if (resultat) this.resultats.set(resultat);
@@ -124,26 +132,9 @@ export class Topbar {
     this.naviguerVersEntite(n);
   }
 
-  // Pas de page de détail dédiée pour une réservation (on la consulte via
-  // modale depuis sa liste) — on redirige vers la liste pertinente selon
-  // le rôle, où l'utilisateur retrouve l'élément concerné.
   private naviguerVersEntite(n: Notification): void {
-    if (n.entite_type_nom === 'maintenance' && n.entite_id) {
-      this.router.navigate(['/maintenances', n.entite_id]);
-      return;
-    }
-    if (n.entite_type_nom === 'reservation') {
-      const role = this.user()?.role;
-      const route =
-        role === 'ETUDIANT'
-          ? '/etudiant/dashboard/mes-demandes'
-          : role === 'CHERCHEUR'
-            ? '/enseignant/dashboard/reservations'
-            : '/reservations/a-valider';
-      this.router.navigate([route]);
-      return;
-    }
-    this.router.navigate(['/notifications']);
+    const cible = routeNotification(n, this.user()?.role);
+    this.router.navigate(Array.isArray(cible) ? cible : [cible]);
   }
 
   tempsEcoule(dateIso: string): string {

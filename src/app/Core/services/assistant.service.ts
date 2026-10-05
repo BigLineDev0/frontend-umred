@@ -18,7 +18,10 @@ export class AssistantService {
   private recupererOuCreerSessionId(): string {
     let id = sessionStorage.getItem(CLE_SESSION);
     if (!id) {
-      id = crypto.randomUUID();
+      // randomUUID n'existe qu'en contexte sécurisé (HTTPS ou localhost).
+      id = typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
       sessionStorage.setItem(CLE_SESSION, id);
     }
     return id;

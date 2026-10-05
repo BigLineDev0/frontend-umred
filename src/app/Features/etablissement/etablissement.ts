@@ -7,6 +7,8 @@ import { MessageService } from 'primeng/api';
 
 import { OrganisationService } from '../../Core/services/organisation.service';
 import { PageHeader } from '../../Shared/components/page-header/page-header';
+import { COULEUR_PRIMAIRE_SENLAB, COULEUR_SIDEBAR_SENLAB } from '../../Core/theme/senlab-palette';
+import { messageErreur } from '../../Shared/utils/message-erreur';
 
 /**
  * Personnalisation SaaS : chaque établissement adapte la plateforme à son
@@ -29,10 +31,15 @@ export class Etablissement implements OnInit {
 
   form = {
     nom: '', ville: '', email_contact: '',
-    couleur_primaire: '#1848D9', couleur_secondaire: '#0F2158',
+    couleur_primaire: COULEUR_PRIMAIRE_SENLAB, couleur_secondaire: COULEUR_SIDEBAR_SENLAB,
     heure_ouverture: '08:00', heure_fermeture: '19:00',
     duree_min_reservation: 30, duree_max_reservation: 480, delai_max_reservation_jours: 60,
   };
+
+  retablirCharte(): void {
+    this.form.couleur_primaire = COULEUR_PRIMAIRE_SENLAB;
+    this.form.couleur_secondaire = COULEUR_SIDEBAR_SENLAB;
+  }
 
   constructor() {
     // Le formulaire se remplit dès que l'établissement est chargé.
@@ -84,10 +91,7 @@ export class Etablissement implements OnInit {
       },
       error: (err) => {
         this.enregistrement.set(false);
-        const corps = err.error;
-        const detail = Array.isArray(corps) ? corps[0]
-          : corps?.non_field_errors?.[0] ?? (corps && Object.values(corps)[0] as string[])?.[0] ?? 'Enregistrement impossible.';
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail });
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: messageErreur(err, 'Enregistrement impossible.') });
       },
     });
   }

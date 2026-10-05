@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { AssistantService } from '../../../Core/services/assistant.service';
 import { AuthService } from '../../../Core/services/auth.service';
 import { ChatMessage, ChatOption } from '../../../Core/models/assistant.model';
+import { HttpErrorResponse } from '@angular/common/http';
+import { messageErreur } from '../../utils/message-erreur';
 
 interface Segment { type: 'texte' | 'liste'; lignes: string[]; }
 
@@ -27,7 +29,6 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
   suggestions = [
     'Quels équipements sont disponibles ?',
     'Réserve-moi un microscope demain à 10h',
-    'Quelle est la prochaine maintenance du spectrophotomètre ?',
     'Quelles sont mes prochaines réservations ?',
   ];
 
@@ -102,11 +103,15 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
           options: res.options, details_confirmation: res.details_confirmation,
         });
       },
-      error: () => {
-        this.erreurConnexion.set(true);
+      error: (err: HttpErrorResponse) => {
+        // 429 : quota de messages atteint, ce n'est pas une panne du service.
+        const tropDeMessages = err.status === 429;
+        this.erreurConnexion.set(!tropDeMessages);
         this.ajouterReponse({
           role: 'assistant',
-          texte: "Désolé, je n'arrive pas à vous répondre pour le moment. Vous pouvez utiliser le formulaire classique en attendant.",
+          texte: tropDeMessages
+            ? messageErreur(err)
+            : "Désolé, je n'arrive pas à vous répondre pour le moment. Vous pouvez utiliser le formulaire classique en attendant.",
           heure: this.heureActuelle(),
         });
       },

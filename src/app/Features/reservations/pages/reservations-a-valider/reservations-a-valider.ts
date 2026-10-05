@@ -21,6 +21,7 @@ import { StatusBadge } from '../../../../Shared/components/status-badge';
 import { RowActions } from '../../../../Shared/components/row-actions';
 import { ReservationDetailModal } from '../../components/reservation-detail-modal/reservation-detail-modal';
 import { ReservationService } from '../../../../Core/services/reservation.service';
+import { messageErreur } from '../../../../Shared/utils/message-erreur';
 
 interface FilterValues {
   search: string;
@@ -149,11 +150,11 @@ export class ReservationsAValider implements OnInit {
     if (!this.isEncadrant()) this.reservationService.charger({ all: true });
   }
 
-  private enErreur(err: any): void {
+  private enErreur(err: unknown): void {
     this.actionEnCours.set(null);
-    const corps = err.error;
-    const detail = Array.isArray(corps) ? corps[0] : corps?.detail ?? "L'action n'a pas pu être effectuée.";
-    this.messageService.add({ severity: 'error', summary: 'Action impossible', detail });
+    this.messageService.add({
+      severity: 'error', summary: 'Action impossible', detail: messageErreur(err, "L'action n'a pas pu être effectuée."),
+    });
   }
 
   setFilter<K extends keyof FilterValues>(key: K, value: FilterValues[K]): void {

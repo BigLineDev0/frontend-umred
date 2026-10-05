@@ -41,7 +41,7 @@
                 }
               </div>
               <p class="mt-1 text-sm text-text">
-                {{ d.date | date: 'EEE d MMM' }} · {{ d.heure_debut.slice(0, 5) }}–{{ d.heure_fin.slice(0, 5) }} ·
+                {{ d.date | date: 'EEE d MMM' }} · {{ d.heure_debut.slice(0, 5) }}-{{ d.heure_fin.slice(0, 5) }} ·
                 {{ d.laboratoire_nom }}
                 @if (d.equipements_noms.length) { · {{ d.equipements_noms.join(', ') }} }
               </p>

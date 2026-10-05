@@ -1,75 +1,99 @@
 <!-- Overlay mobile -->
 @if (layoutService.sidebarOpen()) {
-  <div class="fixed inset-0 bg-black/40 z-40 lg:hidden" (click)="closeSidebar()"></div>
+  <div class="fixed inset-0 bg-navy/50 backdrop-blur-[2px] z-40 lg:hidden" (click)="closeSidebar()"></div>
 }
 
 <aside
   class="fixed lg:static inset-y-0 left-0 z-50 w-64 h-screen flex flex-col bg-sidebar text-white shrink-0 transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 overflow-hidden"
   [class.translate-x-0]="layoutService.sidebarOpen()">
 
-  <!-- Logo -->
-  <div class="px-4 py-4 shrink-0">
+  <!-- Logo : même hauteur que la topbar pour un alignement parfait -->
+  <div class="h-16 flex items-center px-5 border-b border-sidebar-border shrink-0">
     <a routerLink="/" (click)="closeSidebar()"
-       title="Aller au site vitrine UMRED"
-       class="group block rounded-md bg-white px-3 py-2.5 shadow-sm ring-1 ring-white/10 transition duration-200 hover:ring-white/40 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+       title="Aller au site vitrine SenLab"
+       class="flex items-center">
       <img [src]="logo()"
            [alt]="nomEtablissement() + ', retour au site vitrine'"
-           class="w-full h-auto max-h-16 object-contain transition-transform duration-200 group-hover:scale-[1.02]" />
+           [class]="logoPersonnalise() ? 'max-h-20 max-w-[180px] object-contain' : 'h-7 w-auto'" />
     </a>
   </div>
 
-  <div class="border-t border-sidebar-border"></div>
+  <!-- Navigation : défilement sans barre visible, signalé par les indicateurs -->
+  <div class="relative flex-1 min-h-0">
+    <nav #nav class="h-full overflow-y-auto no-scrollbar overscroll-contain px-3 py-4"
+         aria-label="Menu principal"
+         (scroll)="majIndicateursDefilement()">
+      <div>
+        @for (section of navSections(); track section.titre; let premiere = $first) {
+          <p class="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35"
+             [class.mt-5]="!premiere">{{ section.titre }}</p>
 
-  <!-- Navigation -->
-  <nav class="flex-1 overflow-y-auto px-3 py-4">
-    <p class="px-3 text-[11px] font-medium tracking-wide text-white/40 mb-2">MENU</p>
+          <ul class="space-y-0.5">
+            @for (item of section.items; track item.route) {
+              <li>
+                @if (item.disabled) {
+                  <span
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-white/30 cursor-not-allowed"
+                    title="Bientôt disponible">
+                    <i [class]="item.icon + ' text-[15px] w-4 text-center'"></i>
+                    <span class="flex-1">{{ item.label }}</span>
+                    <span class="text-[9px] uppercase bg-white/10 px-1.5 py-0.5 rounded">Bientôt</span>
+                  </span>
+                } @else {
+                  <a [routerLink]="item.route"
+                     [class.sidebar-link-active]="isItemActive(item)"
+                     [attr.aria-current]="isItemActive(item) ? 'page' : null"
+                     (click)="closeSidebar()"
+                     class="relative flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium text-white/65 hover:bg-white/[0.06] hover:text-white transition-colors">
+                    <i [class]="item.icon + ' text-[15px] w-4 text-center'"></i>
+                    <span class="truncate">{{ item.label }}</span>
+                  </a>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </nav>
 
-    <ul class="space-y-1">
-      @for (item of navItems(); track item.route) {
-        <li>
-          @if (item.disabled) {
-            <span
-              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/30 cursor-not-allowed"
-              title="Bientôt disponible"
-            >
-              <i [class]="item.icon"></i>
-              <span class="flex-1">{{ item.label }}</span>
-              <span class="text-[9px] uppercase bg-white/10 px-1.5 py-0.5 rounded">Bientôt</span>
-            </span>
-          } @else {
+    @if (peutDefilerHaut()) {
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-12 flex justify-center bg-linear-to-b from-sidebar via-sidebar/85 to-transparent">
+        <button type="button" (click)="defiler(-1)"
+          class="pointer-events-auto mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/80 ring-1 ring-white/10 backdrop-blur hover:bg-white/20 hover:text-white transition-colors"
+          aria-label="Afficher les liens précédents" title="Liens précédents">
+          <i class="pi pi-chevron-up text-[10px]"></i>
+        </button>
+      </div>
+    }
 
-            <a
-               [routerLink]="item.route"
-              [class.sidebar-link-active]="isItemActive(item)"
-                (click)="closeSidebar()"
-                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
-              >
-                <i [class]="item.icon"></i>
-                <span>{{ item.label }}</span>
-              </a>
-          }
-        </li>
-      }
-    </ul>
-  </nav>
-
-  <div class="border-t border-sidebar-border"></div>
+    @if (peutDefilerBas()) {
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 h-16 flex items-end justify-center pb-2 bg-linear-to-t from-sidebar via-sidebar/90 to-transparent">
+        <button type="button" (click)="defiler(1)"
+          class="pointer-events-auto flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium text-white/85 ring-1 ring-white/10 backdrop-blur hover:bg-white/20 hover:text-white transition-colors"
+          aria-label="Afficher les autres liens du menu">
+          Plus de liens <i class="pi pi-chevron-down text-[10px]"></i>
+        </button>
+      </div>
+    }
+  </div>
 
   <!-- Profil -->
-  <div class="flex items-center gap-3 px-4 py-4 shrink-0">
-    <p-avatar [label]="initials()" shape="circle" styleClass="!bg-white/10 !text-white shrink-0" />
+  <div class="p-3 border-t border-sidebar-border shrink-0">
+    <div class="flex items-center gap-3 rounded-xl bg-white/[0.05] px-3 py-2.5">
+      <p-avatar [label]="initials()" shape="circle" class="!bg-primary-light/25 !text-white !text-xs !font-semibold shrink-0" />
 
-    <div class="flex-1 min-w-0">
-      <p class="text-sm font-medium truncate">{{ user()?.prenom }} {{ user()?.nom }}</p>
-      <p class="text-xs text-white/50 truncate">{{ roleLabel() }}</p>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium truncate">{{ user()?.prenom }} {{ user()?.nom }}</p>
+        <p class="text-[11px] text-white/50 truncate">{{ roleLabel() }}</p>
+      </div>
+
+      <button
+        type="button"
+        (click)="onLogout()"
+        class="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 hover:bg-white/10 hover:text-white transition-colors"
+        title="Déconnexion" aria-label="Déconnexion">
+        <i class="pi pi-sign-out text-sm"></i>
+      </button>
     </div>
-
-    <button
-      type="button"
-      (click)="onLogout()"
-      class="text-white/50 hover:text-white transition-colors"
-      title="Déconnexion">
-      <i class="pi pi-sign-out"></i>
-    </button>
   </div>
 </aside>

@@ -18,6 +18,7 @@ import { ReservationService } from '../../../../Core/services/reservation.servic
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { AuthService } from '../../../../Core/services/auth.service';
 import { ReservationDetailModal } from '../../components/reservation-detail-modal/reservation-detail-modal';
+import { messageErreur } from '../../../../Shared/utils/message-erreur';
 
 interface ReservationFilterValues {
   search: string;
@@ -160,7 +161,7 @@ export class MesReservations implements OnInit {
           }),
           error: (err) => this.messageService.add({
             severity: 'error', summary: 'Annulation impossible',
-            detail: Array.isArray(err.error) ? err.error[0] : err.error?.detail ?? 'Une erreur est survenue.',
+            detail: messageErreur(err),
           }),
         });
       },

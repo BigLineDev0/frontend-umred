@@ -1,21 +1,30 @@
 @import 'tailwindcss';
 @import 'primeicons/primeicons.css';
 
+/* Charte SenLab
+   Palette de marque : #091540 (navy) · #1B2CC1 (bleu roi) · #7692FF (pervenche) · #ABD2FA (bleu ciel).
+   Les neutres (fond, bordures, textes) sont légèrement teintés de navy pour que
+   l'interface reste cohérente avec le logo. --color-accent reste l'orange
+   « attention » (maintenances, rappels) : couleur de signal, pas de marque. */
 @theme {
   --font-sans: "Poppins", sans-serif;
 
-  --color-primary: #1848D9;
-  --color-primary-dark: #1540BF;
-  --color-secondary: #147DD9;
+  --color-navy: #091540;
+  --color-primary: #1B2CC1;
+  --color-primary-dark: #131D88;
+  --color-primary-light: #7692FF;
+  --color-primary-soft: #ABD2FA;
+  --color-primary-tint: #EEF1FF;
+  --color-secondary: #7692FF;
   --color-accent: #F24C27;
-  --color-background: #FAFBFB;
-  --color-text: #111827;
-  --color-text-secondary: #6B7280;
-  --color-border: #E5E7EB;
+  --color-background: #F5F7FD;
+  --color-text: #0E1538;
+  --color-text-secondary: #5B6385;
+  --color-border: #E3E7F2;
   --color-success: #16A34A;
   --color-danger: #DC2626;
-  --color-sidebar:#0F2158;  /*#0E1B3D;*/
-  --color-sidebar-border: #26355E;
+  --color-sidebar: #091540;
+  --color-sidebar-border: #1C2A5E;
 }
 
 body {
@@ -23,6 +32,32 @@ body {
   background-color: var(--color-background);
   color: var(--color-text);
   margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-primary-light) 35%, transparent);
+}
+
+/* Anneau de focus clavier unique sur toute l'application. */
+:where(a, button, [role="button"], summary):focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* Barre de défilement discrète, teintée de la charte. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-text-secondary) 35%, transparent) transparent;
+}
+
+/* Zone défilable sans barre visible (le défilement reste possible
+   à la molette, au clavier et au toucher). */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 /* "transform: none" en fin d'animation (et non translateY(0)) : un transform
@@ -77,8 +112,8 @@ body {
 .word-in { display: inline-block; opacity: 0; animation: fadeInWord .6s ease forwards; }
 
 @keyframes pulseRing {
-  0% { box-shadow: 0 0 0 0 rgba(24, 72, 217, 0.45); }
-  100% { box-shadow: 0 0 0 16px rgba(24, 72, 217, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(118, 146, 255, 0.5); }
+  100% { box-shadow: 0 0 0 16px rgba(118, 146, 255, 0); }
 }
 .assistant-pulse { animation: pulseRing 2.2s ease-out infinite; }
 

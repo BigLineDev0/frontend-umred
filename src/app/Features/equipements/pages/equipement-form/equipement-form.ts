@@ -13,6 +13,7 @@ import { EquipementService } from '../../../../Core/services/equipement.service'
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
+import { messageErreur } from '../../../../Shared/utils/message-erreur';
 
 @Component({
   standalone: true,
@@ -192,9 +193,7 @@ export class EquipementForm implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(
-          err.error?.numero_serie?.[0] ?? "Une erreur est survenue lors de l'enregistrement.",
-        );
+        this.error.set(messageErreur(err, "Une erreur est survenue lors de l'enregistrement."));
       },
     });
   }

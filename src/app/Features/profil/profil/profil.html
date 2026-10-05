@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto space-y-6 animate-stagger">
+<div class="w-full max-w-[1400px] mx-auto space-y-6 animate-stagger">
 
   <app-page-header
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Mon profil' }]"
@@ -7,161 +7,214 @@
   </app-page-header>
 
   @if (loading()) {
-    <div class="rounded-xl border border-border bg-white p-12 text-center">
-      <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+    <div class="flex min-h-96 items-center justify-center rounded-xl border border-border bg-white">
+      <div class="flex flex-col items-center gap-3">
+        <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+        <p class="text-sm text-text-secondary">Chargement du profil...</p>
+      </div>
     </div>
   } @else if (profil(); as p) {
 
-    <!-- En-tête -->
-    <div class="bg-white border border-border rounded-2xl p-6 sm:p-8">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
-        <div class="relative w-20 h-20 shrink-0 group">
-          @if (photoApercu() || p.photo) {
-            <img [src]="photoApercu() ?? p.photo" alt="Photo de profil" class="w-20 h-20 rounded-full object-cover" />
-          } @else {
-            <div class="w-20 h-20 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold">
-              {{ initiales() }}
-            </div>
-          }
-
-          <label class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-            @if (televersementPhoto()) {
-              <i class="pi pi-spin pi-spinner text-white"></i>
+      <!-- Identité -->
+      <section class="rounded-xl border border-border bg-white p-5 sm:p-6 xl:self-start">
+        <div class="flex flex-col items-center text-center">
+          <div class="relative h-24 w-24 shrink-0 group">
+            @if (photoApercu() || p.photo) {
+              <img [src]="photoApercu() ?? p.photo" alt="Photo de profil" class="h-24 w-24 rounded-full object-cover ring-4 ring-primary/10" />
             } @else {
-              <i class="pi pi-camera text-white"></i>
-            }
-            <input type="file" accept="image/*" (change)="onPhotoSelectionnee($event)" class="hidden" [disabled]="televersementPhoto()" />
-          </label>
-        </div>
-
-        <div class="flex-1 min-w-0">
-          <h2 class="text-xl font-bold text-text">{{ p.prenom }} {{ p.nom }}</h2>
-          <p class="text-text-secondary text-sm mt-0.5">{{ roleLabel() }}</p>
-          <div class="flex flex-wrap items-center gap-3 mt-3 text-xs text-text-secondary">
-            <app-status-badge [statut]="p.statut_compte" />
-            <span>Membre depuis {{ p.date_creation | date: 'MMMM yyyy' }}</span>
-            @if (p.last_login) {
-              <span>· Dernière connexion {{ p.last_login | date: 'dd/MM/yyyy à HH:mm' }}</span>
-            }
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Informations personnelles -->
-    <div class="bg-white border border-border rounded-2xl p-6 sm:p-8">
-      <div class="flex items-center justify-between mb-5">
-        <h3 class="text-base font-semibold text-text">Informations personnelles</h3>
-        @if (!modeEdition()) {
-          <p-button label="Modifier" icon="pi pi-pencil" size="small" severity="secondary" [outlined]="true" (onClick)="ouvrirEdition()" />
-        }
-      </div>
-
-      @if (!modeEdition()) {
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Prénom</p>
-            <p class="mt-1 text-sm font-medium text-text">{{ p.prenom }}</p>
-          </div>
-          <div>
-            <p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Nom</p>
-            <p class="mt-1 text-sm font-medium text-text">{{ p.nom }}</p>
-          </div>
-          <div>
-            <p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Email</p>
-            <p class="mt-1 text-sm font-medium text-text">{{ p.email }}</p>
-          </div>
-          <div>
-            <p class="text-xs uppercase tracking-wide text-text-secondary font-medium">Téléphone</p>
-            <p class="mt-1 text-sm font-medium text-text">{{ p.telephone || 'Non renseigné' }}</p>
-          </div>
-        </div>
-      } @else {
-        <form [formGroup]="formInfos" (ngSubmit)="enregistrerInfos()" class="space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-text mb-1.5">Prénom</label>
-              <input pInputText formControlName="prenom" class="w-full" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-text mb-1.5">Nom</label>
-              <input pInputText formControlName="nom" class="w-full" />
-            </div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-text mb-1.5">Téléphone</label>
-            <input pInputText formControlName="telephone" class="w-full" />
-          </div>
-          <p class="text-xs text-text-secondary">L'email ne peut pas être modifié - contactez un administrateur si nécessaire.</p>
-          <div class="flex gap-3 pt-1">
-            <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="enregistrement()" (onClick)="annulerEdition()" />
-            <p-button type="submit" label="Enregistrer" icon="pi pi-check" [loading]="enregistrement()" />
-          </div>
-        </form>
-      }
-    </div>
-
-    <!-- Sécurité -->
-    <div class="bg-white border border-border rounded-2xl p-6 sm:p-8">
-      <div class="flex items-center justify-between mb-5">
-        <div>
-          <h3 class="text-base font-semibold text-text">Sécurité</h3>
-          <p class="text-xs text-text-secondary mt-0.5">Modifiez votre mot de passe de connexion.</p>
-        </div>
-        @if (!modeChangementMdp()) {
-          <p-button label="Changer le mot de passe" icon="pi pi-lock" size="small" severity="secondary" [outlined]="true" (onClick)="ouvrirChangementMdp()" />
-        }
-      </div>
-
-      @if (modeChangementMdp()) {
-        @if (erreurMdp()) {
-          <div class="p-3 mb-4 rounded-lg bg-danger/5 border border-danger/20">
-            <p class="text-sm text-danger">{{ erreurMdp() }}</p>
-          </div>
-        }
-        <form [formGroup]="formMdp" (ngSubmit)="enregistrerMdp()" class="space-y-4 max-w-md">
-          <div>
-            <label class="block text-sm font-medium text-text mb-1.5">Mot de passe actuel</label>
-            <p-password formControlName="ancien_password" [feedback]="false" [toggleMask]="true" fluid inputStyleClass="w-full" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-text mb-1.5">Nouveau mot de passe</label>
-            <p-password formControlName="nouveau_password" [feedback]="true" [toggleMask]="true" fluid inputStyleClass="w-full" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-text mb-1.5">Confirmer le nouveau mot de passe</label>
-            <p-password formControlName="confirmation" [feedback]="false" [toggleMask]="true" fluid inputStyleClass="w-full" />
-          </div>
-          <div class="flex gap-3 pt-1">
-            <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="changementMdpEnCours()" (onClick)="annulerChangementMdp()" />
-            <p-button type="submit" label="Mettre à jour" icon="pi pi-check" [loading]="changementMdpEnCours()" />
-          </div>
-        </form>
-      }
-    </div>
-
-    <!-- Activité récente -->
-    <div class="bg-white border border-border rounded-2xl p-6 sm:p-8">
-      <h3 class="text-base font-semibold text-text mb-5">Activité récente</h3>
-
-      @if (journalService.monActiviteLoading()) {
-        <p class="text-sm text-text-secondary">Chargement...</p>
-      } @else if (journalService.monActivite().length === 0) {
-        <p class="text-sm text-text-secondary">Aucune activité enregistrée pour le moment.</p>
-      } @else {
-        <div class="space-y-4">
-          @for (entree of journalService.monActivite(); track entree.id) {
-            <div class="flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3 min-w-0">
-                <p-tag [value]="badge(entree.action).label" [severity]="badge(entree.action).severity" styleClass="!text-xs shrink-0" />
-                <p class="text-sm text-text truncate">{{ entree.description || entree.action }}</p>
+              <div class="flex h-24 w-24 items-center justify-center rounded-full bg-primary text-2xl font-semibold text-white ring-4 ring-primary/10">
+                {{ initiales() }}
               </div>
-              <span class="text-xs text-text-secondary shrink-0">{{ tempsEcoule(entree.date_heure) }}</span>
+            }
+
+            <label class="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-navy/50 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100"
+              title="Changer la photo">
+              @if (televersementPhoto()) {
+                <i class="pi pi-spin pi-spinner text-white"></i>
+              } @else {
+                <i class="pi pi-camera text-white"></i>
+              }
+              <input type="file" accept="image/*" (change)="onPhotoSelectionnee($event)" class="sr-only" [disabled]="televersementPhoto()" aria-label="Changer la photo de profil" />
+            </label>
+          </div>
+
+          <h2 class="mt-4 text-lg font-semibold text-text">{{ p.prenom }} {{ p.nom }}</h2>
+          <p class="mt-1 text-sm text-text-secondary">{{ roleLabel() }}</p>
+          <div class="mt-3">
+            <app-status-badge [statut]="p.statut_compte" />
+          </div>
+        </div>
+
+        <div class="mt-6 divide-y divide-border border-t border-border">
+          <div class="flex items-center gap-3 py-3">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <i class="pi pi-calendar text-sm"></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-xs text-text-secondary">Membre depuis</p>
+              <p class="text-sm font-medium text-text">{{ p.date_creation | date: 'MMMM yyyy' }}</p>
+            </div>
+          </div>
+          @if (p.last_login) {
+            <div class="flex items-center gap-3 py-3 last:pb-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <i class="pi pi-sign-in text-sm"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs text-text-secondary">Dernière connexion</p>
+                <p class="text-sm font-medium text-text">{{ p.last_login | date: 'dd/MM/yyyy à HH:mm' }}</p>
+              </div>
             </div>
           }
         </div>
-      }
+      </section>
+
+      <div class="space-y-6 xl:col-span-2">
+
+        <!-- Informations personnelles -->
+        <section class="rounded-xl border border-border bg-white p-5 sm:p-6">
+          <div class="mb-5 flex items-start justify-between gap-4">
+            <div class="flex items-start gap-3">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <i class="pi pi-user"></i>
+              </div>
+              <div>
+                <h2 class="text-lg font-semibold text-text">Informations personnelles</h2>
+                <p class="mt-1 text-sm text-text-secondary">Vos coordonnées visibles par l'équipe.</p>
+              </div>
+            </div>
+            @if (!modeEdition()) {
+              <p-button label="Modifier" icon="pi pi-pencil" size="small" severity="secondary" [outlined]="true" (onClick)="ouvrirEdition()" />
+            }
+          </div>
+
+          @if (!modeEdition()) {
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div class="rounded-lg bg-background p-4">
+                <p class="text-xs text-text-secondary">Prénom</p>
+                <p class="mt-1 text-sm font-semibold text-text">{{ p.prenom }}</p>
+              </div>
+              <div class="rounded-lg bg-background p-4">
+                <p class="text-xs text-text-secondary">Nom</p>
+                <p class="mt-1 text-sm font-semibold text-text">{{ p.nom }}</p>
+              </div>
+              <div class="rounded-lg bg-background p-4 min-w-0">
+                <p class="text-xs text-text-secondary">Email</p>
+                <p class="mt-1 truncate text-sm font-semibold text-text">{{ p.email }}</p>
+              </div>
+              <div class="rounded-lg bg-background p-4">
+                <p class="text-xs text-text-secondary">Téléphone</p>
+                <p class="mt-1 text-sm font-semibold text-text">{{ p.telephone || 'Non renseigné' }}</p>
+              </div>
+            </div>
+          } @else {
+            <form [formGroup]="formInfos" (ngSubmit)="enregistrerInfos()" class="space-y-4">
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="prenom" class="mb-2 block text-sm font-medium text-text">Prénom</label>
+                  <input id="prenom" pInputText formControlName="prenom" class="w-full" />
+                </div>
+                <div>
+                  <label for="nom" class="mb-2 block text-sm font-medium text-text">Nom</label>
+                  <input id="nom" pInputText formControlName="nom" class="w-full" />
+                </div>
+              </div>
+              <div>
+                <label for="telephone" class="mb-2 block text-sm font-medium text-text">Téléphone</label>
+                <input id="telephone" pInputText formControlName="telephone" class="w-full" />
+              </div>
+              <p class="text-xs text-text-secondary">L'email ne peut pas être modifié - contactez un administrateur si nécessaire.</p>
+              <div class="flex justify-end gap-3 pt-1">
+                <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="enregistrement()" (onClick)="annulerEdition()" />
+                <p-button type="submit" label="Enregistrer" icon="pi pi-check" [loading]="enregistrement()" />
+              </div>
+            </form>
+          }
+        </section>
+
+        <!-- Sécurité -->
+        <section class="rounded-xl border border-border bg-white p-5 sm:p-6">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="flex items-start gap-3">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <i class="pi pi-shield"></i>
+              </div>
+              <div>
+                <h2 class="text-lg font-semibold text-text">Sécurité</h2>
+                <p class="mt-1 text-sm text-text-secondary">Modifiez votre mot de passe de connexion.</p>
+              </div>
+            </div>
+            @if (!modeChangementMdp()) {
+              <p-button label="Changer le mot de passe" icon="pi pi-lock" size="small" severity="secondary" [outlined]="true" (onClick)="ouvrirChangementMdp()" />
+            }
+          </div>
+
+          @if (modeChangementMdp()) {
+            <div class="mt-5">
+              @if (erreurMdp()) {
+                <div class="mb-4 flex items-start gap-3 rounded-lg border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger" role="alert">
+                  <i class="pi pi-exclamation-circle mt-0.5"></i>
+                  <p>{{ erreurMdp() }}</p>
+                </div>
+              }
+              <form [formGroup]="formMdp" (ngSubmit)="enregistrerMdp()" class="space-y-4">
+                <div class="max-w-md">
+                  <label for="ancien_password" class="mb-2 block text-sm font-medium text-text">Mot de passe actuel</label>
+                  <p-password inputId="ancien_password" formControlName="ancien_password" [feedback]="false" [toggleMask]="true" fluid inputStyleClass="w-full" />
+                </div>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label for="nouveau_password" class="mb-2 block text-sm font-medium text-text">Nouveau mot de passe</label>
+                    <p-password inputId="nouveau_password" formControlName="nouveau_password" [feedback]="true" [toggleMask]="true" fluid inputStyleClass="w-full" />
+                  </div>
+                  <div>
+                    <label for="confirmation" class="mb-2 block text-sm font-medium text-text">Confirmer le nouveau mot de passe</label>
+                    <p-password inputId="confirmation" formControlName="confirmation" [feedback]="false" [toggleMask]="true" fluid inputStyleClass="w-full" />
+                  </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-1">
+                  <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="changementMdpEnCours()" (onClick)="annulerChangementMdp()" />
+                  <p-button type="submit" label="Mettre à jour" icon="pi pi-check" [loading]="changementMdpEnCours()" />
+                </div>
+              </form>
+            </div>
+          }
+        </section>
+
+        <!-- Activité récente -->
+        <section class="rounded-xl border border-border bg-white p-5 sm:p-6">
+          <div class="mb-5 flex items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <i class="pi pi-history"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-semibold text-text">Activité récente</h2>
+              <p class="mt-1 text-sm text-text-secondary">Vos dernières actions sur la plateforme.</p>
+            </div>
+          </div>
+
+          @if (journalService.monActiviteLoading()) {
+            <p class="py-4 text-sm text-text-secondary">Chargement...</p>
+          } @else if (journalService.monActivite().length === 0) {
+            <p class="py-4 text-sm text-text-secondary">Aucune activité enregistrée pour le moment.</p>
+          } @else {
+            <div class="divide-y divide-border">
+              @for (entree of journalService.monActivite(); track entree.id) {
+                <div class="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                  <div class="flex min-w-0 items-center gap-3">
+                    <p-tag [value]="badge(entree.action).label" [severity]="badge(entree.action).severity" styleClass="!text-xs !font-medium shrink-0" />
+                    <p class="truncate text-sm text-text">{{ entree.description || entree.action }}</p>
+                  </div>
+                  <span class="shrink-0 text-xs text-text-secondary">{{ tempsEcoule(entree.date_heure) }}</span>
+                </div>
+              }
+            </div>
+          }
+        </section>
+
+      </div>
     </div>
 
   }

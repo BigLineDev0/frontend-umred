@@ -4,7 +4,10 @@
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Tableau de bord' }]"
     title="Tableau de bord"
     subtitle="Voici un aperçu de vos réservations, notifications et laboratoires.">
-    <p-button actions label="Nouvelle réservation" icon="pi pi-plus" routerLink="/reservations/ajouter" />
+    <div actions class="flex flex-wrap gap-2">
+      <p-button label="Nouvelle réservation" icon="pi pi-plus" routerLink="/reservations/ajouter" />
+      <p-button label="Signaler une panne" icon="pi pi-bolt" severity="danger" [outlined]="true" (onClick)="panneModalVisible.set(true)" />
+    </div>
   </app-page-header>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-stagger">
@@ -129,3 +132,5 @@
     </div>
 
 </div>
+
+<app-signaler-panne-modal [(visible)]="panneModalVisible" />

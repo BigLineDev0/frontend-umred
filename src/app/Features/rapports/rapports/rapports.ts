@@ -15,6 +15,7 @@ import { PageHeader } from '../../../Shared/components/page-header/page-header';
 import { AnimatedNumber } from '../../../Shared/components/animated-number/animated-number';
 import { calculerPlage, dateLocale, isoDate, PeriodeCle } from '../../../Shared/utils/date-range';
 import { environment } from '../../../../environments/environment';
+import { couleurTheme } from '../../../Shared/utils/couleur-theme';
 
 const MOIS_ABREGES = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
@@ -105,7 +106,7 @@ export class Rapports implements OnInit {
       if (compteur.has(cle)) compteur.set(cle, (compteur.get(cle) ?? 0) + 1);
     }
 
-    return { labels, datasets: [{ label: 'Réservations', backgroundColor: '#1848D9', borderRadius: 6, data: cles.map(c => compteur.get(c) ?? 0) }] };
+    return { labels, datasets: [{ label: 'Réservations', backgroundColor: couleurTheme(), borderRadius: 6, data: cles.map(c => compteur.get(c) ?? 0) }] };
   });
 
   readonly chartOptions = {

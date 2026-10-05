@@ -3,8 +3,14 @@ import { inject } from '@angular/core';
 import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
+// Endpoints pour lesquels un 401 ne doit JAMAIS déclencher de refresh :
+// identifiants refusés, refresh lui-même refusé, ou déconnexion d'une
+// session déjà expirée (sinon logout -> 401 -> refresh -> logout... en boucle).
+const ENDPOINTS_SANS_REFRESH = ['/auth/login', '/auth/refresh', '/auth/logout'];
+
 let refreshingEnCours = false;
-const refreshSubject = new BehaviorSubject<string | null>(null);
+// null : refresh en cours ; chaîne : nouveau token ; false : refresh échoué.
+const refreshSubject = new BehaviorSubject<string | null | false>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -16,11 +22,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(requeteAvecToken).pipe(
     catchError((error: HttpErrorResponse) => {
-      // On ne tente un refresh que sur 401, et jamais sur les endpoints d'auth eux-mêmes
-      // (sinon un refresh échoué relancerait un refresh à l'infini).
-      const estEndpointAuth = req.url.includes('/auth/login') || req.url.includes('/auth/refresh');
-
-      if (error.status !== 401 || estEndpointAuth) {
+      const sansRefresh = ENDPOINTS_SANS_REFRESH.some(chemin => req.url.includes(chemin));
+      if (error.status !== 401 || sansRefresh) {
         return throwError(() => error);
       }
 
@@ -32,30 +35,27 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           switchMap(reponse => {
             refreshingEnCours = false;
             refreshSubject.next(reponse.access);
-            const requeteRejouee = req.clone({
-              setHeaders: { Authorization: `Bearer ${reponse.access}` }
-            });
-            return next(requeteRejouee);
+            return next(req.clone({ setHeaders: { Authorization: `Bearer ${reponse.access}` } }));
           }),
-          catchError(err => {
+          catchError(() => {
             refreshingEnCours = false;
+            // Les requêtes en attente sont libérées (en erreur) au lieu de
+            // rester suspendues indéfiniment avec leur indicateur de chargement.
+            refreshSubject.next(false);
             authService.logout();
-            return throwError(() => err);
+            return throwError(() => error);
           })
         );
       }
 
-      // Si un refresh est déjà en cours (plusieurs requêtes simultanées),
-      // on attend qu'il se termine plutôt que d'en déclencher un deuxième.
+      // Un refresh est déjà en cours (plusieurs requêtes simultanées) : on
+      // attend son résultat plutôt que d'en déclencher un deuxième.
       return refreshSubject.pipe(
-        filter(token => token !== null),
+        filter(nouveauToken => nouveauToken !== null),
         take(1),
-        switchMap(token => {
-          const requeteRejouee = req.clone({
-            setHeaders: { Authorization: `Bearer ${token}` }
-          });
-          return next(requeteRejouee);
-        })
+        switchMap(nouveauToken => nouveauToken
+          ? next(req.clone({ setHeaders: { Authorization: `Bearer ${nouveauToken}` } }))
+          : throwError(() => error)),
       );
     })
   );

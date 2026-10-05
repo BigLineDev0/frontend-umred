@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { Encadrant, Role, StatutAcademique, Utilisateur, UtilisateurPayload } from '../../../../Core/models/utilisateur.model';
 import { UtilisateurService } from '../../../../Core/services/utilisateur.service';
+import { messageErreur } from '../../../../Shared/utils/message-erreur';
 
 @Component({
   selector: 'app-utilisateur-form-modal',
@@ -113,7 +114,7 @@ export class UtilisateurFormModal {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: err.error?.email?.[0] ?? err.error?.encadrant?.[0] ?? 'Une erreur est survenue.',
+          detail: messageErreur(err),
         });
       },
     });

@@ -4,7 +4,10 @@
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Tableau de bord' }]"
     title="Tableau de bord"
     subtitle="Voici un aperçu de vos demandes et réservations.">
-    <p-button actions label="Nouvelle demande" icon="pi pi-plus" routerLink="/reservations/ajouter" />
+    <div actions class="flex flex-wrap gap-2">
+      <p-button label="Nouvelle demande" icon="pi pi-plus" routerLink="/reservations/ajouter" />
+      <p-button label="Signaler une panne" icon="pi pi-bolt" severity="danger" [outlined]="true" (onClick)="panneModalVisible.set(true)" />
+    </div>
   </app-page-header>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-stagger">
@@ -25,11 +28,11 @@
     </div>
   }
 
-  <div class="flex items-center gap-3 bg-secondary/10 border border-secondary/20 rounded-xl px-5 py-4 mb-7">
-    <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
-      <i class="pi pi-info-circle text-secondary text-sm"></i>
+  <div class="flex items-center gap-3 bg-primary-tint border border-primary-light/30 rounded-xl px-5 py-4 mb-7">
+    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0">
+      <i class="pi pi-info-circle text-primary text-sm"></i>
     </div>
-    <p class="text-sm text-[#536B92] leading-relaxed">
+    <p class="text-sm text-text-secondary leading-relaxed">
       Une demande étudiant doit être validée par un technicien ou un enseignant-chercheur avant confirmation.
     </p>
   </div>
@@ -137,3 +140,5 @@
   </div>
 
 </div>
+
+<app-signaler-panne-modal [(visible)]="panneModalVisible" />

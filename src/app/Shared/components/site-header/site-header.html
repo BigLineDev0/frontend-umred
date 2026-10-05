@@ -1,7 +1,7 @@
-<header class="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-b border-border">
+<header class="fixed top-0 inset-x-0 z-50 bg-white/85 backdrop-blur-md border-b border-border/80">
   <nav class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-    <a routerLink="/" class="flex items-center gap-2.5">
-      <img src="images/logo_umred.png" alt="Logo Umred" class="h-10 w-auto" />
+    <a routerLink="/" class="flex items-center" aria-label="SenLab, accueil">
+      <img src="images/logo-senlab.png" alt="SenLab" class="h-7 sm:h-8 w-auto" />
     </a>
 
     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-text-secondary">
@@ -21,7 +21,8 @@
 
     </div>
 
-    <button type="button" (click)="toggleMobileMenu()" class="md:hidden text-text">
+    <button type="button" (click)="toggleMobileMenu()" class="md:hidden flex h-10 w-10 items-center justify-center rounded-lg text-text hover:bg-background"
+      [attr.aria-expanded]="mobileMenuOpen()" aria-label="Menu">
       <i class="pi" [class.pi-bars]="!mobileMenuOpen()" [class.pi-times]="mobileMenuOpen()"></i>
     </button>
   </nav>
@@ -31,6 +32,7 @@
       <a routerLink="/" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [routerLinkActiveOptions]="optionsExactes" [class]="lienMobile">Accueil</a>
       <a routerLink="/a-propos" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [class]="lienMobile">À propos</a>
       <a routerLink="/" fragment="fonctionnalites" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [routerLinkActiveOptions]="optionsExactes" [class]="lienMobile">Fonctionnalités</a>
+      <a routerLink="/" fragment="etablissements" (click)="closeMobileMenu()" [class]="lienMobile">Établissements</a>
       <a routerLink="/contact" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [class]="lienMobile">Contact</a>
       <div class="flex gap-2 pt-2">
         @if (estConnecte()) {

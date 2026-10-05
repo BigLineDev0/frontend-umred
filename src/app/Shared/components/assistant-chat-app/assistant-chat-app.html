@@ -1,6 +1,6 @@
 <!-- Bouton flottant -->
 <button type="button" (click)="toggle()"
-  class="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary-dark text-white shadow-lg shadow-primary/30 flex items-center justify-center hover:scale-105 transition-transform assistant-pulse">
+  class="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-primary text-white shadow-lg shadow-primary/30 flex items-center justify-center">
   <i class="pi text-xl" [class.pi-comments]="!ouvert()" [class.pi-times]="ouvert()"></i>
 </button>
 
@@ -8,16 +8,14 @@
   <div class="fixed bottom-24 right-6 z-40 w-[380px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[75vh] bg-white rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden chat-panel-in">
 
     <!-- En-tête -->
-    <div class="bg-gradient-to-r from-primary to-primary-dark px-5 py-4 flex items-center justify-between shrink-0">
+    <div class="bg-linear-to-r from-navy to-primary px-5 py-4 flex items-center justify-between shrink-0">
       <div class="flex items-center gap-3 min-w-0">
         <div class="relative w-10 h-10 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-          <i class="pi pi-sparkles text-white text-lg"></i>
+          <i class="pi pi-sparkles text-primary-soft text-lg"></i>
         </div>
         <div class="min-w-0">
-          <p class="text-white font-semibold text-sm truncate">Assistant UMRED</p>
+          <p class="text-white font-semibold text-sm truncate">Assistant SenLab</p>
           <div class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full shrink-0"
-              [class]="erreurConnexion() ? 'bg-orange-300' : 'bg-emerald-300 assistant-pulse'"></span>
             <p class="text-white/75 text-[11px]">{{ erreurConnexion() ? 'Connexion instable' : 'En ligne' }}</p>
           </div>
         </div>

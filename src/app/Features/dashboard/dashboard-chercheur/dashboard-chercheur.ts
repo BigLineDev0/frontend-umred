@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 
 import { PageHeader } from '../../../Shared/components/page-header/page-header';
+import { SignalerPanneModal } from '../../maintenances/pages/signaler-panne-modal/signaler-panne-modal';
 import { MiniStatCard } from '../../../Shared/components/mini-stat-card/mini-stat-card';
 import { ReservationsCalendar } from '../../../Shared/components/reservations-calendar/reservations-calendar';
 
@@ -21,7 +22,7 @@ import { isoDate } from '../../../Shared/utils/date-range';
 @Component({
   selector: 'app-dashboard-chercheur',
   standalone: true,
-  imports: [DatePipe, RouterLink, ButtonModule, TagModule, PageHeader, MiniStatCard, ReservationsCalendar],
+  imports: [DatePipe, RouterLink, ButtonModule, TagModule, PageHeader, MiniStatCard, ReservationsCalendar, SignalerPanneModal],
   templateUrl: './dashboard-chercheur.html',
 })
 export class DashboardChercheur implements OnInit {
@@ -36,6 +37,7 @@ export class DashboardChercheur implements OnInit {
   readonly demandesEtudiants = signal<DemandeEnAttente[]>([]);
 
   readonly reservations = this.reservationService.reservations;
+  readonly panneModalVisible = signal(false);
 
   readonly validees = computed(() => this.reservations().filter(r => r.statut === 'VALIDEE').length);
   readonly annulees = computed(() => this.reservations().filter(r => r.statut === 'ANNULEE').length);

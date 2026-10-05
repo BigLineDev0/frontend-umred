@@ -3,12 +3,23 @@
   <!-- Panneau image -->
   <div class="hidden lg:block lg:w-1/2 relative">
     <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('images/labo-auth.png')"></div>
-    <div class="absolute inset-0 bg-black/45"></div>
-    <div class="relative h-full flex flex-col justify-center text-center p-16 pb-24">
-      <p class="text-2xl font-semibold text-white mb-4">L'excellence au service de la recherche</p>
-      <p class="text-gray-200 text-lg leading-relaxed max-w-md">
-        Plateforme intégrée pour la gestion intelligente de vos laboratoires et ressources scientifiques.
-      </p>
+    <div class="absolute inset-0 bg-linear-to-br from-navy/95 via-navy/80 to-primary/70"></div>
+    <div class="relative h-full flex flex-col justify-between p-12 xl:p-16">
+      <a routerLink="/" aria-label="SenLab, accueil">
+        <img src="images/logo-senlab-white.png" alt="SenLab" class="h-8 w-auto" />
+      </a>
+      <div class="max-w-md">
+        <p class="text-3xl font-semibold leading-snug text-white mb-4">L'excellence au service de la recherche</p>
+        <p class="text-white/75 text-base leading-relaxed">
+          Plateforme intégrée pour la gestion intelligente de vos laboratoires et ressources scientifiques.
+        </p>
+        <ul class="mt-8 space-y-3 text-sm text-white/85">
+          <li class="flex items-center gap-3"><span class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-primary-soft"><i class="pi pi-calendar text-xs"></i></span>Réservations sans conflit, en temps réel</li>
+          <li class="flex items-center gap-3"><span class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-primary-soft"><i class="pi pi-wrench text-xs"></i></span>Maintenance suivie de bout en bout</li>
+          <li class="flex items-center gap-3"><span class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-primary-soft"><i class="pi pi-sparkles text-xs"></i></span>Assistant IA connecté à vos données</li>
+        </ul>
+      </div>
+      <p class="text-xs text-white/45">© 2026 SenLab</p>
     </div>
   </div>
 

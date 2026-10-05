@@ -5,6 +5,7 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 
 import { PageHeader } from '../../../Shared/components/page-header/page-header';
+import { SignalerPanneModal } from '../../maintenances/pages/signaler-panne-modal/signaler-panne-modal';
 import { MiniStatCard } from '../../../Shared/components/mini-stat-card/mini-stat-card';
 import { ReservationsCalendar } from '../../../Shared/components/reservations-calendar/reservations-calendar';
 
@@ -17,7 +18,7 @@ import { isoDate } from '../../../Shared/utils/date-range';
 @Component({
   selector: 'app-dashboard-etudiant',
   standalone: true,
-  imports: [DatePipe, RouterLink, TagModule, ButtonModule, PageHeader, MiniStatCard, ReservationsCalendar],
+  imports: [DatePipe, RouterLink, TagModule, ButtonModule, PageHeader, MiniStatCard, ReservationsCalendar, SignalerPanneModal],
   templateUrl: './dashboard-etudiant.html',
 })
 export class DashboardEtudiant implements OnInit {
@@ -30,6 +31,7 @@ export class DashboardEtudiant implements OnInit {
   readonly encadrant = signal<string | null | undefined>(undefined);
 
   readonly reservations = this.reservationService.reservations;
+  readonly panneModalVisible = signal(false);
 
   readonly total = computed(() => this.reservations().length);
   readonly validees = computed(() => this.reservations().filter(r => r.statut === 'VALIDEE').length);

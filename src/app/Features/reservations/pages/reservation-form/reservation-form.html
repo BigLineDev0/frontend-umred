@@ -15,22 +15,22 @@
   }
 
   <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
-    <div class="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+    <div class="mx-auto max-w-4xl overflow-hidden rounded-xl border border-border bg-white shadow-sm">
 
       <!-- Laboratoire -->
-      <section class="border-b border-gray-200 p-5 sm:p-7">
+      <section class="border-b border-border p-5 sm:p-7">
         <div class="mb-6 flex items-center gap-3">
-          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-primary">
+          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-tint text-primary">
             <i class="pi pi-building"></i>
           </div>
           <div>
-            <h2 class="text-base font-semibold text-gray-900">Ressource à réserver</h2>
-            <p class="mt-0.5 text-xs text-gray-500">Choisissez le laboratoire concerné.</p>
+            <h2 class="text-base font-semibold text-text">Ressource à réserver</h2>
+            <p class="mt-0.5 text-xs text-text-secondary">Choisissez le laboratoire concerné.</p>
           </div>
         </div>
 
         <div>
-          <label for="laboratoire" class="mb-2 block text-sm font-medium text-gray-800">
+          <label for="laboratoire" class="mb-2 block text-sm font-medium text-text">
             Laboratoire <span class="text-red-600" aria-hidden="true">*</span>
           </label>
           <p-select
@@ -51,7 +51,7 @@
 
         <div class="mt-5">
           <div class="flex items-center justify-between mb-2">
-            <label for="projet" class="text-sm font-medium text-gray-800">Projet associé (optionnel)</label>
+            <label for="projet" class="text-sm font-medium text-text">Projet associé (optionnel)</label>
             <button type="button" class="text-xs text-primary font-medium hover:underline" (click)="projetFormVisible.set(true)">
               + Nouveau projet
             </button>
@@ -70,17 +70,17 @@
       </section>
 
       <!-- Date et horaire -->
-      <section class="border-b border-gray-200 p-5 sm:p-7">
+      <section class="border-b border-border p-5 sm:p-7">
         <div class="mb-6 flex items-center gap-3">
-          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-primary">
+          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-tint text-primary">
             <i class="pi pi-clock"></i>
           </div>
-          <h2 class="text-base font-semibold text-gray-900">Date et horaire</h2>
+          <h2 class="text-base font-semibold text-text">Date et horaire</h2>
         </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
-            <label for="date" class="mb-2 block text-sm font-medium text-gray-800">
+            <label for="date" class="mb-2 block text-sm font-medium text-text">
               Date <span class="text-red-600" aria-hidden="true">*</span>
             </label>
             <p-datepicker inputId="date" formControlName="date" dateFormat="dd/mm/yy" placeholder="jj/mm/aaaa"
@@ -91,7 +91,7 @@
           </div>
 
           <div>
-            <label for="heureDebut" class="mb-2 block text-sm font-medium text-gray-800">
+            <label for="heureDebut" class="mb-2 block text-sm font-medium text-text">
               Heure de début <span class="text-red-600" aria-hidden="true">*</span>
             </label>
             <input id="heureDebut" type="time" pInputText formControlName="heureDebut" class="w-full" />
@@ -101,7 +101,7 @@
           </div>
 
           <div>
-            <label for="heureFin" class="mb-2 block text-sm font-medium text-gray-800">
+            <label for="heureFin" class="mb-2 block text-sm font-medium text-text">
               Heure de fin <span class="text-red-600" aria-hidden="true">*</span>
             </label>
             <input id="heureFin" type="time" pInputText formControlName="heureFin" class="w-full" />
@@ -111,7 +111,7 @@
           </div>
         </div>
 
-        <div class="mt-4 flex items-start gap-2 text-xs text-gray-500">
+        <div class="mt-4 flex items-start gap-2 text-xs text-text-secondary">
           <i class="pi pi-info-circle mt-0.5 text-primary"></i>
           <span>
             Réservations possibles de {{ regles().ouverture }} à {{ regles().fermeture }}, pour une durée d'au moins
@@ -122,15 +122,15 @@
       </section>
 
       <!-- Équipements -->
-      <section class="border-b border-gray-200 p-5 sm:p-7">
+      <section class="border-b border-border p-5 sm:p-7">
         <div class="mb-5 flex items-center justify-between gap-4">
           <div class="flex items-center gap-3">
-            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-primary">
+            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-tint text-primary">
               <i class="pi pi-microchip"></i>
             </div>
             <div>
-              <h2 class="text-base font-semibold text-gray-900">Équipements</h2>
-              <p class="mt-0.5 text-xs text-gray-500">Optionnel — laissez vide pour réserver la salle seule.</p>
+              <h2 class="text-base font-semibold text-text">Équipements</h2>
+              <p class="mt-0.5 text-xs text-text-secondary">Optionnel — laissez vide pour réserver la salle seule.</p>
             </div>
           </div>
           @if (selectedEquipementsCount > 0) {
@@ -141,37 +141,37 @@
         </div>
 
         @if (equipementService.loading()) {
-          <p class="text-sm text-gray-500">Chargement des équipements...</p>
+          <p class="text-sm text-text-secondary">Chargement des équipements...</p>
         } @else if (!reservationForm.get('laboratoireId')?.value) {
-          <p class="text-sm text-gray-500">Sélectionnez d'abord un laboratoire pour voir ses équipements.</p>
+          <p class="text-sm text-text-secondary">Sélectionnez d'abord un laboratoire pour voir ses équipements.</p>
         } @else if (equipementsDuLaboratoire().length === 0) {
-          <p class="text-sm text-gray-500">Aucun équipement enregistré pour ce laboratoire.</p>
+          <p class="text-sm text-text-secondary">Aucun équipement enregistré pour ce laboratoire.</p>
         } @else {
           <div class="space-y-3">
             @for (equipement of equipementsDuLaboratoire(); track equipement.id) {
               <button type="button"
                 class="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors"
                 [class.border-primary]="isEquipementSelected(equipement.id)"
-                [class.bg-blue-50]="isEquipementSelected(equipement.id)"
-                [class.border-gray-200]="!isEquipementSelected(equipement.id)"
+                [class.bg-primary-tint]="isEquipementSelected(equipement.id)"
+                [class.border-border]="!isEquipementSelected(equipement.id)"
                 [class.opacity-60]="!equipement.disponible"
                 [disabled]="!equipement.disponible"
                 (click)="toggleEquipement(equipement)">
                 <div class="flex h-5 w-5 shrink-0 items-center justify-center rounded border"
                   [class.bg-primary]="isEquipementSelected(equipement.id)"
                   [class.border-primary]="isEquipementSelected(equipement.id)"
-                  [class.border-gray-300]="!isEquipementSelected(equipement.id)">
+                  [class.border-border]="!isEquipementSelected(equipement.id)">
                   @if (isEquipementSelected(equipement.id)) {
                     <i class="pi pi-check text-xs text-white"></i>
                   }
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="text-sm font-medium text-gray-900">{{ equipement.nom }}</p>
-                  <p class="text-xs text-gray-500">Réf. {{ equipement.numero_serie }}</p>
+                  <p class="text-sm font-medium text-text">{{ equipement.nom }}</p>
+                  <p class="text-xs text-text-secondary">Réf. {{ equipement.numero_serie }}</p>
                 </div>
                 <span class="shrink-0 rounded-full px-3 py-1 text-xs font-medium"
                   [class.bg-green-100]="equipement.disponible" [class.text-green-700]="equipement.disponible"
-                  [class.bg-gray-100]="!equipement.disponible" [class.text-gray-500]="!equipement.disponible">
+                  [class.bg-background]="!equipement.disponible" [class.text-text-secondary]="!equipement.disponible">
                   {{ equipement.disponible ? 'Disponible' : 'Indisponible' }}
                 </span>
               </button>
@@ -183,20 +183,20 @@
       <!-- Motif -->
       <section class="p-5 sm:p-7">
         <div class="mb-6 flex items-center gap-3">
-          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-primary">
+          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-tint text-primary">
             <i class="pi pi-file"></i>
           </div>
-          <h2 class="text-base font-semibold text-gray-900">Motif</h2>
+          <h2 class="text-base font-semibold text-text">Motif</h2>
         </div>
 
         <div>
-          <label for="motif" class="mb-2 block text-sm font-medium text-gray-800">
+          <label for="motif" class="mb-2 block text-sm font-medium text-text">
             Motif de la réservation <span class="text-red-600" aria-hidden="true">*</span>
           </label>
           <textarea pTextarea id="motif" formControlName="motif" rows="4" maxlength="255"
             placeholder="Ex. Analyse d'échantillons" class="w-full"></textarea>
           <div class="mt-1 flex justify-end">
-            <span class="text-xs" [class.text-gray-400]="motifLength < 255" [class.text-red-600]="motifLength >= 255">
+            <span class="text-xs" [class.text-text-secondary/70]="motifLength < 255" [class.text-red-600]="motifLength >= 255">
               {{ motifLength }} / 255
             </span>
           </div>
@@ -207,7 +207,7 @@
       </section>
 
       <!-- Actions -->
-      <div class="flex flex-col-reverse justify-end gap-3 border-t border-gray-200 bg-gray-50/60 p-5 sm:flex-row sm:p-7">
+      <div class="flex flex-col-reverse justify-end gap-3 border-t border-border bg-background/60 p-5 sm:flex-row sm:p-7">
         <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" (onClick)="goBack()" />
         <p-button type="submit" label="Vérifier et continuer" icon="pi pi-arrow-right" iconPos="right"
           [loading]="verificationEnCours()" [disabled]="loading() || verificationEnCours()" />
@@ -221,25 +221,25 @@
     <div class="space-y-4">
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <p class="mb-1 text-xs text-gray-500">Laboratoire</p>
-          <p class="font-semibold text-gray-900">{{ getLaboratoireName() }}</p>
+          <p class="mb-1 text-xs text-text-secondary">Laboratoire</p>
+          <p class="font-semibold text-text">{{ getLaboratoireName() }}</p>
         </div>
         <div>
-          <p class="mb-1 text-xs text-gray-500">Équipements</p>
-          <p class="font-semibold text-gray-900">{{ getEquipementsNames() }}</p>
+          <p class="mb-1 text-xs text-text-secondary">Équipements</p>
+          <p class="font-semibold text-text">{{ getEquipementsNames() }}</p>
         </div>
         <div>
-          <p class="mb-1 text-xs text-gray-500">Date</p>
-          <p class="font-semibold text-gray-900">{{ getFormattedDate() }}</p>
+          <p class="mb-1 text-xs text-text-secondary">Date</p>
+          <p class="font-semibold text-text">{{ getFormattedDate() }}</p>
         </div>
         <div>
-          <p class="mb-1 text-xs text-gray-500">Horaire</p>
-          <p class="font-semibold text-gray-900">{{ getHoraire() }}</p>
+          <p class="mb-1 text-xs text-text-secondary">Horaire</p>
+          <p class="font-semibold text-text">{{ getHoraire() }}</p>
         </div>
       </div>
       <div>
-        <p class="mb-1 text-xs text-gray-500">Motif</p>
-        <p class="text-sm text-gray-900">{{ reservationForm.get('motif')?.value }}</p>
+        <p class="mb-1 text-xs text-text-secondary">Motif</p>
+        <p class="text-sm text-text">{{ reservationForm.get('motif')?.value }}</p>
       </div>
 
       @if (verification(); as v) {
@@ -253,9 +253,9 @@
               <i class="pi" [class.pi-check-circle]="v.statut_prevu === 'VALIDEE'" [class.pi-hourglass]="v.statut_prevu !== 'VALIDEE'"></i>
               {{ v.statut_prevu === 'VALIDEE' ? 'Créneau libre : confirmation immédiate' : 'Créneau libre : demande soumise à validation' }}
             </p>
-            <p class="mt-1 text-sm text-gray-700">{{ v.raison_statut }}</p>
+            <p class="mt-1 text-sm text-text-secondary">{{ v.raison_statut }}</p>
             @if (v.file_attente?.nombre) {
-              <p class="mt-2 flex items-start gap-2 text-sm text-gray-700">
+              <p class="mt-2 flex items-start gap-2 text-sm text-text-secondary">
                 <i class="pi pi-users mt-0.5 text-primary"></i>
                 <span>{{ v.file_attente?.message }}</span>
               </p>
@@ -276,15 +276,15 @@
 
           @if (v.alternatives?.creneaux?.length) {
             <div>
-              <p class="mb-2 text-sm font-medium text-gray-900">Créneaux proposés</p>
+              <p class="mb-2 text-sm font-medium text-text">Créneaux proposés</p>
               <div class="space-y-2">
                 @for (alt of v.alternatives!.creneaux; track alt.date + alt.heure_debut) {
                   <button type="button"
                     class="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-white px-3 py-2.5 text-left transition-colors hover:border-primary"
                     (click)="appliquerAlternative(alt)">
                     <span>
-                      <span class="block text-sm font-medium text-gray-900">{{ alt.message }}</span>
-                      <span class="text-xs text-gray-500">{{ alt.date | date: 'EEEE d MMMM' }} · {{ alt.heure_debut }}–{{ alt.heure_fin }}</span>
+                      <span class="block text-sm font-medium text-text">{{ alt.message }}</span>
+                      <span class="text-xs text-text-secondary">{{ alt.date | date: 'EEEE d MMMM' }} · {{ alt.heure_debut }}–{{ alt.heure_fin }}</span>
                     </span>
                     <span class="shrink-0 text-xs font-medium text-primary">Choisir</span>
                   </button>
@@ -295,22 +295,22 @@
 
           @if (v.alternatives?.equipements_equivalents?.length) {
             <div>
-              <p class="mb-2 text-sm font-medium text-gray-900">Même créneau, équipement équivalent</p>
+              <p class="mb-2 text-sm font-medium text-text">Même créneau, équipement équivalent</p>
               <div class="flex flex-wrap gap-2">
                 @for (equiv of v.alternatives!.equipements_equivalents; track equiv.id) {
                   <button type="button"
                     class="rounded-lg border border-border bg-white px-3 py-2 text-sm transition-colors hover:border-primary hover:text-primary"
                     (click)="appliquerEquipementEquivalent(equiv)">
                     <i class="pi pi-sync mr-1.5"></i>{{ equiv.nom }}
-                    <span class="text-xs text-gray-500">au lieu de {{ equiv.remplace_nom }}</span>
+                    <span class="text-xs text-text-secondary">au lieu de {{ equiv.remplace_nom }}</span>
                   </button>
                 }
               </div>
             </div>
           }
 
-          <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-gray-50 px-3 py-2.5">
-            <span class="text-sm text-gray-600">Ce créneau précis vous intéresse ?</span>
+          <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-background px-3 py-2.5">
+            <span class="text-sm text-text-secondary">Ce créneau précis vous intéresse ?</span>
             @if (alerteCreee()) {
               <span class="text-sm font-medium text-green-700"><i class="pi pi-bell mr-1"></i>Vous serez prévenu s'il se libère.</span>
             } @else {

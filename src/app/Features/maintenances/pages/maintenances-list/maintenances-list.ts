@@ -7,7 +7,8 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { messageErreur } from '../../../../Shared/utils/message-erreur';
 
 import { FilterBar } from '../../../../Shared/components/filter-bar/filter-bar';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
@@ -37,6 +38,7 @@ import { MaintenanceService } from '../../../../Core/services/maintenance.servic
 export class MaintenancesList implements OnInit {
   private router = inject(Router);
   private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
   readonly maintenanceService = inject(MaintenanceService);
 
   readonly maintenances = this.maintenanceService.maintenances;
@@ -95,7 +97,7 @@ export class MaintenancesList implements OnInit {
   }
 
   onDemarrer(m: Maintenance): void {
-    this.maintenanceService.demarrer(m.id).subscribe();
+    this.maintenanceService.demarrer(m.id).subscribe({ error: (err) => this.signalerErreur(err) });
   }
 
   onAnnuler(m: Maintenance): void {
@@ -103,7 +105,11 @@ export class MaintenancesList implements OnInit {
       message: `Annuler la maintenance sur ${m.equipement_nom} ?`,
       header: "Confirmer l'annulation", icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Oui, annuler', rejectLabel: 'Retour', acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.maintenanceService.annuler(m.id).subscribe(),
+      accept: () => this.maintenanceService.annuler(m.id).subscribe({ error: (err) => this.signalerErreur(err) }),
     });
+  }
+
+  private signalerErreur(err: unknown): void {
+    this.messageService.add({ severity: 'error', summary: 'Action impossible', detail: messageErreur(err) });
   }
 }

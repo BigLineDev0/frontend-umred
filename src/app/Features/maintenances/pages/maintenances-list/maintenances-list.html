@@ -42,7 +42,7 @@
           <app-dot-label [color]="row.type === 'PREVENTIVE' ? 'primary' : 'accent'"
             [label]="row.type === 'PREVENTIVE' ? 'Préventive' : 'Corrective'" />
         </ng-template>
-        <ng-template appColumnTemplate="technicien_nom" let-row>{{ row.technicien_nom ?? '—' }}</ng-template>
+        <ng-template appColumnTemplate="technicien_nom" let-row>{{ row.technicien_nom ?? '-' }}</ng-template>
         <ng-template appColumnTemplate="date_planifiee" let-row>{{ row.date_planifiee | date: 'dd/MM/yyyy' }}</ng-template>
         <ng-template appColumnTemplate="statut" let-row><app-status-badge [statut]="row.statut" /></ng-template>
         <ng-template appColumnTemplate="actions" let-row>

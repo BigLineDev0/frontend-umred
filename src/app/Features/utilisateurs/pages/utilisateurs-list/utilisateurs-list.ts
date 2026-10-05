@@ -18,6 +18,7 @@ import { UtilisateurFormModal } from '../utilisateur-form-modal/utilisateur-form
 
 import { Encadrant, Utilisateur } from '../../../../Core/models/utilisateur.model';
 import { UtilisateurService } from '../../../../Core/services/utilisateur.service';
+import { messageErreur } from '../../../../Shared/utils/message-erreur';
 
 @Component({
   standalone: true,
@@ -130,7 +131,7 @@ export class UtilisateursList implements OnInit {
       },
       error: (err) => {
         this.assignationEnCours.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: err.error?.encadrant?.[0] ?? 'Assignation impossible.' });
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: messageErreur(err, 'Assignation impossible.') });
       },
     });
   }

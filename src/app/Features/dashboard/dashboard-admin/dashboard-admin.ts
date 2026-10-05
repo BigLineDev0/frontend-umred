@@ -20,6 +20,7 @@ import { JournalService } from '../../../Core/services/journal.service';
 import { dateLocale } from '../../../Shared/utils/date-range';
 import { MaintenanceFormModal } from '../../maintenances/pages/maintenance-form-modal/maintenance-form-modal';
 import { UtilisateurFormModal } from '../../utilisateurs/pages/utilisateur-form-modal/utilisateur-form-modal';
+import { couleurTheme } from '../../../Shared/utils/couleur-theme';
 
 const MOIS_ABREGES = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
@@ -87,7 +88,7 @@ export class DashboardAdmin implements OnInit {
       labels: mois.map(m => m.label),
       datasets: [{
         label: 'Réservations',
-        backgroundColor: '#1848D9',
+        backgroundColor: couleurTheme(),
         borderRadius: 6,
         data: mois.map(m => this.reservationService.reservations().filter(r => {
           const d = dateLocale(r.date);

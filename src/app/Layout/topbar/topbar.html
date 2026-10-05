@@ -1,4 +1,4 @@
-<header class="h-16 flex items-center gap-3 px-4 sm:px-6 bg-white border-b border-border shrink-0">
+<header class="h-16 flex items-center gap-3 px-4 sm:px-6 bg-white border-b border-border shrink-0 relative z-30">
   <p-button
     icon="pi pi-bars"
     [text]="true"
@@ -68,28 +68,40 @@
   </button>
 
   @if (notifPanelOpen()) {
-    <div class="absolute right-0 top-full mt-2 w-[360px] max-w-[90vw] bg-white border border-border rounded-xl shadow-lg z-50 overflow-hidden">
-      <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-        <p class="text-lg font-bold text-text">Notifications</p>
-        <button type="button" (click)="marquerToutesLues()" class="text-sm text-text-secondary hover:text-primary transition-colors">Tout marquer comme lu</button>
+    <!-- Mobile : panneau fixe pleine largeur sous la barre (ancré sous la
+         cloche, il débordait de l'écran). À partir de sm : menu déroulant. -->
+    <div role="dialog" aria-label="Notifications récentes"
+      class="fixed inset-x-2 top-[4.5rem] z-50 flex max-h-[calc(100dvh-5.5rem)] flex-col overflow-hidden rounded-xl border border-border bg-white shadow-xl
+             sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[380px] sm:max-h-[min(520px,calc(100dvh-6rem))]">
+      <div class="flex shrink-0 items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-border">
+        <p class="text-base sm:text-lg font-bold text-text">Notifications</p>
+        <div class="flex items-center gap-1">
+          @if (notificationService.unreadCount() > 0) {
+            <button type="button" (click)="marquerToutesLues()" class="text-xs sm:text-sm text-text-secondary hover:text-primary transition-colors">Tout marquer comme lu</button>
+          }
+          <button type="button" (click)="notifPanelOpen.set(false)" class="sm:hidden flex h-8 w-8 items-center justify-center rounded-full text-text-secondary hover:bg-background" aria-label="Fermer">
+            <i class="pi pi-times text-sm"></i>
+          </button>
+        </div>
       </div>
 
-      <div class="max-h-[360px] overflow-y-auto">
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         @for (notif of notificationService.recentes(); track notif.id) {
           <button type="button" (click)="ouvrirNotification(notif)"
-            class="w-full text-left flex gap-3 px-5 py-4 border-b border-border last:border-b-0 hover:bg-background transition-colors"
-            [ngClass]="{ 'bg-background': !notif.lu }">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" [ngClass]="styleFor(notif.type).bg">
+            class="relative w-full text-left flex gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-border last:border-b-0 hover:bg-background transition-colors"
+            [ngClass]="{ 'bg-primary/[0.03]': !notif.lu }">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0" [ngClass]="styleFor(notif.type).bg">
               <i [class]="styleFor(notif.type).icon" [ngClass]="styleFor(notif.type).color"></i>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between gap-2">
-                <p class="text-sm font-semibold text-text">{{ notif.titre }}</p>
-                <span class="text-xs text-text-secondary whitespace-nowrap shrink-0">{{ tempsEcoule(notif.date_envoi) }}</span>
+                <p class="min-w-0 break-words text-sm text-text" [class.font-semibold]="!notif.lu" [class.font-medium]="notif.lu">{{ notif.titre }}</p>
+                <span class="text-[11px] sm:text-xs text-text-secondary whitespace-nowrap shrink-0">{{ tempsEcoule(notif.date_envoi) }}</span>
               </div>
-              <p class="text-sm text-text-secondary mt-0.5">{{ notif.message }}</p>
-              @if (!notif.lu) { <span class="inline-block w-2 h-2 rounded-full bg-danger mt-2"></span> }
+              <!-- 3 lignes maximum : le texte complet est sur la page Notifications. -->
+              <p class="mt-0.5 line-clamp-3 break-words text-[13px] sm:text-sm text-text-secondary">{{ notif.message }}</p>
             </div>
+            @if (!notif.lu) { <span class="absolute right-3 bottom-3 h-2 w-2 rounded-full bg-primary" aria-label="Non lue"></span> }
           </button>
         }
         @if (notificationService.recentes().length === 0) {
@@ -98,7 +110,7 @@
       </div>
 
       <a routerLink="/notifications" (click)="notifPanelOpen.set(false)"
-         class="flex items-center justify-center gap-2 px-5 py-3 bg-background text-sm font-medium text-text hover:bg-border/40 transition-colors">
+         class="shrink-0 flex items-center justify-center gap-2 px-5 py-3 bg-background text-sm font-medium text-text hover:bg-border/40 transition-colors">
         Voir toutes les notifications <i class="pi pi-chevron-right text-xs"></i>
       </a>
     </div>
@@ -110,14 +122,14 @@
 
   <!-- Profil -->
   <div class="relative shrink-0">
-    <button type="button" (click)="toggleProfileMenu()" class="flex items-center gap-2 cursor-pointer">
-      <p-avatar [label]="initials()" shape="circle" class="!bg-primary/10 !text-primary text-1xl" size="large" />
+    <button type="button" (click)="toggleProfileMenu()" class="flex items-center gap-2 cursor-pointer rounded-full pr-2 hover:bg-background transition-colors">
+      <p-avatar [label]="initials()" shape="circle" class="!bg-primary-tint !text-primary !font-semibold ring-2 ring-white shadow-sm" size="large" />
       <span class="hidden md:block text-sm font-medium text-text">{{ user()?.prenom }}</span>
       <i class="pi pi-chevron-down hidden md:block text-xs text-text-secondary transition-transform" [class.rotate-180]="profileMenuOpen()"></i>
     </button>
 
     @if (profileMenuOpen()) {
-      <div class="absolute right-0 top-full mt-2 w-52 bg-white border border-border rounded-lg shadow-md py-1.5 z-50">
+      <div class="absolute right-0 top-full mt-2 w-56 bg-white border border-border rounded-xl shadow-lg shadow-navy/5 py-1.5 z-50">
         <div class="px-4 py-2 border-b border-border">
           <p class="text-sm font-medium text-text truncate">{{ user()?.prenom }} {{ user()?.nom }}</p>
         </div>

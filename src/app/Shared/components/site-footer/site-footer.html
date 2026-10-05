@@ -1,36 +1,40 @@
-<footer class="bg-sidebar text-white/70 py-14 px-5 sm:px-8">
-  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+<footer class="relative overflow-hidden bg-navy text-white/70 pt-16 pb-8 px-5 sm:px-8">
+  <!-- Halo pervenche discret, rappel de la fiole du logo -->
+  <div class="pointer-events-none absolute -top-32 -right-24 h-80 w-80 rounded-full bg-primary-light/15 blur-3xl"></div>
+
+  <div class="relative max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] gap-10">
     <div>
-      <p class="font-bold text-white text-lg mb-3">UMRED</p>
-      <p class="text-sm leading-relaxed">Plateforme de gestion intelligente des laboratoires de recherche universitaire.</p>
+      <img src="images/logo-senlab-white.png" alt="SenLab" class="h-8 w-auto mb-5" />
+      <p class="text-sm leading-relaxed max-w-xs">La plateforme de gestion intelligente des laboratoires de recherche et d'enseignement.</p>
     </div>
     <div>
-      <p class="font-semibold text-white mb-3 text-sm">Navigation</p>
-      <ul class="space-y-2 text-sm">
-        <li><a routerLink="/" class="hover:text-white transition-colors">Accueil</a></li>
-        <li><a routerLink="/a-propos" class="hover:text-white transition-colors">À propos</a></li>
-        <li><a routerLink="/" fragment="fonctionnalites" class="hover:text-white transition-colors">Fonctionnalités</a></li>
-        <li><a routerLink="/contact" class="hover:text-white transition-colors">Contact</a></li>
+      <p class="font-semibold text-white mb-4 text-sm">Navigation</p>
+      <ul class="space-y-2.5 text-sm">
+        <li><a routerLink="/" class="hover:text-primary-light transition-colors">Accueil</a></li>
+        <li><a routerLink="/a-propos" class="hover:text-primary-light transition-colors">À propos</a></li>
+        <li><a routerLink="/" fragment="fonctionnalites" class="hover:text-primary-light transition-colors">Fonctionnalités</a></li>
+        <li><a routerLink="/contact" class="hover:text-primary-light transition-colors">Contact</a></li>
       </ul>
     </div>
     <div>
-      <p class="font-semibold text-white mb-3 text-sm">Support & Légal</p>
-      <ul class="space-y-2 text-sm">
-        <li><a href="#" class="hover:text-white transition-colors">Condition d'utilisation</a></li>
-        <li><a href="#" class="hover:text-white transition-colors">Politique de confidentialité</a></li>
-        <li><a routerLink="/contact" class="hover:text-white transition-colors">Nous contacter</a></li>
+      <p class="font-semibold text-white mb-4 text-sm">Support & légal</p>
+      <ul class="space-y-2.5 text-sm">
+        <li><a href="#" class="hover:text-primary-light transition-colors">Conditions d'utilisation</a></li>
+        <li><a href="#" class="hover:text-primary-light transition-colors">Politique de confidentialité</a></li>
+        <li><a routerLink="/contact" class="hover:text-primary-light transition-colors">Nous contacter</a></li>
       </ul>
     </div>
     <div>
-      <p class="font-semibold text-white mb-3 text-sm">Contact</p>
-      <ul class="space-y-2 text-sm">
-        <li>UFR Santé, Université Iba Der Thiam de Thiès</li>
-        <li>contact@umred.sn</li>
-        <li>+221 33 800 00 00</li>
+      <p class="font-semibold text-white mb-4 text-sm">Contact</p>
+      <ul class="space-y-2.5 text-sm">
+        <li class="flex gap-2.5"><i class="pi pi-map-marker text-primary-light mt-0.5 text-xs"></i>Thiès, Sénégal</li>
+        <li class="flex gap-2.5"><i class="pi pi-envelope text-primary-light mt-0.5 text-xs"></i>contact&#64;senlab.sn</li>
+        <li class="flex gap-2.5"><i class="pi pi-phone text-primary-light mt-0.5 text-xs"></i>+221 33 800 00 00</li>
       </ul>
     </div>
   </div>
-  <div class="max-w-7xl mx-auto border-t border-white/10 mt-10 pt-6 text-xs text-white/50 text-center">
-    © 2026 UMRED - Tous droits réservés.
+  <div class="relative max-w-7xl mx-auto border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/45">
+    <span>© 2026 SenLab. Tous droits réservés.</span>
+    <span>Conçu au Sénégal pour la recherche.</span>
   </div>
 </footer>

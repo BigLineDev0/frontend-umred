@@ -17,6 +17,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DemandeEnAttente } from '../../../Core/models/reservation.model';
 import { ConsommableService } from '../../../Core/services/consommable.service';
+import { messageErreur } from '../../../Shared/utils/message-erreur';
 
 @Component({
   selector: 'app-dashboard-technicien',
@@ -177,7 +178,7 @@ export class DashboardTechnicien implements OnInit {
         this.actionEnCours.set(null);
         this.messageService.add({
           severity: 'error', summary: 'Action impossible',
-          detail: Array.isArray(err.error) ? err.error[0] : err.error?.detail ?? 'Une erreur est survenue.',
+          detail: messageErreur(err),
         });
       },
     });

@@ -45,7 +45,7 @@
   <!-- Chargement -->
   @if (loading()) {
     <div
-      class="flex min-h-64 items-center justify-center rounded-2xl border border-border bg-white"
+      class="flex min-h-64 items-center justify-center rounded-xl border border-border bg-white"
     >
       <div class="flex flex-col items-center gap-3">
         <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
@@ -79,7 +79,7 @@
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 animate-stagger">
         @for (laboratoire of filteredLaboratoires(); track laboratoire.id) {
           <article
-            class="flex min-h-[315px] flex-col rounded-2xl border border-border bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+            class="flex min-h-[315px] flex-col rounded-xl border border-border bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
           >
             <!-- Ligne supérieure -->
             <div class="flex items-start justify-between gap-4">
@@ -185,7 +185,7 @@
     <!-- Aucun résultat -->
     @else {
       <div
-        class="flex min-h-72 items-center justify-center rounded-2xl border border-border bg-white p-8"
+        class="flex min-h-72 items-center justify-center rounded-xl border border-border bg-white p-8"
       >
         <div class="max-w-md text-center">
           <div

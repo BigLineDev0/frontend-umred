@@ -1,17 +1,19 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, inject, signal, viewChild,
+} from '@angular/core';
 import { AvatarModule } from 'primeng/avatar';
-import { DividerModule } from 'primeng/divider';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { LayoutService } from '../../Core/services/layout.service';
 import { AuthService } from '../../Core/services/auth.service';
-import { NavItem } from '../../Core/models/nav-item.model';
+import { NavItem, NavSection } from '../../Core/models/nav-item.model';
 import { OrganisationService } from '../../Core/services/organisation.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [AvatarModule, DividerModule, RouterLink],
+  imports: [AvatarModule, RouterLink],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
@@ -20,19 +22,40 @@ export class Sidebar {
   private authService = inject(AuthService);
   private organisationService = inject(OrganisationService);
   private router = inject(Router);
+  private injector = inject(Injector);
+  private destroyRef = inject(DestroyRef);
   private currentUrl = signal(this.router.url);
 
   constructor() {
     this.router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe(event => this.currentUrl.set(event.urlAfterRedirects));
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(event => {
+        this.currentUrl.set(event.urlAfterRedirects);
+        afterNextRender(() => this.afficherLienActif(), { injector: this.injector });
+      });
+
+    // Hauteur de la fenêtre ou contenu du menu (changement de rôle) modifiés :
+    // les indicateurs de défilement sont recalculés.
+    afterNextRender(() => {
+      const el = this.nav()?.nativeElement;
+      if (!el) return;
+      const observateur = new ResizeObserver(() => this.majIndicateursDefilement());
+      observateur.observe(el);
+      if (el.firstElementChild) observateur.observe(el.firstElementChild);
+      this.destroyRef.onDestroy(() => observateur.disconnect());
+      this.afficherLienActif();
+    });
   }
 
   user = this.authService.currentUser;
 
   // Logo de l'établissement s'il en a configuré un, sinon celui de la plateforme.
-  logo = computed(() => this.organisationService.courante()?.logo ?? 'images/logo_umred.png');
-  nomEtablissement = computed(() => this.organisationService.courante()?.nom ?? 'UMRED');
+  logoPersonnalise = computed(() => !!this.organisationService.courante()?.logo);
+  logo = computed(() => this.organisationService.courante()?.logo ?? 'images/logo-senlab-white.png');
+  nomEtablissement = computed(() => this.organisationService.courante()?.nom ?? 'SenLab');
 
   initials = computed(() => {
     const u = this.user();
@@ -50,14 +73,6 @@ export class Sidebar {
     const role = this.user()?.role;
     return role ? labels[role] : '';
   });
-
-  // Communs à tous les rôles connectés
-  private commonItems: NavItem[] = [
-    { label: 'Laboratoires', icon: 'pi pi-building', route: '/laboratoires' },
-    { label: 'Équipements', icon: 'pi pi-cog', route: '/equipements' },
-    { label: 'Consommables', icon: 'pi pi-box', route: '/consommables' },
-    { label: 'Notifications', icon: 'pi pi-bell', route: '/notifications' },
-  ];
 
   // Route réelle : path: 'pannes' dans maintenances.routes.ts → /maintenances/pannes
   private equipementsEnPanneItem: NavItem = {
@@ -81,69 +96,151 @@ export class Sidebar {
     activeRoutes: ['/reservations/a-valider'],
   };
 
-  navItems = computed<NavItem[]>(() => {
+  private notificationsItem: NavItem = { label: 'Notifications', icon: 'pi pi-bell', route: '/notifications' };
+
+  // Ressources du laboratoire, communes à tous les rôles d'un établissement.
+  private ressourcesSection: NavSection = {
+    titre: 'Ressources',
+    items: [
+      { label: 'Laboratoires', icon: 'pi pi-building', route: '/laboratoires' },
+      { label: 'Équipements', icon: 'pi pi-cog', route: '/equipements' },
+      { label: 'Consommables', icon: 'pi pi-box', route: '/consommables' },
+    ],
+  };
+
+  // Liens regroupés par intention : le menu reste lisible même quand il est
+  // long (administrateur), au lieu d'une liste plate d'une douzaine d'entrées.
+  navSections = computed<NavSection[]>(() => {
     const role = this.user()?.role;
 
     switch (role) {
       case 'SUPER_ADMIN':
-        return [
-          { label: 'Console plateforme', icon: 'pi pi-globe', route: '/plateforme', exact: true },
-          { label: 'Notifications', icon: 'pi pi-bell', route: '/notifications' },
-        ];
+        return [{
+          titre: 'Plateforme',
+          items: [
+            { label: 'Console plateforme', icon: 'pi pi-globe', route: '/plateforme', exact: true },
+            this.notificationsItem,
+          ],
+        }];
 
       case 'ADMIN':
         return [
-          { label: 'Tableau de bord', icon: 'pi pi-table', route: '/admin/dashboard', exact: true },
-          this.pilotageItem,
-          this.reservationsAValiderItem,
-          ...this.commonItems,
-          this.equipementsEnPanneItem,
-          this.maintenancesItem,
-          { label: 'Utilisateurs', icon: 'pi pi-users', route: '/utilisateurs' },
-          { label: 'Rapports', icon: 'pi pi-chart-line', route: '/rapports' },
-          { label: "Journal d'activité", icon: 'pi pi-history', route: '/journal-activite' },
-          { label: 'Mon établissement', icon: 'pi pi-sliders-h', route: '/etablissement' },
+          {
+            titre: 'Pilotage',
+            items: [
+              { label: 'Tableau de bord', icon: 'pi pi-th-large', route: '/admin/dashboard', exact: true },
+              this.pilotageItem,
+              { label: 'Rapports', icon: 'pi pi-chart-line', route: '/rapports' },
+            ],
+          },
+          {
+            titre: 'Activité',
+            items: [
+              this.reservationsAValiderItem,
+              this.maintenancesItem,
+              this.equipementsEnPanneItem,
+              this.notificationsItem,
+            ],
+          },
+          this.ressourcesSection,
+          {
+            titre: 'Administration',
+            items: [
+              { label: 'Utilisateurs', icon: 'pi pi-users', route: '/utilisateurs' },
+              { label: "Journal d'activité", icon: 'pi pi-history', route: '/journal-activite' },
+              { label: 'Mon établissement', icon: 'pi pi-sliders-h', route: '/etablissement' },
+            ],
+          },
         ];
 
       case 'TECHNICIEN':
         return [
-          { label: 'Tableau de bord', icon: 'pi pi-table', route: '/technicien/dashboard', exact: true },
-          this.pilotageItem,
-          this.maintenancesItem,
-          this.reservationsAValiderItem,
-          ...this.commonItems,
-          this.equipementsEnPanneItem,
+          {
+            titre: 'Pilotage',
+            items: [
+              { label: 'Tableau de bord', icon: 'pi pi-th-large', route: '/technicien/dashboard', exact: true },
+              this.pilotageItem,
+            ],
+          },
+          {
+            titre: 'Activité',
+            items: [
+              this.maintenancesItem,
+              this.reservationsAValiderItem,
+              this.equipementsEnPanneItem,
+              this.notificationsItem,
+            ],
+          },
+          this.ressourcesSection,
         ];
 
       case 'CHERCHEUR':
         return [
-          { label: 'Tableau de bord', icon: 'pi pi-table', route: '/enseignant/dashboard', exact: true },
           {
-            label: 'Mes réservations',
-            icon: 'pi pi-file-edit',
-            route: '/enseignant/reservations',
-            activeRoutes: ['/reservations/ajouter'],
+            titre: 'Mon espace',
+            items: [
+              { label: 'Tableau de bord', icon: 'pi pi-th-large', route: '/enseignant/dashboard', exact: true },
+              {
+                label: 'Mes réservations',
+                icon: 'pi pi-file-edit',
+                route: '/enseignant/reservations',
+                activeRoutes: ['/reservations/ajouter'],
+              },
+              { ...this.reservationsAValiderItem, label: 'Demandes de mes étudiants' },
+              this.notificationsItem,
+            ],
           },
-          { ...this.reservationsAValiderItem, label: 'Demandes de mes étudiants' },
-          ...this.commonItems,
+          this.ressourcesSection,
         ];
 
       case 'ETUDIANT':
         return [
-          { label: 'Tableau de bord', icon: 'pi pi-table', route: '/etudiant/dashboard', exact: true },
           {
-            label: 'Mes demandes',
-            icon: 'pi pi-file-edit',
-            route: '/etudiant/mes-demandes',
-            activeRoutes: ['/reservations/ajouter'],
+            titre: 'Mon espace',
+            items: [
+              { label: 'Tableau de bord', icon: 'pi pi-th-large', route: '/etudiant/dashboard', exact: true },
+              {
+                label: 'Mes demandes',
+                icon: 'pi pi-file-edit',
+                route: '/etudiant/mes-demandes',
+                activeRoutes: ['/reservations/ajouter'],
+              },
+              this.notificationsItem,
+            ],
           },
-          ...this.commonItems,
+          this.ressourcesSection,
         ];
 
       default:
         return [];
     }
   });
+
+  // --- Défilement du menu ---
+  // La barre de défilement est masquée : à la place, un dégradé et un bouton
+  // chevron signalent qu'il reste des liens au-dessus ou en dessous.
+  private nav = viewChild<ElementRef<HTMLElement>>('nav');
+  peutDefilerHaut = signal(false);
+  peutDefilerBas = signal(false);
+
+  majIndicateursDefilement(): void {
+    const el = this.nav()?.nativeElement;
+    if (!el) return;
+    this.peutDefilerHaut.set(el.scrollTop > 4);
+    this.peutDefilerBas.set(el.scrollTop + el.clientHeight < el.scrollHeight - 4);
+  }
+
+  defiler(sens: 1 | -1): void {
+    const el = this.nav()?.nativeElement;
+    el?.scrollBy({ top: sens * el.clientHeight * 0.6, behavior: 'smooth' });
+  }
+
+  // Le lien actif peut se trouver hors de la zone visible (ex. « Mon
+  // établissement » en bas d'un long menu) : on le ramène dans le champ.
+  private afficherLienActif(): void {
+    const el = this.nav()?.nativeElement;
+    el?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' });
+  }
 
   isItemActive(item: NavItem): boolean {
     const url = this.normalizeUrl(this.currentUrl());

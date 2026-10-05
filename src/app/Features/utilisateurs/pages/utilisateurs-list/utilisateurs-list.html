@@ -51,7 +51,7 @@
           </div>
         </ng-template>
 
-        <ng-template appColumnTemplate="statut_academique" let-row>{{ statutsAcademiques[row.statut_academique] || '—' }}</ng-template>
+        <ng-template appColumnTemplate="statut_academique" let-row>{{ statutsAcademiques[row.statut_academique] || '-' }}</ng-template>
         <ng-template appColumnTemplate="encadrant_nom" let-row>
           @if (row.role === 'ETUDIANT') {
             @if (row.encadrant_nom) {
@@ -61,10 +61,10 @@
               <p-button label="Assigner" icon="pi pi-user-plus" size="small" severity="warn" [outlined]="true" (onClick)="ouvrirAssignation(row)" />
             }
           } @else {
-            <span class="text-text-secondary">—</span>
+            <span class="text-text-secondary">-</span>
           }
         </ng-template>
-        <ng-template appColumnTemplate="telephone" let-row>{{ row.telephone || '—' }}</ng-template>
+        <ng-template appColumnTemplate="telephone" let-row>{{ row.telephone || '-' }}</ng-template>
         <ng-template appColumnTemplate="statut_compte" let-row><app-status-badge [statut]="row.statut_compte" /></ng-template>
 
         <ng-template appColumnTemplate="actions" let-row>

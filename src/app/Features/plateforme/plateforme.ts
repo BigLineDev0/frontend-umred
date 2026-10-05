@@ -12,6 +12,7 @@ import {
 } from '../../Core/models/organisation.model';
 import { OrganisationService } from '../../Core/services/organisation.service';
 import { PageHeader } from '../../Shared/components/page-header/page-header';
+import { messageErreur } from '../../Shared/utils/message-erreur';
 
 /**
  * Console de l'éditeur du SaaS : combien d'établissements utilisent la
@@ -88,9 +89,7 @@ export class Plateforme implements OnInit {
       },
       error: (err) => {
         this.creationEnCours.set(false);
-        const corps = err.error ?? {};
-        const detail = corps.slug?.[0] ?? corps.admin_email?.[0] ?? corps.detail ?? 'Création impossible.';
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail });
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: messageErreur(err, 'Création impossible.') });
       },
     });
   }
@@ -110,6 +109,7 @@ export class Plateforme implements OnInit {
         const requete = suspendre ? this.organisationService.suspendre(org.id) : this.organisationService.reactiver(org.id);
         requete.subscribe({
           next: (maj) => this.organisations.update((liste) => liste.map((o) => (o.id === maj.id ? maj : o))),
+          error: (err) => this.messageService.add({ severity: 'error', summary: 'Action impossible', detail: messageErreur(err) }),
         });
       },
     });

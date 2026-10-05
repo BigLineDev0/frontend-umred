@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, Location } from '@angular/common';
 
 import { ButtonModule } from 'primeng/button';
@@ -21,6 +21,7 @@ import { ReservationService } from '../../../../Core/services/reservation.servic
 import { ProjetService } from '../../../../Core/services/projet.service';
 import { ProjetFormModal } from '../../../../Shared/components/projet-form-modal/projet-form-modal';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
+import { messageErreur } from '../../../../Shared/utils/message-erreur';
 
 @Component({
   standalone: true,
@@ -42,6 +43,7 @@ import { PageHeader } from '../../../../Shared/components/page-header/page-heade
 export class ReservationForm {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
 
   readonly laboratoireService = inject(LaboratoireService);
@@ -100,6 +102,22 @@ export class ReservationForm {
   ngOnInit(): void {
     this.laboratoireService.charger();
     this.projetService.charger();
+    this.preselectionner();
+  }
+
+  // Arrivée depuis « Réserver » (page laboratoire ou équipement) :
+  // ?laboratoire=<id>[&equipement=<id>] préremplit le formulaire, pour ne
+  // pas redemander ce que l'utilisateur vient de choisir.
+  private preselectionner(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const laboratoireId = Number(params.get('laboratoire'));
+    if (!laboratoireId) return;
+    this.reservationForm.patchValue({ laboratoireId });
+    this.onLaboratoireChange(laboratoireId);
+    const equipementId = Number(params.get('equipement'));
+    if (equipementId) {
+      this.reservationForm.patchValue({ equipementIds: [equipementId] });
+    }
   }
 
   // --- Sélection du laboratoire ---
@@ -288,18 +306,8 @@ export class ReservationForm {
     });
   }
 
-  // DRF renvoie soit un tableau de messages (nos ValidationError métier,
-  // ex. le conflit de créneau), soit un objet {champ: [messages]} pour les
-  // erreurs de validation de champ classiques.
-  private extraireMessageErreur(err: any): string {
-    const body = err.error;
-    if (Array.isArray(body)) return body[0];
-    if (body?.detail) return body.detail;
-    if (typeof body === 'object') {
-      const premierChamp = Object.values(body)[0];
-      if (Array.isArray(premierChamp)) return premierChamp[0] as string;
-    }
-    return 'Une erreur est survenue lors de la création de la réservation.';
+  private extraireMessageErreur(err: unknown): string {
+    return messageErreur(err, 'Une erreur est survenue lors de la création de la réservation.');
   }
 
   annulerConfirmation(): void {

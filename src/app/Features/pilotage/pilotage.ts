@@ -9,6 +9,7 @@ import { IndicateursPilotage, NiveauRecommandation, SynthesePilotage } from '../
 import { PilotageService } from '../../Core/services/pilotage.service';
 import { LaboratoireService } from '../../Core/services/laboratoire.service';
 import { PageHeader } from '../../Shared/components/page-header/page-header';
+import { couleurTheme } from '../../Shared/utils/couleur-theme';
 
 /**
  * Aide à la décision : la plateforme ne se contente plus d'enregistrer des
@@ -60,7 +61,7 @@ export class Pilotage implements OnInit {
   readonly graphiquePrevision = computed(() => {
     const ind = this.indicateurs();
     if (!ind) return null;
-    const primaire = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#1848D9';
+    const primaire = couleurTheme();
     return {
       labels: ind.prevision_semaine.map((j) => j.jour),
       datasets: [

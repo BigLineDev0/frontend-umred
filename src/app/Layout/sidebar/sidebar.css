@@ -1,4 +1,25 @@
 .sidebar-link-active {
-	background-color: rgb(255 255 255 / 0.1);
-	color: white;
+  background-color: rgb(255 255 255 / 0.1);
+  color: white;
+}
+
+/* Repère vertical collé au bord de la sidebar, dans la couleur pervenche du logo. */
+.sidebar-link-active::before {
+  content: '';
+  position: absolute;
+  left: -0.75rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background-color: var(--color-primary-light);
+}
+
+.sidebar-link-active i {
+  color: var(--color-primary-light);
+}
+
+@keyframes indiceDefilement {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(2px); }
 }

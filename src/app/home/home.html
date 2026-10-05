@@ -5,79 +5,51 @@
   style="background-image: url('/images/hero-bg.png'); background-position: center right;">
 
   <div class="max-w-7xl mx-auto px-5 sm:px-8 h-full">
-    <div class="max-w-2xl pt-16 mt-10 sm:pt-20">
-      <h1 class="text-4xl sm:text-5xl font-bold text-text leading-tight hero-in" style="animation-delay: .05s">
-        La gestion intelligente de votre <span class="text-primary">Laboratoire</span>
+    <div class="max-w-2xl pt-16 mt-6 sm:pt-20">
+      <span class="hero-in inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/80 backdrop-blur px-3 py-1 text-xs font-medium text-primary shadow-sm">
+        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary-tint"><i class="pi pi-sparkles text-[10px]"></i></span>
+        Assistant IA connecté à vos données
+      </span>
+      <h1 class="mt-5 text-4xl sm:text-5xl lg:text-[3.4rem] font-bold text-navy leading-[1.1] tracking-tight hero-in" style="animation-delay: .05s">
+        La gestion intelligente de votre
+        <span class="relative whitespace-nowrap text-primary">
+          laboratoire
+          <svg class="absolute -bottom-2 left-0 w-full h-3 text-primary-light" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M2 9C40 3 120 1 198 7" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </span>
       </h1>
       <p class="mt-5 text-text-secondary text-base leading-relaxed hero-in" style="animation-delay: .2s">
         Centralisez les réservations, les équipements et la maintenance de votre laboratoire dans une plateforme unique, simple et intelligente.
       </p>
       <div class="mt-8 flex flex-wrap gap-3 hero-in" style="animation-delay: .35s">
-        <p-button actions label="Accéder à la plateforme" [routerLink]="routeAccueil()" />
-        <p-button actions label="Découvrir UMRED" [outlined]="true" routerLink="/a-propos" />
-
+        <p-button actions label="Accéder à la plateforme" icon="pi pi-arrow-right" iconPos="right" size="large" [routerLink]="routeAccueil()" />
+        <p-button actions label="Découvrir SenLab" [outlined]="true" size="large" routerLink="/a-propos" styleClass="!bg-white/70" />
       </div>
+      <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-text-secondary hero-in" style="animation-delay: .5s">
+        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-primary text-xs"></i>Réservation en temps réel</li>
+        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-primary text-xs"></i>Maintenance suivie</li>
+        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-primary text-xs"></i>Multi-établissements</li>
+      </ul>
     </div>
   </div>
 </section>
 
 <!-- COMMENT ÇA MARCHE -->
 <section class="py-20 px-5 sm:px-8">
-  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
-    <div appReveal>
-      <h2 class="text-3xl font-bold text-text mb-9">Comment ça marche</h2>
-      <div class="space-y-7">
-        <div class="flex gap-5">
-          <span class="text-3xl font-bold text-primary/20 leading-none">01</span>
-          <div>
-            <p class="font-semibold text-text mb-1">Connectez-vous</p>
-            <p class="text-sm text-text-secondary leading-relaxed">Accédez à votre espace personnalisé avec vos identifiants institutionnels.</p>
-          </div>
-        </div>
-        <div class="flex gap-5">
-          <span class="text-3xl font-bold text-primary/20 leading-none">02</span>
-          <div>
-            <p class="font-semibold text-text mb-1">Réservez</p>
-            <p class="text-sm text-text-secondary leading-relaxed">Choisissez un équipement disponible et confirmez votre créneau en temps réel.</p>
-          </div>
-        </div>
-        <div class="flex gap-5">
-          <span class="text-3xl font-bold text-primary/20 leading-none">03</span>
-          <div>
-            <p class="font-semibold text-text mb-1">Suivez</p>
-            <p class="text-sm text-text-secondary leading-relaxed">Consultez l'état de vos réservations et signalez tout incident directement depuis la plateforme.</p>
-          </div>
-        </div>
-      </div>
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-10" appReveal>
+      <h2 class="text-3xl font-bold text-navy">Comment ça marche</h2>
+      <p class="mt-4 text-text-secondary max-w-2xl mx-auto leading-relaxed">
+        Connectez-vous, réservez un équipement en quelques clics et suivez vos demandes en temps réel : découvrez SenLab en moins de deux minutes.
+      </p>
     </div>
 
-    <button type="button" (click)="ouvrirVideo()" appReveal
-      class="group relative rounded-2xl overflow-hidden aspect-video w-full bg-sidebar hover:shadow-xl transition-shadow">
-      <div class="absolute inset-0 flex items-center justify-center">
-        <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-          <i class="pi pi-play text-white text-xl ml-1"></i>
-        </div>
-      </div>
-    </button>
-  </div>
-</section>
-
-@if (videoOuverte()) {
-  <div class="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4" (click)="fermerVideo()">
-    <button type="button" (click)="fermerVideo()" class="absolute top-6 right-6 text-white text-2xl"><i class="pi pi-times"></i></button>
-    <video src="/videos/presentation-umred.mp4" controls autoplay class="max-w-4xl w-full rounded-xl" (click)="$event.stopPropagation()"></video>
-  </div>
-}
-
-<!-- BANDE PRIMARY -->
-<section class="bg-primary py-16 px-5 sm:px-8">
-  <div class="max-w-7xl mx-auto" appReveal>
-    <h2 class="text-3xl font-bold text-white mb-10 max-w-lg">Une seule plateforme pour garder le contrôle.</h2>
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-8">
-      <div><p class="font-semibold text-white mb-1">Ressources</p><p class="text-sm text-white/70">Salles & équipements</p></div>
-      <div><p class="font-semibold text-white mb-1">Planning</p><p class="text-sm text-white/70">Réservations sans conflit</p></div>
-      <div><p class="font-semibold text-white mb-1">Maintenance</p><p class="text-sm text-white/70">Prévention & interventions</p></div>
-      <div><p class="font-semibold text-white mb-1">Pilotage</p><p class="text-sm text-white/70">Données & indicateurs</p></div>
+    <div class="rounded-2xl overflow-hidden bg-navy shadow-xl shadow-navy/15 ring-1 ring-border" appReveal>
+      <video src="videos/senlabo_comment_ca_marche.mp4" controls playsinline preload="metadata"
+        class="block w-full aspect-video" aria-label="Vidéo de présentation : comment fonctionne SenLab">
+        Votre navigateur ne peut pas lire cette vidéo.
+      </video>
     </div>
   </div>
 </section>
@@ -85,7 +57,9 @@
 <!-- FONCTIONNALITÉS -->
 <section id="fonctionnalites" class="scroll-mt-16 py-20 px-5 sm:px-8 bg-background">
   <div class="max-w-7xl mx-auto">
-    <h2 class="text-3xl font-bold text-text text-center mb-12" appReveal>Tout ce dont votre laboratoire a besoin</h2>
+    <div class="text-center mb-12" appReveal>
+      <h2 class="text-3xl font-bold text-navy">Tout ce dont votre laboratoire a besoin</h2>
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       @for (f of [
@@ -97,10 +71,10 @@
         { icon: 'pi-chart-bar', titre: 'Statistiques exportables', texte: 'Visualisez le taux d\'utilisation, exportez les rapports d\'activité et pilotez votre laboratoire par les données.', dark: false }
       ]; track f.titre; let i = $index) {
         <div appReveal [style.transition-delay.ms]="i * 70"
-          class="rounded-xl p-6 border transition-all hover:-translate-y-1 hover:shadow-lg"
-          [class]="f.dark ? 'bg-sidebar text-white border-transparent' : 'bg-white text-text border-border'">
+          class="rounded-2xl p-6 border transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-navy/5"
+          [class]="f.dark ? 'bg-navy text-white border-transparent' : 'bg-white text-text border-border hover:border-primary-light/50'">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
-            [class]="f.dark ? 'bg-white/10 text-white' : 'bg-primary/10 text-primary'">
+            [class]="f.dark ? 'bg-primary-light/20 text-primary-soft' : 'bg-primary-tint text-primary'">
             <i class="pi" [class]="f.icon"></i>
           </div>
           <p class="font-semibold mb-2">{{ f.titre }}</p>
@@ -112,22 +86,28 @@
 </section>
 
 <!-- FAQ -->
-<section class="py-20 px-5 sm:px-8 bg-[#EAF1FE]">
+<section class="py-20 px-5 sm:px-8 bg-primary-tint">
   <div class="max-w-3xl mx-auto">
-    <h2 class="text-3xl font-bold text-text text-center mb-10" appReveal>Questions fréquentes</h2>
+    <h2 class="text-3xl font-bold text-navy text-center mb-10" appReveal>Questions fréquentes</h2>
 
     <div class="space-y-3" appReveal>
       @for (item of [
-        { q: 'Qui peut utiliser la plateforme ?', r: 'UMRED Labo est destiné aux membres de l\'UFR Santé : chercheurs, enseignants-chercheurs, techniciens de laboratoire et étudiants en master ou doctorat. L\'accès est conditionné à une inscription validée par un administrateur.' },
+        { q: 'Qui peut utiliser la plateforme ?', r: 'SenLab est destiné aux établissements d\'enseignement supérieur et de recherche : chercheurs, enseignants-chercheurs, techniciens de laboratoire et étudiants en master ou doctorat. L\'accès est conditionné à une inscription validée par l\'administrateur de votre établissement.' },
         { q: 'Comment obtenir un compte ?', r: 'Les étudiants peuvent créer leur compte directement depuis la plateforme. Les autres profils reçoivent leurs identifiants par email, créés par l\'administrateur.' },
         { q: 'Les données du laboratoire sont-elles sécurisées ?', r: 'Oui. Chaque connexion est authentifiée de façon sécurisée, et les droits d\'accès sont strictement limités selon le rôle de chaque utilisateur.' },
         { q: 'L\'assistant a-t-il accès aux vraies données ?', r: 'Oui, une fois connecté, l\'assistant peut consulter vos réservations, vos équipements et vos maintenances réelles pour répondre précisément à vos questions.' },
         { q: 'La plateforme est-elle accessible sur mobile ?', r: 'Oui, l\'interface s\'adapte automatiquement à tous les écrans : ordinateur, tablette et smartphone.' }
       ]; track item.q; let i = $index) {
-        <div class="bg-white rounded-xl border border-border overflow-hidden">
-          <button type="button" (click)="toggleFaq(i)" class="w-full flex items-center justify-between px-5 py-4 text-left">
+        <div class="bg-white rounded-xl border border-border overflow-hidden transition-shadow" [class.shadow-md]="faqOuverte() === i" [class.shadow-navy/5]="faqOuverte() === i">
+          <button type="button" (click)="toggleFaq(i)" [attr.aria-expanded]="faqOuverte() === i"
+            class="group w-full flex items-center justify-between gap-4 px-5 py-4 text-left cursor-pointer transition-colors hover:bg-primary-tint/40">
             <span class="font-semibold text-text text-sm">{{ item.q }}</span>
-            <i class="pi text-text-secondary text-xs transition-transform duration-300" [class.pi-plus]="faqOuverte() !== i" [class.pi-times]="faqOuverte() === i" [class.rotate-180]="faqOuverte() === i"></i>
+            <!-- La pastille est un span : .pi (primeicons) impose display:inline-block,
+                 ce qui annulait le flex et décentrait l'icône. -->
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors duration-300"
+              [class]="faqOuverte() === i ? 'bg-primary text-white' : 'bg-primary-tint text-primary group-hover:bg-primary/15'">
+              <i class="pi pi-plus text-xs transition-transform duration-300" [class.rotate-45]="faqOuverte() === i"></i>
+            </span>
           </button>
           @if (faqOuverte() === i) {
             <p class="px-5 pb-4 text-sm text-text-secondary leading-relaxed">{{ item.r }}</p>
@@ -143,16 +123,16 @@
   style="background-image: url('/images/hero-cta.png');">
 
   <!-- Overlay bleu — teinte l'image plutôt que de simplement l'assombrir -->
-  <div class="absolute inset-0 -z-10 bg-primary/75"></div>
+  <div class="absolute inset-0 -z-10 bg-linear-to-br from-primary/90 to-navy/90"></div>
 
   <div class="relative mx-auto" appReveal>
-    <h2 class="text-3xl sm:text-5xl font-bold text-white mb-5">Gérez votre labo dès aujourd'hui</h2>
+    <h2 class="text-3xl font-bold text-white mb-5">Gérez votre labo dès aujourd'hui</h2>
     <p class="text-white/85 text-base sm:text-lg mb-9 leading-relaxed">
-      Rejoignez les équipes de l'UFR Santé qui centralisent déjà leur gestion sur UMRED Labo.
+      Rejoignez les établissements qui centralisent déjà la gestion de leurs laboratoires sur SenLab.
     </p>
     <a routerLink="/contact"
-      class="inline-block bg-white text-primary font-semibold px-3 py-3 rounded-lg hover:bg-background hover:-translate-y-0.5 hover:shadow-xl transition-all">
-      Demander un accès
+      class="inline-flex items-center gap-2 bg-white text-primary font-semibold px-6 py-3 rounded-lg hover:bg-primary-tint hover:-translate-y-0.5 hover:shadow-xl transition-all">
+      Demander un accès <i class="pi pi-arrow-right text-xs"></i>
     </a>
 
   </div>

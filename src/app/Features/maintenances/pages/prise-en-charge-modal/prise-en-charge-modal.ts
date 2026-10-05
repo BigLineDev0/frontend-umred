@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { Maintenance } from '../../../../Core/models/maintenance.model';
 import { MaintenanceService } from '../../../../Core/services/maintenance.service';
+import { messageErreur } from '../../../../Shared/utils/message-erreur';
 
 
 @Component({
@@ -24,7 +25,9 @@ export class PriseEnChargeModal {
 
   datePlanifiee = signal<Date | null>(null);
   submitting = signal(false);
-  today = new Date();
+  // Minimum = maintenant (et non aujourd'hui à minuit) : une heure déjà
+  // passée serait refusée par le serveur.
+  get maintenant(): Date { return new Date(); }
 
   onAnnuler(): void {
     this.visible.set(false);
@@ -36,6 +39,10 @@ export class PriseEnChargeModal {
     const date = this.datePlanifiee();
     if (!m || !date) {
       this.messageService.add({ severity: 'warn', summary: 'Date requise', detail: "Merci de choisir une date d'intervention." });
+      return;
+    }
+    if (date.getTime() < Date.now() - 5 * 60 * 1000) {
+      this.messageService.add({ severity: 'warn', summary: 'Date passée', detail: "Choisissez une date et une heure à venir." });
       return;
     }
 
@@ -50,7 +57,7 @@ export class PriseEnChargeModal {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: err.error?.detail ?? 'Une erreur est survenue.' });
+        this.messageService.add({ severity: 'error', summary: 'Prise en charge impossible', detail: messageErreur(err) });
       },
     });
   }

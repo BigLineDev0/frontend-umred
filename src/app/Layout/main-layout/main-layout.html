@@ -9,7 +9,8 @@
     <!-- Topbar -->
     <app-topbar />
 
-    <p-toast position="top-right" />
+    <!-- Sur téléphone, les toasts (25rem par défaut) dépassaient de l'écran. -->
+    <p-toast position="top-right" [breakpoints]="{ '640px': { width: 'calc(100vw - 1rem)', right: '0.5rem', left: '0.5rem' } }" />
     <!-- Contenu -->
     <main class="flex-1 overflow-y-auto bg-background p-4 sm:p-5 lg:p-6">
       <router-outlet />

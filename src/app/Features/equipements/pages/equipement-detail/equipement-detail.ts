@@ -16,11 +16,13 @@ import { AuthService } from '../../../../Core/services/auth.service';
 
 import QRCode from 'qrcode';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
+import { SignalerPanneModal } from '../../../maintenances/pages/signaler-panne-modal/signaler-panne-modal';
+import { couleurTheme } from '../../../../Shared/utils/couleur-theme';
 @Component({
   standalone: true,
   selector: 'app-equipement-detail',
   templateUrl: './equipement-detail.html',
-  imports: [PageHeader, RouterLink, ButtonModule, TagModule, TableModule, TooltipModule, ConfirmDialogModule, ChartModule],
+  imports: [PageHeader, RouterLink, ButtonModule, TagModule, TableModule, TooltipModule, ConfirmDialogModule, ChartModule, SignalerPanneModal],
   providers: [ConfirmationService],
 })
 export class EquipementDetail implements OnInit {
@@ -42,20 +44,21 @@ export class EquipementDetail implements OnInit {
 
   alerteUsure = signal<AlerteUsure | null>(null);
   statistiques = signal<StatistiquesEquipement | null>(null);
+  panneModalVisible = signal(false);
 
   // Utilisation sur 12 mois : réservations (barres) et heures (courbe).
   readonly graphiqueMensuel = computed(() => {
     const stats = this.statistiques();
     if (!stats) return null;
     const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-    const primaire = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#1848D9';
+    const primaire = couleurTheme();
     return {
       labels: stats.usage.mensuel.map((m) => mois[Number(m.mois.slice(5, 7)) - 1]),
       datasets: [
         { type: 'bar', label: 'Réservations', data: stats.usage.mensuel.map((m) => m.reservations),
           backgroundColor: primaire, borderRadius: 4, yAxisID: 'y' },
         { type: 'line', label: 'Heures', data: stats.usage.mensuel.map((m) => m.heures),
-          borderColor: '#F24C27', backgroundColor: '#F24C27', tension: 0.3, yAxisID: 'y1' },
+          borderColor: couleurTheme('--color-primary-light'), backgroundColor: couleurTheme('--color-primary-light'), tension: 0.3, yAxisID: 'y1' },
       ],
     };
   });
@@ -151,6 +154,12 @@ export class EquipementDetail implements OnInit {
     return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(date));
   }
 
+  // Le formulaire de réservation s'ouvre avec ce laboratoire et cet équipement déjà sélectionnés.
+  reserver(): void {
+    const e = this.equipement();
+    if (e) this.router.navigate(['/reservations/ajouter'], { queryParams: { laboratoire: e.laboratoire, equipement: e.id } });
+  }
+
   modifierEquipement(): void {
     const e = this.equipement();
     if (e) this.router.navigate(['/equipements', e.id, 'modifier']);
@@ -199,7 +208,16 @@ export class EquipementDetail implements OnInit {
     lien.click();
   }
 
-  allerVersSignalement(): void {
-    this.router.navigate(['/maintenances'], { queryParams: { signaler: this.equipement()?.id } });
+  // Corrigé : l'ancien bouton menait vers /maintenances, page réservée aux
+  // techniciens et admins ; chercheurs et étudiants ne pouvaient donc pas
+  // signaler une panne. Le signalement se fait désormais ici, pour tous.
+  signalerPanne(): void {
+    this.panneModalVisible.set(true);
+  }
+
+  // L'équipement passe EN_PANNE : on recharge sa fiche et son historique.
+  apresSignalement(): void {
+    const e = this.equipement();
+    if (e) this.loadEquipement(e.id);
   }
 }

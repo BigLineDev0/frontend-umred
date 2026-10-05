@@ -1,9 +1,9 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, throwError } from 'rxjs';
 import {
-  ActivationResponse, CurrentUser, LoginResponse, RegisterPayload, RegisterResponse, UserRole,
+  ActivationResponse, CurrentUser, LoginResponse, RefreshResponse, RegisterPayload, RegisterResponse, UserRole,
 } from '../models/auth.model';
 import { environment } from '../../../environments/environment';
 import { OrganisationService } from './organisation.service';
@@ -50,9 +50,11 @@ export class AuthService {
 
   logout(): void {
     const refresh = this.getRefreshToken();
-    this.http.post(`${environment.apiUrl}/auth/logout/`, { refresh }).subscribe({
-      error: () => {}, // best-effort : on déconnecte localement même si l'appel échoue
-    });
+    // Best-effort : on déconnecte localement même si l'appel échoue. Sans
+    // refresh token (session déjà expirée), l'appel est inutile.
+    if (refresh) {
+      this.http.post(`${this.baseUrl}/auth/logout/`, { refresh }).subscribe({ error: () => {} });
+    }
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('current_user');
@@ -62,13 +64,16 @@ export class AuthService {
     this.router.navigate(['/connexion']);
   }
 
-  refreshToken(): Observable<LoginResponse> {
+  refreshToken(): Observable<RefreshResponse> {
     const refresh = this.getRefreshToken();
-    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/refresh/`, { refresh }).pipe(
+    if (!refresh) {
+      return throwError(() => new Error('Aucune session à renouveler.'));
+    }
+    return this.http.post<RefreshResponse>(`${this.baseUrl}/auth/refresh/`, { refresh }).pipe(
       tap(reponse => {
         localStorage.setItem('access_token', reponse.access);
-        if ((reponse as any).refresh) {
-          localStorage.setItem('refresh_token', (reponse as any).refresh);
+        if (reponse.refresh) {
+          localStorage.setItem('refresh_token', reponse.refresh);
         }
       })
     );
@@ -106,8 +111,15 @@ export class AuthService {
   }
 
   private lireUtilisateurStocke(): CurrentUser | null {
-    const brut = localStorage.getItem('current_user');
-    return brut ? JSON.parse(brut) : null;
+    // Donnée locale potentiellement corrompue : on repart déconnecté plutôt
+    // que de bloquer le démarrage de l'application.
+    try {
+      const brut = localStorage.getItem('current_user');
+      return brut ? (JSON.parse(brut) as CurrentUser) : null;
+    } catch {
+      localStorage.removeItem('current_user');
+      return null;
+    }
   }
 
   verifierJeton(jeton: string): Observable<{ valide: boolean; prenom?: string }> {

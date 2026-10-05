@@ -39,8 +39,8 @@
     <section>
       <h2 class="mb-4 text-lg font-semibold text-text">Dates d'intervention</h2>
       <div class="rounded-xl border border-border bg-white p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div><p class="font-semibold text-text">Début réel</p><p class="text-sm text-text-secondary">{{ m.date_debut ? (m.date_debut | date: 'dd/MM/yyyy HH:mm') : '—' }}</p></div>
-        <div><p class="font-semibold text-text">Fin réelle</p><p class="text-sm text-text-secondary">{{ m.date_fin ? (m.date_fin | date: 'dd/MM/yyyy HH:mm') : '—' }}</p></div>
+        <div><p class="font-semibold text-text">Début réel</p><p class="text-sm text-text-secondary">{{ m.date_debut ? (m.date_debut | date: 'dd/MM/yyyy HH:mm') : '-' }}</p></div>
+        <div><p class="font-semibold text-text">Fin réelle</p><p class="text-sm text-text-secondary">{{ m.date_fin ? (m.date_fin | date: 'dd/MM/yyyy HH:mm') : '-' }}</p></div>
       </div>
     </section>
 
@@ -86,7 +86,7 @@
           <div class="flex gap-3">
             <span class="mt-1.5 w-2 h-2 rounded-full bg-primary shrink-0"></span>
             <div>
-              <p class="text-sm font-medium text-text">{{ etape.date | date: 'dd MMMM yyyy — HH:mm' }}</p>
+              <p class="text-sm font-medium text-text">{{ etape.date | date: 'dd MMMM yyyy - HH:mm' }}</p>
               <p class="text-sm text-text-secondary">{{ etape.libelle }}</p>
             </div>
           </div>

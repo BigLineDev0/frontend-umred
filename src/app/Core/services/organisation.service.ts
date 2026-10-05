@@ -6,8 +6,16 @@ import { environment } from '../../../environments/environment';
 import {
   NouvelleOrganisation, Organisation, OrganisationPlateforme, OrganisationPublique, StatistiquesPlateforme,
 } from '../models/organisation.model';
+import { COULEUR_PRIMAIRE_SENLAB, PALETTE_PRIMAIRE_SENLAB } from '../theme/senlab-palette';
 
-const COULEUR_PAR_DEFAUT = '#1848D9';
+// Valeurs par défaut de l'ancienne charte (encore celles du modèle backend) :
+// un établissement qui ne les a jamais modifiées reçoit la charte SenLab.
+const COULEURS_PAR_DEFAUT_HERITEES = ['#1848D9'];
+const SIDEBARS_PAR_DEFAUT_HERITEES = ['#0F172A', '#0F2158'];
+const VARIABLES_PRIMAIRES = [
+  '--color-primary', '--color-primary-dark', '--color-primary-light', '--color-primary-soft', '--color-primary-tint',
+];
+
 
 @Injectable({ providedIn: 'root' })
 export class OrganisationService {
@@ -34,7 +42,7 @@ export class OrganisationService {
 
   reinitialiser(): void {
     this.courante.set(null);
-    this.appliquerCouleurs(COULEUR_PAR_DEFAUT, null);
+    this.appliquerCouleurs(COULEUR_PRIMAIRE_SENLAB, null);
   }
 
   // --- Public (inscription) ---
@@ -72,20 +80,33 @@ export class OrganisationService {
 
   /**
    * Personnalisation SaaS : la couleur de l'établissement remplace le bleu
-   * par défaut, à la fois dans les classes Tailwind (variables CSS
-   * --color-*) et dans les composants PrimeNG (palette « primary »
-   * recalculée de 50 à 950 à partir d'une seule couleur).
+   * SenLab, à la fois dans les classes Tailwind (variables CSS --color-*)
+   * et dans les composants PrimeNG (palette « primary » recalculée de 50
+   * à 950 à partir d'une seule couleur). Sans personnalisation, ou avec
+   * les anciennes valeurs par défaut du backend, la charte SenLab s'applique.
    */
   private appliquerCouleurs(primaire: string, secondaire: string | null): void {
     const racine = document.documentElement.style;
-    const nuances = palette(primaire) as Record<string, string>;
-    racine.setProperty('--color-primary', primaire);
-    racine.setProperty('--color-primary-dark', nuances['700'] ?? primaire);
-    if (secondaire) {
+    const charte = COULEURS_PAR_DEFAUT_HERITEES.includes(primaire.toUpperCase())
+      || primaire.toUpperCase() === COULEUR_PRIMAIRE_SENLAB;
+
+    if (charte) {
+      for (const variable of VARIABLES_PRIMAIRES) racine.removeProperty(variable);
+      updatePrimaryPalette(PALETTE_PRIMAIRE_SENLAB);
+    } else {
+      const nuances = palette(primaire) as Record<string, string>;
+      racine.setProperty('--color-primary', primaire);
+      racine.setProperty('--color-primary-dark', nuances['700'] ?? primaire);
+      racine.setProperty('--color-primary-light', nuances['300'] ?? primaire);
+      racine.setProperty('--color-primary-soft', nuances['200'] ?? primaire);
+      racine.setProperty('--color-primary-tint', nuances['50'] ?? primaire);
+      updatePrimaryPalette(nuances);
+    }
+
+    if (secondaire && !SIDEBARS_PAR_DEFAUT_HERITEES.includes(secondaire.toUpperCase())) {
       racine.setProperty('--color-sidebar', secondaire);
     } else {
       racine.removeProperty('--color-sidebar');
     }
-    updatePrimaryPalette(nuances);
   }
 }

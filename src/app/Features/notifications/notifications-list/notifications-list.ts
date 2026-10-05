@@ -21,6 +21,7 @@ const NOTIF_STYLE: Record<TypeNotification, { icon: string; bg: string; color: s
 
 const PAGE_SIZE = 10;
 
+import { routeNotification } from '../../../Shared/utils/notification-route';
 @Component({
   standalone: true,
   selector: 'app-notifications-list',
@@ -72,17 +73,9 @@ export class NotificationsList implements OnInit {
 
   ouvrirNotification(n: Notification): void {
     if (!n.lu) this.notificationService.marquerLue(n.id).subscribe();
-    if (n.entite_type_nom === 'maintenance' && n.entite_id) {
-      this.router.navigate(['/maintenances', n.entite_id]);
-      return;
-    }
-    if (n.entite_type_nom === 'reservation') {
-      const role = this.authService.currentUser()?.role;
-      const route = role === 'ETUDIANT' ? '/etudiant/mes-demandes'
-        : role === 'CHERCHEUR' ? '/enseignant/reservations'
-        : '/reservations/a-valider';
-      this.router.navigate([route]);
-    }
+    const cible = routeNotification(n, this.authService.currentUser()?.role);
+    // Déjà sur la page des notifications : rien à ouvrir de plus.
+    if (cible !== '/notifications') this.router.navigate(Array.isArray(cible) ? cible : [cible]);
   }
 
   tempsEcoule(dateIso: string): string {
