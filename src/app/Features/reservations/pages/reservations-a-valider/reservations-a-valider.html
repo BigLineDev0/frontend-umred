@@ -3,9 +3,26 @@
   <app-page-header
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: isAdmin() ? 'Réservations' : 'Réservations à valider' }]"
     [title]="isAdmin() ? 'Réservations' : 'Réservations à valider'"
-    [subtitle]="isAdmin() ? 'Vue d\'ensemble de toutes les réservations de la plateforme.' : 'Consultez et traitez les demandes de réservation.'">
+    [subtitle]="isAdmin() ? 'Traitez les demandes, suivez qui a décidé quoi et gérez les archives.' : 'Traitez les demandes et retrouvez l\'historique de vos décisions.'">
   </app-page-header>
 
+  <!-- Onglets : chaque réservation n'apparaît que dans une liste à la fois
+       (à traiter, traitée, archivée). -->
+  <nav class="flex gap-1 overflow-x-auto border-b border-border" role="tablist">
+    @for (o of onglets(); track o.id) {
+      <button type="button" role="tab" [attr.aria-selected]="onglet() === o.id" (click)="changerOnglet(o.id)"
+        class="-mb-px flex shrink-0 items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors"
+        [class.border-primary]="onglet() === o.id" [class.text-primary]="onglet() === o.id"
+        [class.border-transparent]="onglet() !== o.id" [class.text-text-secondary]="onglet() !== o.id">
+        <i [class]="o.icon"></i> {{ o.label }}
+        @if (o.compteur) {
+          <span class="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent">{{ o.compteur }}</span>
+        }
+      </button>
+    }
+  </nav>
+
+  @if (onglet() === 'file') {
   <!-- File d'attente intelligente : ordonnée par créneau, chaque demande
        porte une recommandation motivée calculée par le serveur. -->
   <section class="rounded-xl border border-border bg-white">
@@ -19,13 +36,19 @@
           Demandes que vous pouvez traiter, avec leur rang de priorité (projet, puis statut académique) et une recommandation.
         </p>
       </div>
-      <p-button icon="pi pi-refresh" [text]="true" [rounded]="true" (onClick)="chargerFile()" [loading]="fileLoading()" ariaLabel="Actualiser" />
+      <p-button icon="pi pi-refresh" [text]="true" [rounded]="true" (onClick)="chargerFile()" [loading]="fileLoading()" ariaLabel="Actualiser" pTooltip="Actualiser" />
     </div>
 
     @if (fileLoading() && file().length === 0) {
       <p class="p-6 text-center text-sm text-text-secondary"><i class="pi pi-spin pi-spinner mr-2"></i>Analyse des demandes...</p>
     } @else if (file().length === 0) {
-      <p class="p-6 text-center text-sm text-text-secondary">Aucune demande en attente. Tout est à jour.</p>
+      <div class="p-8 text-center">
+        <i class="pi pi-check-circle text-2xl text-green-600"></i>
+        <p class="mt-2 text-sm font-medium text-text">Aucune demande en attente. Tout est à jour.</p>
+        <button type="button" class="mt-1 text-xs text-primary hover:underline" (click)="changerOnglet('traitees')">
+          {{ isAdmin() ? 'Voir toutes les réservations' : 'Voir les demandes que vous avez traitées' }}
+        </button>
+      </div>
     } @else {
       <ul class="divide-y divide-border">
         @for (d of file(); track d.id) {
@@ -71,18 +94,32 @@
     }
   </section>
 
-  @if (!isEncadrant()) {
-  <h2 class="text-base font-semibold text-text">Historique des réservations</h2>
-  <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md animate-stagger">
-    <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="totalEnAttente()" label="En attente de validation" />
-    <app-mini-stat-card icon="pi pi-list" color="primary" [value]="reservations().length" label="Total (tous statuts)" />
+  } @else {
+  <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 animate-stagger">
+    @if (onglet() === 'archives') {
+      <app-mini-stat-card icon="pi pi-box" color="primary" [value]="stats().total" label="Réservations archivées" />
+    } @else {
+      <app-mini-stat-card icon="pi pi-list" color="primary" [value]="stats().total"
+        [label]="isAdmin() ? 'Réservations actives' : 'Demandes traitées'" />
+      <app-mini-stat-card icon="pi pi-check-circle" color="success" [value]="stats().validees"
+        [label]="isAdmin() ? 'Validées' : 'Validées par moi'" />
+      <app-mini-stat-card icon="pi pi-times-circle" color="accent" [value]="stats().refusees"
+        [label]="isAdmin() ? 'Refusées' : 'Refusées par moi'" />
+      @if (isAdmin()) {
+        <app-mini-stat-card icon="pi pi-clock" color="accent" [value]="stats().enAttente" label="En attente" />
+      }
+    }
   </div>
 
-  <app-filter-bar searchPlaceholder="Rechercher par demandeur, laboratoire..." (searchChange)="setFilter('search', $event)">
+  <app-filter-bar searchPlaceholder="Rechercher par demandeur, laboratoire, validateur..." (searchChange)="setFilter('search', $event)">
     <p-select [options]="statusOptions" optionLabel="label" optionValue="value" placeholder="Statut"
       [ngModel]="filters().status" (ngModelChange)="setFilter('status', $event)" />
     <p-select [options]="laboratoireOptions()" optionLabel="label" optionValue="value" placeholder="Laboratoire : Tous"
       [ngModel]="filters().laboratoire" (ngModelChange)="setFilter('laboratoire', $event)" />
+    @if (isAdmin()) {
+      <p-select [options]="traiteParOptions()" optionLabel="label" optionValue="value" placeholder="Traitée par"
+        [ngModel]="filters().traitePar" (ngModelChange)="setFilter('traitePar', $event)" />
+    }
   </app-filter-bar>
 
   @if (loading()) {
@@ -97,7 +134,7 @@
     </div>
   } @else {
     <div class="bg-white border border-border rounded-xl overflow-hidden">
-      <app-data-table [columns]="columns" [data]="filteredReservations()" [rows]="10">
+      <app-data-table [columns]="columns()" [data]="filteredReservations()" [rows]="10">
         <ng-template appColumnTemplate="demandeur_nom" let-row>
           <span class="font-medium text-text">{{ row.demandeur_nom }}</span>
         </ng-template>
@@ -116,18 +153,47 @@
           {{ row.heure_debut.slice(0,5) }} – {{ row.heure_fin.slice(0,5) }}
         </ng-template>
         <ng-template appColumnTemplate="statut" let-row><app-status-badge [statut]="row.statut" /></ng-template>
+        <!-- Traçabilité : qui a statué, et quand. -->
+        <ng-template appColumnTemplate="traitement" let-row>
+          @if (row.validateur_nom) {
+            <div class="leading-tight">
+              <p class="text-sm font-medium text-text">{{ row.validateur_nom }}</p>
+              <p class="text-xs text-text-secondary">
+                {{ row.validateur_role }} · {{ row.date_validation | date: 'dd/MM HH:mm' }}
+                @if (row.decision_automatique) { · <span class="text-accent">arbitrage auto</span> }
+              </p>
+            </div>
+          } @else if (row.decision_automatique) {
+            <span class="inline-flex items-center gap-1 text-xs text-text-secondary" pTooltip="Confirmée immédiatement : aucune validation n'était requise.">
+              <i class="pi pi-bolt text-primary"></i> Automatique
+            </span>
+          } @else if (row.statut === 'ANNULEE') {
+            <span class="text-xs text-text-secondary">Annulée par {{ row.annulee_par_nom ?? '—' }}</span>
+          } @else {
+            <span class="text-xs text-text-secondary">—</span>
+          }
+        </ng-template>
+        <ng-template appColumnTemplate="archivage" let-row>
+          <div class="leading-tight">
+            <p class="text-sm font-medium text-text">{{ row.archivee_par_nom ?? '—' }}</p>
+            <p class="text-xs text-text-secondary">{{ row.date_archivage | date: 'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+        </ng-template>
 
         <ng-template appColumnTemplate="actions" let-row>
           <div class="flex gap-1 items-center">
             <app-row-actions [showEdit]="false" [showDelete]="false" (view)="voir(row)" />
 
-            @if (row.statut === 'EN_ATTENTE') {
+            @if (row.statut === 'EN_ATTENTE' && onglet() !== 'archives') {
               <p-button icon="pi pi-check" [text]="true" [rounded]="true" severity="success" size="small" (onClick)="valider(row)" pTooltip="Valider" />
               <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger" size="small" (onClick)="refuser(row)" pTooltip="Refuser" />
             }
 
-           @if (isAdmin() && !row.statut.includes('ATTENTE') && !row.est_archivee) {
-              <p-button icon="pi pi-inbox" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="archiver(row)" pTooltip="Archiver" />
+            @if (isAdmin() && row.archivable) {
+              <p-button icon="pi pi-box" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="archiver(row)" pTooltip="Archiver" />
+            }
+            @if (isAdmin() && row.est_archivee) {
+              <p-button icon="pi pi-replay" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="desarchiver(row)" pTooltip="Restaurer" />
             }
           </div>
         </ng-template>

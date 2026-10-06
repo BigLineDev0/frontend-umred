@@ -3,15 +3,27 @@
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
-  [style]="{ width: '480px', maxWidth: 'calc(100vw - 2rem)' }"
+  [style]="{ width: '520px', maxWidth: 'calc(100vw - 2rem)' }"
   header="Détail de la réservation">
   @if (reservation(); as r) {
     <div class="space-y-5">
 
       <div class="flex items-center justify-between">
         <span class="text-sm text-text-secondary">Statut</span>
-        <app-status-badge [statut]="r.statut" />
+        <div class="flex items-center gap-2">
+          @if (r.est_archivee) {
+            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"><i class="pi pi-box mr-1 text-[10px]"></i>Archivée</span>
+          }
+          <app-status-badge [statut]="r.statut" />
+        </div>
       </div>
+
+      @if (r.demandeur_nom) {
+        <div>
+          <p class="text-sm text-text-secondary mb-1">Demandeur</p>
+          <p class="text-base font-medium text-text">{{ r.demandeur_nom }}</p>
+        </div>
+      }
 
       <div class="border-t border-border"></div>
 
@@ -53,13 +65,42 @@
         <p class="text-sm text-text leading-relaxed">{{ r.motif }}</p>
       </div>
 
-      @if (r.date_validation) {
+      <!-- Traçabilité : qui a décidé, et quand. -->
+      @if (r.date_validation || r.decision_automatique || r.annulee_par_nom || r.archivee_par_nom) {
         <div class="border-t border-border"></div>
-        <div>
-          <p class="text-sm text-text-secondary mb-1">
-            {{ r.statut === 'REFUSEE' ? 'Refusée le' : 'Validée le' }}
-          </p>
-          <p class="text-sm text-text">{{ r.date_validation | date: 'dd/MM/yyyy à HH:mm' }}</p>
+        <div class="space-y-2 rounded-lg bg-slate-50 p-3 text-sm">
+          @if (r.validateur_nom) {
+            <p class="flex items-start gap-2">
+              <i class="pi pt-0.5" [class.pi-check-circle]="r.statut !== 'REFUSEE'" [class.text-green-600]="r.statut !== 'REFUSEE'"
+                [class.pi-times-circle]="r.statut === 'REFUSEE'" [class.text-red-600]="r.statut === 'REFUSEE'"></i>
+              <span>
+                {{ r.statut === 'REFUSEE' ? 'Refusée' : 'Validée' }} par
+                <span class="font-semibold text-text">{{ r.validateur_nom }}</span>
+                @if (r.validateur_role) { <span class="text-text-secondary">({{ r.validateur_role }})</span> }
+                le {{ r.date_validation | date: 'dd/MM/yyyy à HH:mm' }}
+                @if (r.decision_automatique) {
+                  <span class="block text-xs text-text-secondary">Refus automatique : le créneau a été attribué à une demande prioritaire.</span>
+                }
+              </span>
+            </p>
+          } @else if (r.decision_automatique) {
+            <p class="flex items-start gap-2">
+              <i class="pi pi-bolt pt-0.5 text-primary"></i>
+              <span>Confirmée automatiquement à la création : aucune validation n'était requise.</span>
+            </p>
+          }
+          @if (r.annulee_par_nom) {
+            <p class="flex items-start gap-2">
+              <i class="pi pi-ban pt-0.5 text-amber-600"></i>
+              <span>Annulée par <span class="font-semibold text-text">{{ r.annulee_par_nom }}</span> le {{ r.date_annulation | date: 'dd/MM/yyyy à HH:mm' }}</span>
+            </p>
+          }
+          @if (r.archivee_par_nom) {
+            <p class="flex items-start gap-2">
+              <i class="pi pi-box pt-0.5 text-text-secondary"></i>
+              <span>Archivée par <span class="font-semibold text-text">{{ r.archivee_par_nom }}</span> le {{ r.date_archivage | date: 'dd/MM/yyyy à HH:mm' }}</span>
+            </p>
+          }
         </div>
       }
 
@@ -72,9 +113,28 @@
 
       <div class="border-t border-border"></div>
 
-      <p class="text-xs text-text-secondary">
-        Demande créée le {{ r.date_creation | date: 'dd/MM/yyyy à HH:mm' }}
-      </p>
+      <!-- Chronologie complète, issue du journal d'audit. -->
+      <div>
+        <p class="mb-2 text-sm font-medium text-text"><i class="pi pi-history mr-1 text-text-secondary"></i>Historique</p>
+        @if (historiqueChargement()) {
+          <p class="text-xs text-text-secondary"><i class="pi pi-spin pi-spinner mr-1"></i>Chargement...</p>
+        } @else if (historique().length === 0) {
+          <p class="text-xs text-text-secondary">Demande créée le {{ r.date_creation | date: 'dd/MM/yyyy à HH:mm' }}.</p>
+        } @else {
+          <ol class="relative ml-2 space-y-3 border-l border-border pl-4">
+            @for (e of historique(); track $index) {
+              <li class="relative">
+                <i class="absolute -left-[1.45rem] top-0.5 bg-white text-sm" [class]="icone(e.action)"></i>
+                <p class="text-sm text-text">{{ e.action }}</p>
+                <p class="text-xs text-text-secondary">
+                  {{ e.auteur }}@if (e.auteur_role) { · {{ e.auteur_role }} } · {{ e.date_heure | date: 'dd/MM/yyyy à HH:mm' }}
+                </p>
+                @if (e.description) { <p class="mt-0.5 text-xs text-text-secondary">{{ e.description }}</p> }
+              </li>
+            }
+          </ol>
+        }
+      </div>
 
     </div>
   }

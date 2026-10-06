@@ -29,10 +29,7 @@
         @if (e.statut !== 'EN_PANNE' && e.statut !== 'HORS_SERVICE') {
           <p-button label="Signaler une panne" icon="pi pi-bolt" severity="danger" [outlined]="true" (onClick)="signalerPanne()" />
         }
-        @if (canManage()) {
-          <p-button label="Modifier" icon="pi pi-file-edit" [outlined]="true" (onClick)="modifierEquipement()" />
-          <p-button label="Supprimer" icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="supprimerEquipement()" />
-        }
+        
       </div>
     </app-page-header>
 

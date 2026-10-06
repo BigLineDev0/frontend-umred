@@ -11,6 +11,11 @@ export const DASHBOARD_ROUTES: Routes = [
         title: 'Tableau de bord',
         loadComponent: () => import('./dashboard-technicien/dashboard-technicien').then(m => m.DashboardTechnicien)
       },
+      {
+        path: 'reservations',
+        title: 'Mes réservations',
+        loadComponent: () => import('../reservations/pages/mes-reservations/mes-reservations').then(m => m.MesReservations)
+      },
     ]
   },
 

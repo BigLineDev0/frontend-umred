@@ -4,7 +4,16 @@ export interface Reservation {
   id: number;
   demandeur: number;
   demandeur_nom: string;
+  // Traçabilité : qui a statué (validation ou refus), annulé, archivé.
   validateur: number | null;
+  validateur_nom?: string | null;
+  validateur_role?: string | null;
+  decision_automatique?: boolean;
+  annulee_par_nom?: string | null;
+  date_annulation?: string | null;
+  archivee_par_nom?: string | null;
+  date_archivage?: string | null;
+  archivable?: boolean;
   laboratoire: number;
   laboratoire_nom: string;
   equipements: number[];
@@ -118,4 +127,13 @@ export interface AlerteCreneauPayload {
   date: string;
   heure_debut: string;
   heure_fin: string;
+}
+
+// Étape de la chronologie d'une réservation, issue du journal d'audit.
+export interface EvenementReservation {
+  action: string;
+  description: string;
+  auteur: string;
+  auteur_role: string;
+  date_heure: string;
 }

@@ -136,7 +136,7 @@ export class Sidebar {
           {
             titre: 'Activité',
             items: [
-              this.reservationsAValiderItem,
+              { ...this.reservationsAValiderItem, label: 'Réservations' },
               this.maintenancesItem,
               this.equipementsEnPanneItem,
               this.notificationsItem,
@@ -167,6 +167,15 @@ export class Sidebar {
             items: [
               this.maintenancesItem,
               this.reservationsAValiderItem,
+              // Un technicien réserve aussi : sans ce lien, ses propres
+              // demandes n'étaient visibles nulle part (il ne peut pas les
+              // traiter lui-même, elles n'entrent donc pas dans sa file).
+              {
+                label: 'Mes réservations',
+                icon: 'pi pi-file-edit',
+                route: '/technicien/reservations',
+                activeRoutes: ['/reservations/ajouter'],
+              },
               this.equipementsEnPanneItem,
               this.notificationsItem,
             ],
