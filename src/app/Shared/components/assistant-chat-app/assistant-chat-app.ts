@@ -1,17 +1,26 @@
 import { Component, signal, ViewChild, ElementRef, AfterViewChecked, OnInit, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AssistantService } from '../../../Core/services/assistant.service';
 import { AuthService } from '../../../Core/services/auth.service';
-import { ChatMessage, ChatOption } from '../../../Core/models/assistant.model';
+import {
+  ChatMessage, ChatOption, ChatResponse, CreneauLibre, ReservationResume,
+} from '../../../Core/models/assistant.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { messageErreur } from '../../utils/message-erreur';
+import { StatusBadge } from '../status-badge';
+
+// Une route interne commence par un seul « / » : tout lien externe ou
+// « //domaine » est ignoré, même si le service IA en renvoyait un.
+const ROUTE_INTERNE = /^\/(?!\/)[A-Za-z0-9/_-]*$/;
 
 interface Segment { type: 'texte' | 'liste'; lignes: string[]; }
 
 @Component({
   selector: 'app-assistant-chat-app',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, DatePipe, RouterLink, StatusBadge],
   templateUrl: './assistant-chat-app.html',
 })
 export class AssistantChatApp implements OnInit, AfterViewChecked {
@@ -97,12 +106,7 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
     this.scrollDemande = true;
 
     this.assistantService.envoyerMessage(valeurEnvoyee).subscribe({
-      next: (res) => {
-        this.ajouterReponse({
-          role: 'assistant', texte: res.reponse, heure: this.heureActuelle(),
-          options: res.options, details_confirmation: res.details_confirmation,
-        });
-      },
+      next: (res) => this.ajouterReponse(this.versMessage(res)),
       error: (err: HttpErrorResponse) => {
         // 429 : quota de messages atteint, ce n'est pas une panne du service.
         const tropDeMessages = err.status === 429;
@@ -116,6 +120,50 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
         });
       },
     });
+  }
+
+  // Traduit la réponse structurée du service IA en message affichable :
+  // boutons de navigation, cartes de réservations, créneaux libres.
+  private versMessage(res: ChatResponse): ChatMessage {
+    const data = res.data;
+    return {
+      role: 'assistant', texte: res.reponse, heure: this.heureActuelle(), type: res.type,
+      options: res.options, details_confirmation: res.details_confirmation,
+      actions: (res.actions ?? []).filter(a => a.type === 'navigate' && ROUTE_INTERNE.test(a.route)),
+      reservations: res.type === 'reservations' && Array.isArray(data) ? data as ReservationResume[] : undefined,
+      creneaux: res.type === 'availability' ? this.creneauxDe(data) : undefined,
+    };
+  }
+
+  // Puces de créneaux uniquement pour UNE journée : sur plusieurs jours,
+  // le texte reste plus fidèle (il mentionne aussi les jours sans créneau).
+  private creneauxDe(data: unknown): CreneauLibre[] | undefined {
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      const creneaux = (data as { creneaux?: unknown }).creneaux;
+      if (Array.isArray(creneaux) && creneaux.length) {
+        const liste = creneaux as CreneauLibre[];
+        const jours = new Set(liste.map(c => c.date ?? ''));
+        return jours.size === 1 ? liste : undefined;
+      }
+    }
+    return undefined;
+  }
+
+  // Après un clic sur un lien interne : sur mobile, le panneau couvrirait
+  // la page ouverte, on le referme.
+  apresNavigation(): void {
+    if (window.matchMedia('(max-width: 767px)').matches) this.fermer();
+  }
+
+  // Quand les données sont affichées en cartes ou en créneaux, les lignes
+  // « - ... » du texte feraient doublon : seul le texte d'introduction reste.
+  aDesDonnees(m: ChatMessage): boolean {
+    return !!(m.reservations?.length || m.creneaux?.length);
+  }
+
+  heureCourte(heure: string): string {
+    const [h, min] = heure.slice(0, 5).split(':');
+    return `${Number(h)}h${min === '00' ? '' : min}`;
   }
 
   private ajouterReponse(message: ChatMessage): void {

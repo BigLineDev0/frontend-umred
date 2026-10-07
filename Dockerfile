@@ -11,7 +11,12 @@ COPY package.json package-lock.json ./
 RUN npm ci --legacy-peer-deps
 
 COPY . .
-# Configuration « docker » : URL d'API relatives (/api, /ia/api).
+# URL de l'API et du service IA appelées par le navigateur : production par
+# défaut, remplacées par docker-compose (args) pour un build local.
+ARG API_URL=https://api.senlab.site/api
+ARG IA_URL=https://ia.senlab.site/api
+RUN printf "export const environment = {\n  apiUrl: '%s',\n  aiApiUrl: '%s',\n};\n" \
+      "$API_URL" "$IA_URL" > src/environments/environment.docker.ts
 RUN npx ng build --configuration docker
 
 

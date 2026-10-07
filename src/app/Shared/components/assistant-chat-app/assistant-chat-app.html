@@ -49,10 +49,19 @@
               [class]="m.role === 'user' ? 'bg-primary text-white rounded-br-md' : 'bg-white border border-border text-text rounded-bl-md'">
 
               @if (m.role === 'assistant') {
+                @if (m.type === 'denied') {
+                  <p class="flex items-center gap-1.5 text-[11px] font-semibold text-accent mb-1">
+                    <i class="pi pi-lock text-[10px]"></i>Action non autorisée pour votre rôle
+                  </p>
+                } @else if (m.type === 'error') {
+                  <p class="flex items-center gap-1.5 text-[11px] font-semibold text-danger mb-1">
+                    <i class="pi pi-exclamation-circle text-[10px]"></i>Demande non aboutie
+                  </p>
+                }
                 @for (seg of segments(m.texte); track $index) {
                   @if (seg.type === 'texte') {
                     <p [class.mt-1.5]="$index > 0">{{ seg.lignes[0] }}</p>
-                  } @else {
+                  } @else if (!aDesDonnees(m)) {
                     <ul class="mt-1.5 space-y-1 list-disc list-inside marker:text-primary/50">
                       @for (l of seg.lignes; track l) { <li>{{ l }}</li> }
                     </ul>
@@ -98,6 +107,36 @@
                 </div>
               }
 
+              <!-- Réservations (données Django) -->
+              @if (m.reservations?.length) {
+                <div class="flex flex-col gap-1.5 mt-2.5">
+                  @for (r of m.reservations; track r.id) {
+                    <div class="bg-background border border-border rounded-lg px-3 py-2 text-xs space-y-1">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="font-medium text-text truncate">{{ r.equipements.join(', ') || r.laboratoire }}</span>
+                        <app-status-badge [statut]="r.statut" />
+                      </div>
+                      <div class="flex items-center gap-1.5 text-text-secondary">
+                        <i class="pi pi-calendar text-[10px] text-primary"></i>
+                        <span>{{ r.date | date:'EEE d MMM' }} · {{ heureCourte(r.heure_debut) }} – {{ heureCourte(r.heure_fin) }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Créneaux libres (calculés à partir du planning Django) -->
+              @if (m.creneaux?.length) {
+                <div class="flex flex-wrap gap-1.5 mt-2.5">
+                  @for (c of m.creneaux; track $index) {
+                    <span class="inline-flex items-center gap-1 text-xs bg-primary/5 border border-primary/20 text-primary rounded-full px-2.5 py-1">
+                      <i class="pi pi-clock text-[10px]"></i>
+                      {{ heureCourte(c.debut) }} – {{ heureCourte(c.fin) }}
+                    </span>
+                  }
+                </div>
+              }
+
               <!-- Options cliquables -->
               @if (m.options && m.options.length > 0) {
                 <div class="flex flex-col gap-1.5 mt-2.5">
@@ -107,6 +146,20 @@
                       <span class="font-medium">{{ opt.label }}</span>
                       <i class="pi pi-arrow-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
                     </button>
+                  }
+                </div>
+              }
+
+              <!-- Liens vers une page de l'application -->
+              @if (m.actions?.length) {
+                <div class="flex flex-wrap gap-1.5 mt-2.5">
+                  @for (a of m.actions; track $index) {
+                    <!-- Vrai lien Angular (href interne) : clic molette, nouvel onglet et lecteurs d'écran fonctionnent. -->
+                    <a [routerLink]="a.route" (click)="apresNavigation()"
+                      class="text-xs bg-primary text-white rounded-xl px-3.5 py-2 hover:bg-primary-dark transition-colors inline-flex items-center gap-1.5 font-medium">
+                      {{ a.label }}
+                      <i class="pi pi-arrow-up-right text-[10px]"></i>
+                    </a>
                   }
                 </div>
               }
