@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
@@ -9,11 +9,12 @@ import { MessageService } from 'primeng/api';
 import { MaintenanceService } from '../../../../Core/services/maintenance.service';
 import { EquipementService } from '../../../../Core/services/equipement.service';
 import { messageErreur } from '../../../../Shared/utils/message-erreur';
+import { appliquerErreursServeur, messageErreurChamp, texteLong } from '../../../../Shared/validators/validators';
 
 @Component({
   selector: 'app-signaler-panne-modal',
   standalone: true,
-  imports: [DialogModule, SelectModule, TextareaModule, ButtonModule, FormsModule],
+  imports: [DialogModule, SelectModule, TextareaModule, ButtonModule, ReactiveFormsModule],
   templateUrl: './signaler-panne-modal.html'
 })
 export class SignalerPanneModal {
@@ -23,13 +24,17 @@ export class SignalerPanneModal {
   equipementPreselectionne = input<{ id: number; nom: string } | null>(null);
   panneSignalee = output<void>();
 
+  private fb = inject(FormBuilder);
   private maintenanceService = inject(MaintenanceService);
   private equipementService = inject(EquipementService);
   private messageService = inject(MessageService);
 
   submitting = signal(false);
-  equipementId = signal<number | null>(null);
-  description = signal('');
+
+  form = this.fb.nonNullable.group({
+    equipement: [null as number | null, Validators.required],
+    description: ['', [Validators.required, texteLong({ min: 5, max: 2000, obligatoire: true })]],
+  });
 
   // On exclut ce qui est déjà en panne ou hors service — signaler une
   // panne déjà signalée n'a pas de sens et créerait un doublon.
@@ -44,11 +49,20 @@ export class SignalerPanneModal {
       if (!this.visible()) return;
       const preselection = this.equipementPreselectionne();
       if (preselection) {
-        this.equipementId.set(preselection.id);
+        this.form.controls.equipement.setValue(preselection.id);
       } else {
         this.equipementService.charger();
       }
     });
+  }
+
+  getFieldError(nom: string): string {
+    return messageErreurChamp(this.form.get(nom));
+  }
+
+  isFieldInvalid(nom: string): boolean {
+    const c = this.form.get(nom);
+    return !!(c && c.invalid && (c.touched || c.dirty));
   }
 
   onAnnuler(): void {
@@ -57,13 +71,14 @@ export class SignalerPanneModal {
   }
 
   onSignaler(): void {
-    if (!this.equipementId() || !this.description().trim()) {
-      this.messageService.add({ severity: 'warn', summary: 'Formulaire incomplet', detail: "Sélectionnez un équipement et décrivez la panne." });
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
+    const value = this.form.getRawValue();
 
     this.submitting.set(true);
-    this.maintenanceService.signalerPanne(this.equipementId()!, this.description().trim()).subscribe({
+    this.maintenanceService.signalerPanne(value.equipement!, value.description.trim()).subscribe({
       next: () => {
         this.submitting.set(false);
         this.messageService.add({ severity: 'success', summary: 'Panne signalée', detail: "Les techniciens sont prévenus, ainsi que les personnes ayant réservé cet équipement." });
@@ -73,13 +88,13 @@ export class SignalerPanneModal {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Signalement impossible', detail: messageErreur(err) });
+        const global = appliquerErreursServeur(this.form, err?.error);
+        this.messageService.add({ severity: 'error', summary: 'Signalement impossible', detail: global ?? messageErreur(err) });
       },
     });
   }
 
   private reset(): void {
-    this.equipementId.set(null);
-    this.description.set('');
+    this.form.reset({ equipement: null, description: '' });
   }
 }

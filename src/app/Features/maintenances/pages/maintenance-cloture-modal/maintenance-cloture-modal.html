@@ -18,18 +18,20 @@
     </div>
   }
 
-  <div class="space-y-5">
+  <form [formGroup]="form" (ngSubmit)="onCloturer()" novalidate class="space-y-5">
     <div>
       <label class="block text-sm font-medium text-text mb-2">Compte-rendu d'intervention <span class="text-danger">*</span></label>
-      <textarea pTextarea rows="4" [ngModel]="rapport()" (ngModelChange)="rapport.set($event)"
+      <textarea pTextarea rows="4" formControlName="rapport" maxlength="2000"
+        [attr.aria-invalid]="isFieldInvalid('rapport')"
         placeholder="Décrivez l'intervention réalisée..." class="w-full"></textarea>
+      @if (isFieldInvalid('rapport')) {
+        <small class="mt-1 block text-danger text-xs">{{ getFieldError('rapport') }}</small>
+      }
     </div>
-  </div>
 
-  <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-3">
-      <p-button label="Annuler" severity="secondary" [outlined]="true" [disabled]="submitting()" (onClick)="onAnnuler()" />
-      <p-button label="Clôturer" icon="pi pi-check-circle" severity="success" [loading]="submitting()" (onClick)="onCloturer()" />
+    <div class="flex justify-end gap-3 pt-2">
+      <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="submitting()" (onClick)="onAnnuler()" />
+      <p-button type="submit" label="Clôturer" icon="pi pi-check-circle" severity="success" [loading]="submitting()" />
     </div>
-  </ng-template>
+  </form>
 </p-dialog>

@@ -1,34 +1,40 @@
 <p-dialog [(visible)]="visible" [modal]="true" [draggable]="false" [resizable]="false"
   [style]="{ width: '460px', maxWidth: 'calc(100vw - 2rem)' }" header="Déclarer une panne">
 
-  <div class="space-y-5">
+  <form [formGroup]="form" (ngSubmit)="onSignaler()" novalidate class="space-y-5">
     <div>
       <label class="block text-sm font-medium text-text mb-2">Équipement <span class="text-danger">*</span></label>
       @if (equipementPreselectionne(); as e) {
         <p class="rounded-lg border border-border bg-background px-3 py-2.5 text-sm font-medium text-text"><i class="pi pi-microchip mr-2 text-primary"></i>{{ e.nom }}</p>
       } @else {
-      <p-select [options]="equipementOptions()" optionLabel="label" optionValue="value"
-        [ngModel]="equipementId()" (ngModelChange)="equipementId.set($event)"
-        placeholder="Sélectionnez l'équipement en panne" class="w-full" [showClear]="true"
-        appendTo="body" [filter]="true" filterBy="label" filterPlaceholder="Rechercher un équipement..."
-        emptyFilterMessage="Aucun équipement trouvé" scrollHeight="260px" panelStyleClass="max-w-[calc(100vw-2rem)]" />
+        <p-select [options]="equipementOptions()" optionLabel="label" optionValue="value"
+          formControlName="equipement"
+          placeholder="Sélectionnez l'équipement en panne" class="w-full" [showClear]="true"
+          appendTo="body" [filter]="true" filterBy="label" filterPlaceholder="Rechercher un équipement..."
+          emptyFilterMessage="Aucun équipement trouvé" scrollHeight="260px" panelStyleClass="max-w-[calc(100vw-2rem)]" />
+        @if (isFieldInvalid('equipement')) {
+          <small class="mt-1 block text-danger text-xs">{{ getFieldError('equipement') }}</small>
+        }
       }
     </div>
 
     <div>
       <label class="block text-sm font-medium text-text mb-2">Description de la panne <span class="text-danger">*</span></label>
-      <textarea pTextarea rows="4" [ngModel]="description()" (ngModelChange)="description.set($event)"
+      <textarea pTextarea rows="4" formControlName="description" maxlength="2000"
+        [attr.aria-invalid]="isFieldInvalid('description')"
         placeholder="Ex. L'appareil ne démarre plus, message d'erreur E04 à l'écran..." class="w-full"></textarea>
-      <small class="mt-1 block text-xs text-text-secondary">
-        Les techniciens sont prévenus immédiatement, ainsi que les personnes qui ont réservé cet équipement.
-      </small>
+      @if (isFieldInvalid('description')) {
+        <small class="mt-1 block text-danger text-xs">{{ getFieldError('description') }}</small>
+      } @else {
+        <small class="mt-1 block text-xs text-text-secondary">
+          Les techniciens sont prévenus immédiatement, ainsi que les personnes qui ont réservé cet équipement.
+        </small>
+      }
     </div>
-  </div>
 
-  <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-3">
-      <p-button label="Annuler" severity="secondary" [outlined]="true" [disabled]="submitting()" (onClick)="onAnnuler()" />
-      <p-button label="Déclarer la panne" icon="pi pi-bolt" severity="danger" [loading]="submitting()" (onClick)="onSignaler()" />
+    <div class="flex justify-end gap-3 pt-2">
+      <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="submitting()" (onClick)="onAnnuler()" />
+      <p-button type="submit" label="Déclarer la panne" icon="pi pi-bolt" severity="danger" [loading]="submitting()" />
     </div>
-  </ng-template>
+  </form>
 </p-dialog>

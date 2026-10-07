@@ -1,41 +1,49 @@
 <p-dialog [(visible)]="visible" [modal]="true" [draggable]="false" [resizable]="false"
   [style]="{ width: '480px', maxWidth: 'calc(100vw - 2rem)' }" header="Nouvelle maintenance">
 
-  <div class="space-y-5">
+  <form [formGroup]="form" (ngSubmit)="onPlanifier()" novalidate class="space-y-5">
     <div>
       <label class="block text-sm font-medium text-text mb-2">Type <span class="text-danger">*</span></label>
       <p-select [options]="typeOptions" optionLabel="label" optionValue="value"
-        [(ngModel)]="form.type" (onChange)="onTypeChange()" appendTo="body" class="w-full" />
+        formControlName="type" (onChange)="onTypeChange()" appendTo="body" class="w-full" />
     </div>
 
     <div>
       <label class="block text-sm font-medium text-text mb-2">Équipement <span class="text-danger">*</span></label>
       <p-select [options]="equipementOptions()" optionLabel="label" optionValue="value"
-        [(ngModel)]="form.equipement" placeholder="Sélectionnez un équipement" class="w-full" [showClear]="true"
+        formControlName="equipement" placeholder="Sélectionnez un équipement" class="w-full" [showClear]="true"
         appendTo="body" [filter]="true" filterBy="label" filterPlaceholder="Rechercher un équipement..."
         emptyFilterMessage="Aucun équipement trouvé" scrollHeight="260px" panelStyleClass="max-w-[calc(100vw-2rem)]" />
-      @if (form.type === 'CORRECTIVE' && equipementOptions().length === 0) {
+      @if (form.controls.type.value === 'CORRECTIVE' && equipementOptions().length === 0) {
         <small class="text-text-secondary text-xs mt-1 block">Aucun équipement en panne pour le moment.</small>
+      }
+      @if (isFieldInvalid('equipement')) {
+        <small class="mt-1 block text-danger text-xs">{{ getFieldError('equipement') }}</small>
       }
     </div>
 
     <div>
       <label class="block text-sm font-medium text-text mb-2">Date planifiée <span class="text-danger">*</span></label>
-      <p-datepicker [(ngModel)]="form.datePlanifiee" dateFormat="dd/mm/yy" placeholder="jj/mm/aaaa"
-        [showIcon]="true" [showTime]="true" appendTo="body" class="w-full" inputStyleClass="w-full" />
+      <p-datepicker formControlName="datePlanifiee" dateFormat="dd/mm/yy" placeholder="jj/mm/aaaa"
+        [showIcon]="true" [showTime]="true" [minDate]="today" appendTo="body" class="w-full" inputStyleClass="w-full" />
+      @if (isFieldInvalid('datePlanifiee')) {
+        <small class="mt-1 block text-danger text-xs">{{ getFieldError('datePlanifiee') }}</small>
+      }
     </div>
 
     <div>
       <label class="block text-sm font-medium text-text mb-2">Description <span class="text-danger">*</span></label>
-      <textarea pTextarea rows="3" [(ngModel)]="form.description"
+      <textarea pTextarea rows="3" formControlName="description" maxlength="2000"
+        [attr.aria-invalid]="isFieldInvalid('description')"
         placeholder="Détail de l'intervention à réaliser..." class="w-full"></textarea>
+      @if (isFieldInvalid('description')) {
+        <small class="mt-1 block text-danger text-xs">{{ getFieldError('description') }}</small>
+      }
     </div>
-  </div>
 
-  <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-3">
-      <p-button label="Annuler" severity="secondary" [outlined]="true" [disabled]="submitting()" (onClick)="onAnnuler()" />
-      <p-button label="Planifier" icon="pi pi-check" [loading]="submitting()" (onClick)="onPlanifier()" />
+    <div class="flex justify-end gap-3 pt-2">
+      <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="submitting()" (onClick)="onAnnuler()" />
+      <p-button type="submit" label="Planifier" icon="pi pi-check" [loading]="submitting()" />
     </div>
-  </ng-template>
+  </form>
 </p-dialog>
