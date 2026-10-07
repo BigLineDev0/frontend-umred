@@ -28,7 +28,7 @@ export class DefinirMotDePasse implements OnInit {
   private jeton = '';
 
   form = this.fb.nonNullable.group({
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', [Validators.required, Validators.minLength(10)]],
     passwordConfirmation: ['', Validators.required],
   });
 

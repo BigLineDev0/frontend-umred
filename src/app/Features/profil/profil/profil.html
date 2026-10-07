@@ -114,16 +114,29 @@
               <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label for="prenom" class="mb-2 block text-sm font-medium text-text">Prénom</label>
-                  <input id="prenom" pInputText formControlName="prenom" class="w-full" />
+                  <input id="prenom" pInputText formControlName="prenom" class="w-full" maxlength="100"
+                    [attr.aria-invalid]="formInfos.get('prenom')?.invalid && formInfos.get('prenom')?.touched" />
+                  @if (formInfos.get('prenom')?.invalid && formInfos.get('prenom')?.touched) {
+                    <small class="mt-1 block text-red-600">{{ erreurChamp('infos', 'prenom') }}</small>
+                  }
                 </div>
                 <div>
                   <label for="nom" class="mb-2 block text-sm font-medium text-text">Nom</label>
-                  <input id="nom" pInputText formControlName="nom" class="w-full" />
+                  <input id="nom" pInputText formControlName="nom" class="w-full" maxlength="100"
+                    [attr.aria-invalid]="formInfos.get('nom')?.invalid && formInfos.get('nom')?.touched" />
+                  @if (formInfos.get('nom')?.invalid && formInfos.get('nom')?.touched) {
+                    <small class="mt-1 block text-red-600">{{ erreurChamp('infos', 'nom') }}</small>
+                  }
                 </div>
               </div>
               <div>
                 <label for="telephone" class="mb-2 block text-sm font-medium text-text">Téléphone</label>
-                <input id="telephone" pInputText formControlName="telephone" class="w-full" />
+                <input id="telephone" pInputText formControlName="telephone" class="w-full" maxlength="20"
+                  placeholder="+221 7X XXX XX XX"
+                  [attr.aria-invalid]="formInfos.get('telephone')?.invalid && formInfos.get('telephone')?.touched" />
+                @if (formInfos.get('telephone')?.invalid && formInfos.get('telephone')?.touched) {
+                  <small class="mt-1 block text-red-600">{{ erreurChamp('infos', 'telephone') }}</small>
+                }
               </div>
               <p class="text-xs text-text-secondary">L'email ne peut pas être modifié - contactez un administrateur si nécessaire.</p>
               <div class="flex justify-end gap-3 pt-1">
@@ -168,10 +181,17 @@
                   <div>
                     <label for="nouveau_password" class="mb-2 block text-sm font-medium text-text">Nouveau mot de passe</label>
                     <p-password inputId="nouveau_password" formControlName="nouveau_password" [feedback]="true" [toggleMask]="true" fluid inputStyleClass="w-full" />
+                    <small class="mt-1 block text-xs text-text-secondary">10 caractères minimum.</small>
+                    @if (formMdp.get('nouveau_password')?.invalid && formMdp.get('nouveau_password')?.touched) {
+                      <small class="mt-1 block text-red-600">{{ erreurChamp('mdp', 'nouveau_password') }}</small>
+                    }
                   </div>
                   <div>
                     <label for="confirmation" class="mb-2 block text-sm font-medium text-text">Confirmer le nouveau mot de passe</label>
                     <p-password inputId="confirmation" formControlName="confirmation" [feedback]="false" [toggleMask]="true" fluid inputStyleClass="w-full" />
+                    @if (formMdp.get('confirmation')?.invalid && formMdp.get('confirmation')?.touched) {
+                      <small class="mt-1 block text-red-600">{{ erreurChamp('mdp', 'confirmation') }}</small>
+                    }
                   </div>
                 </div>
                 <div class="flex justify-end gap-3 pt-1">

@@ -81,7 +81,7 @@ export class ReservationForm {
     // Pas de Validators.required ici : une réservation peut ne concerner
     // que la salle, sans équipement précis (décision métier assumée).
     equipementIds: [[] as number[]],
-    motif: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
+    motif: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]],
     projetId: [null as number | null],
   });
 

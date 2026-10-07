@@ -13,6 +13,7 @@ import { OrganisationService } from '../../../Core/services/organisation.service
 import { OrganisationPublique } from '../../../Core/models/organisation.model';
 import { SelectModule } from 'primeng/select';
 import { messageErreur } from '../../../Shared/utils/message-erreur';
+import { messageErreurChamp, motsDePasseEgaux, nomCommun } from '../../../Shared/validators/validators';
 
 @Component({
   selector: 'app-register',
@@ -50,13 +51,13 @@ export class Register implements OnInit {
   submitted = false;
 
   registerForm = this.fb.nonNullable.group({
-    prenom: ['', [Validators.required, Validators.minLength(2)]],
-    nom: ['', [Validators.required, Validators.minLength(2)]],
+    prenom: ['', [Validators.required, nomCommun(2, 100)]],
+    nom: ['', [Validators.required, nomCommun(2, 100)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', [Validators.required, Validators.minLength(10)]],
     passwordConfirmation: ['', [Validators.required]],
     organisation: [null as number | null, [Validators.required]],
-  });
+  }, { validators: motsDePasseEgaux('password', 'passwordConfirmation') });
 
   ngOnInit(): void {
     this.organisationService.publiques().subscribe({
@@ -97,6 +98,10 @@ export class Register implements OnInit {
 
   passwordsMatch(): boolean {
     return this.password.value === this.passwordConfirmation.value;
+  }
+
+  getFieldError(nom: string): string {
+    return messageErreurChamp(this.registerForm.get(nom));
   }
 
   onSubmit() {

@@ -37,7 +37,7 @@
         <label for="password" class="block text-sm font-semibold text-text mb-2">Mot de passe</label>
         <p-password inputId="password" formControlName="password" placeholder="••••••••" autocomplete="new-password" [feedback]="true" [toggleMask]="true" fluid inputStyleClass="w-full" />
         @if (password.invalid && (password.touched || submitted)) {
-          <small class="text-danger text-xs mt-1 block">Le mot de passe doit contenir au moins 8 caractères.</small>
+          <small class="text-danger text-xs mt-1 block">Le mot de passe doit contenir au moins 10 caractères.</small>
         }
       </div>
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,6 +13,9 @@ import { Utilisateur } from '../../../Core/models/utilisateur.model';
 import { badgeAction } from '../../../Shared/utils/journal-badge';
 import { PageHeader } from '../../../Shared/components/page-header/page-header';
 import { StatusBadge } from '../../../Shared/components/status-badge';
+import {
+  appliquerErreursServeur, messageErreurChamp, motsDePasseEgaux, nomCommun, telephoneSenegal,
+} from '../../../Shared/validators/validators';
 
 
 @Component({
@@ -56,16 +59,21 @@ export class Profil implements OnInit {
   });
 
   formInfos = this.fb.nonNullable.group({
-    prenom: ['', [Validators.required, Validators.minLength(2)]],
-    nom: ['', [Validators.required, Validators.minLength(2)]],
-    telephone: [''],
+    prenom: ['', [Validators.required, nomCommun(2, 100)]],
+    nom: ['', [Validators.required, nomCommun(2, 100)]],
+    telephone: ['', telephoneSenegal()],
   });
 
   formMdp = this.fb.nonNullable.group({
     ancien_password: ['', Validators.required],
-    nouveau_password: ['', [Validators.required, Validators.minLength(8)]],
+    nouveau_password: ['', [Validators.required, Validators.minLength(10)]],
     confirmation: ['', Validators.required],
-  });
+  }, { validators: motsDePasseEgaux('nouveau_password', 'confirmation') });
+
+  erreurChamp(form: 'infos' | 'mdp', nom: string): string {
+    const group: FormGroup = form === 'infos' ? this.formInfos : this.formMdp;
+    return messageErreurChamp(group.get(nom));
+  }
 
   ngOnInit(): void {
     this.utilisateurService.chargerMonProfil().subscribe({
@@ -106,8 +114,9 @@ export class Profil implements OnInit {
         this.modeEdition.set(false);
         this.messageService.add({ severity: 'success', summary: 'Profil mis à jour', detail: 'Vos informations ont été enregistrées.' });
       },
-      error: () => {
+      error: (err) => {
         this.enregistrement.set(false);
+        appliquerErreursServeur(this.formInfos, err?.error);
         this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de mettre à jour le profil.' });
       },
     });
@@ -147,7 +156,8 @@ export class Profil implements OnInit {
       },
       error: (err) => {
         this.changementMdpEnCours.set(false);
-        this.erreurMdp.set(err.error?.detail ?? 'Une erreur est survenue.');
+        const global = appliquerErreursServeur(this.formMdp, err?.error, { nouveau_password: 'nouveau_password', ancien_password: 'ancien_password' });
+        this.erreurMdp.set(global ?? err.error?.detail ?? 'Une erreur est survenue.');
       },
     });
   }
