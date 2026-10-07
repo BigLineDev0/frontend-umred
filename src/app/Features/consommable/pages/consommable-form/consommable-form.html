@@ -13,7 +13,7 @@
     </div>
   }
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <div class="mx-auto max-w-3xl overflow-hidden rounded-xl border border-border bg-white shadow-sm p-6 sm:p-8 space-y-6">
 
       <div>
@@ -23,7 +23,7 @@
         <p-select inputId="laboratoire" formControlName="laboratoireId" [options]="laboratoireService.laboratoires()"
           optionLabel="nom" optionValue="id" placeholder="Sélectionnez un laboratoire" [showClear]="true" fluid class="w-full" />
         @if (isFieldInvalid('laboratoireId')) {
-          <small class="mt-1 block text-red-600">Le laboratoire est obligatoire.</small>
+          <small class="mt-1 block text-red-600">{{ getFieldError('laboratoireId') }}</small>
         }
       </div>
 
@@ -32,14 +32,21 @@
           <label class="mb-2 block text-sm font-medium text-text">
             Nom du consommable <span class="text-red-600">*</span>
           </label>
-          <input pInputText type="text" formControlName="nom" placeholder="Ex. Kit d'extraction ADN" class="w-full" />
+          <input id="nom" pInputText type="text" formControlName="nom" placeholder="Ex. Kit d'extraction ADN"
+            class="w-full" maxlength="100" [attr.aria-invalid]="isFieldInvalid('nom')"
+            [attr.aria-describedby]="isFieldInvalid('nom') ? 'nom-error' : null" />
           @if (isFieldInvalid('nom')) {
-            <small class="mt-1 block text-red-600">Le nom est obligatoire (2 caractères minimum).</small>
+            <small id="nom-error" class="mt-1 block text-red-600">{{ getFieldError('nom') }}</small>
           }
         </div>
         <div>
           <label class="mb-2 block text-sm font-medium text-text">Référence</label>
-          <input pInputText type="text" formControlName="reference" placeholder="Ex. REF-2024-045" class="w-full" />
+          <input id="reference" pInputText type="text" formControlName="reference" placeholder="Ex. REF-2024-045"
+            class="w-full" maxlength="40" [attr.aria-invalid]="isFieldInvalid('reference')"
+            [attr.aria-describedby]="isFieldInvalid('reference') ? 'reference-error' : null" />
+          @if (isFieldInvalid('reference')) {
+            <small id="reference-error" class="mt-1 block text-red-600">{{ getFieldError('reference') }}</small>
+          }
         </div>
       </div>
 
@@ -55,19 +62,29 @@
             Quantité en stock <span class="text-red-600">*</span>
           </label>
           <p-inputNumber formControlName="quantite_stock" [minFractionDigits]="0" [maxFractionDigits]="2" [min]="0" class="w-full" inputStyleClass="w-full" />
+          @if (isFieldInvalid('quantite_stock')) {
+            <small class="mt-1 block text-red-600">{{ getFieldError('quantite_stock') }}</small>
+          }
         </div>
         <div>
           <label class="mb-2 block text-sm font-medium text-text">
             Seuil d'alerte <span class="text-red-600">*</span>
           </label>
           <p-inputNumber formControlName="seuil_alerte" [minFractionDigits]="0" [maxFractionDigits]="2" [min]="0" class="w-full" inputStyleClass="w-full" />
+          @if (isFieldInvalid('seuil_alerte')) {
+            <small class="mt-1 block text-red-600">{{ getFieldError('seuil_alerte') }}</small>
+          }
           <p class="text-xs text-text-secondary mt-1">Quantité sous laquelle l'alerte "stock faible" se déclenche.</p>
         </div>
       </div>
 
       <div class="max-w-xs">
         <label class="mb-2 block text-sm font-medium text-text">Date de péremption</label>
-        <p-datepicker formControlName="date_peremption" dateFormat="dd/mm/yy" placeholder="jj/mm/aaaa" [showIcon]="true" fluid class="w-full" />
+        <p-datepicker formControlName="date_peremption" dateFormat="dd/mm/yy" placeholder="jj/mm/aaaa" [showIcon]="true"
+          [minDate]="minPeremption" fluid class="w-full" />
+        @if (isFieldInvalid('date_peremption')) {
+          <small class="mt-1 block text-red-600">{{ getFieldError('date_peremption') }}</small>
+        }
         <p class="text-xs text-text-secondary mt-1">Laissez vide si le produit n'est pas périssable.</p>
       </div>
 

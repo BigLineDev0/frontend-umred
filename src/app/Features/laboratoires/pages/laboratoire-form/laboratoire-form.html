@@ -24,7 +24,7 @@
   }
 
   <!-- Formulaire -->
-  <form [formGroup]="laboratoireForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="laboratoireForm" (ngSubmit)="onSubmit()" novalidate>
     <div
       class="mx-auto max-w-4xl overflow-hidden rounded-xl border border-border bg-white shaodow-sm"
     >
@@ -53,16 +53,13 @@
               formControlName="nom"
               placeholder="Ex. Laboratoire de Biochimie"
               class="w-full"
+              maxlength="100"
+              [attr.aria-invalid]="isFieldInvalid('nom')"
+              [attr.aria-describedby]="isFieldInvalid('nom') ? 'nom-error' : null"
             />
 
             @if (isFieldInvalid('nom')) {
-              <small class="mt-1 block text-sm text-red-600">
-                @if (laboratoireForm.get('nom')?.hasError('required')) {
-                  Le nom du laboratoire est obligatoire.
-                } @else if (laboratoireForm.get('nom')?.hasError('minlength')) {
-                  Le nom doit contenir au moins 3 caractères.
-                }
-              </small>
+              <small id="nom-error" class="mt-1 block text-sm text-red-600">{{ getFieldError('nom') }}</small>
             }
           </div>
 
@@ -80,12 +77,13 @@
               formControlName="localisation"
               placeholder="Ex. Bâtiment A, Salle 2, RDC"
               class="w-full"
+              maxlength="150"
+              [attr.aria-invalid]="isFieldInvalid('localisation')"
+              [attr.aria-describedby]="isFieldInvalid('localisation') ? 'localisation-error' : null"
             />
 
             @if (isFieldInvalid('localisation')) {
-              <small class="mt-1 block text-sm text-red-600">
-                La localisation est obligatoire.
-              </small>
+              <small id="localisation-error" class="mt-1 block text-sm text-red-600">{{ getFieldError('localisation') }}</small>
             }
           </div>
         </div>
@@ -107,27 +105,23 @@
             formControlName="description"
             rows="4"
             maxlength="500"
+            [attr.aria-invalid]="isFieldInvalid('description')"
+            [attr.aria-describedby]="isFieldInvalid('description') ? 'description-error' : null"
             placeholder="Décrivez les activités et les principales utilisations du laboratoire..."
             class="w-full resize-none"
           ></textarea>
 
           @if (isFieldInvalid('description')) {
-            <small class="mt-1 block text-sm text-red-600">
-              @if (laboratoireForm.get('description')?.hasError('required')) {
-                La description est obligatoire.
-              } @else if (laboratoireForm.get('description')?.hasError('minlength')) {
-                La description doit contenir au moins 10 caractères.
-              }
-            </small>
+            <small id="description-error" class="mt-1 block text-sm text-red-600">{{ getFieldError('description') }}</small>
           }
         </div>
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <label for="capacite" class="mb-2 block text-sm font-medium text-text">Capacité</label>
-            <input id="capacite" pInputText type="number" formControlName="capacite" placeholder="Ex. 15" min="1" max="1000" class="w-full" />
+            <input id="capacite" pInputText type="number" formControlName="capacite" placeholder="Ex. 15" min="1" max="10000" class="w-full" />
             @if (isFieldInvalid('capacite')) {
-              <small class="mt-1 block text-sm text-red-600">La capacité doit être supérieure à 0.</small>
+              <small class="mt-1 block text-sm text-red-600">{{ getFieldError('capacite') }}</small>
             }
           </div>
 

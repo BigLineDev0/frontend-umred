@@ -14,6 +14,9 @@ import { LaboratoireService } from '../../../../Core/services/laboratoire.servic
 import { CheckboxModule } from 'primeng/checkbox';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 import { messageErreur } from '../../../../Shared/utils/message-erreur';
+import {
+  appliquerErreursServeur, dateNonFuture, messageErreurChamp, nomCommun, texteLong,
+} from '../../../../Shared/validators/validators';
 
 @Component({
   standalone: true,
@@ -66,18 +69,18 @@ export class EquipementForm implements OnInit {
   ];
 
   form = this.fb.group({
-    nom: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
-    numero_serie: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+    nom: ['', [Validators.required, nomCommun()]],
+    numero_serie: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
     marque: ['', Validators.maxLength(100)],
     modele: ['', Validators.maxLength(100)],
     laboratoireId: [null as number | null, Validators.required],
-    description: ['', Validators.maxLength(1000)],
-    dateAcquisition: [null as Date | null],
+    description: ['', texteLong({ max: 2000 })],
+    dateAcquisition: [null as Date | null, dateNonFuture()],
     statut: ['DISPONIBLE', Validators.required],
-    instructions_utilisation: [''],
-    consignes_securite: [''],
+    instructions_utilisation: ['', texteLong({ max: 2000 })],
+    consignes_securite: ['', texteLong({ max: 2000 })],
     necessite_validation: [false],
-    seuil_heures_maintenance: [200, [Validators.required, Validators.min(1)]],
+    seuil_heures_maintenance: [200, [Validators.required, Validators.min(1), Validators.max(100000)]],
   });
 
   ngOnInit(): void {
@@ -125,20 +128,7 @@ export class EquipementForm implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors) return '';
-    if (field.errors['required']) {
-      const labels: Record<string, string> = {
-        nom: "Le nom de l'équipement est obligatoire.",
-        numero_serie: 'Le numéro de série est obligatoire.',
-        laboratoireId: 'Le laboratoire est obligatoire.',
-        statut: "L'état est obligatoire.",
-      };
-      return labels[fieldName] ?? 'Ce champ est obligatoire.';
-    }
-    if (field.errors['minlength']) return 'Ce champ est trop court.';
-    if (field.errors['maxlength']) return 'Ce champ dépasse la longueur maximale autorisée.';
-    return 'Valeur invalide.';
+    return messageErreurChamp(this.form.get(fieldName));
   }
 
   onSubmit(): void {
@@ -193,7 +183,11 @@ export class EquipementForm implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(messageErreur(err, "Une erreur est survenue lors de l'enregistrement."));
+        // Erreurs 400 par champ renvoyées sous l'input concerné ; le reste en bannière.
+        const global = appliquerErreursServeur(this.form, err?.error, {
+          laboratoire: 'laboratoireId', date_acquisition: 'dateAcquisition',
+        });
+        this.error.set(global ?? messageErreur(err, "Une erreur est survenue lors de l'enregistrement."));
       },
     });
   }

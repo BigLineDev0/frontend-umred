@@ -12,6 +12,9 @@ import { StatutLaboratoire } from '../../../../Core/models/laboratoire.model';
 import { SelectModule } from 'primeng/select';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 import { messageErreur } from '../../../../Shared/utils/message-erreur';
+import {
+  appliquerErreursServeur, messageErreurChamp, nomCommun, texteLong,
+} from '../../../../Shared/validators/validators';
 
 @Component({
   standalone: true,
@@ -38,10 +41,10 @@ export class LaboratoireForm implements OnInit {
 ];
 
   laboratoireForm = this.fb.nonNullable.group({
-    nom: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
-    description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
-    localisation: ['', [Validators.required, Validators.maxLength(255)]],
-    capacite: [null as number | null, [Validators.min(1), Validators.max(1000)]],
+    nom: ['', [Validators.required, nomCommun()]],
+    description: ['', [Validators.required, texteLong({ min: 10, max: 500, obligatoire: true })]],
+    localisation: ['', [Validators.required, nomCommun(2, 150)]],
+    capacite: [null as number | null, [Validators.min(1), Validators.max(10000)]],
     statut: ['DISPONIBLE' as StatutLaboratoire, Validators.required],
   });
 
@@ -77,6 +80,10 @@ export class LaboratoireForm implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.laboratoireForm.get(fieldName);
     return !!(field && field.invalid && (field.touched || field.dirty));
+  }
+
+  getFieldError(fieldName: string): string {
+    return messageErreurChamp(this.laboratoireForm.get(fieldName));
   }
 
   get descriptionLength(): number {
@@ -119,7 +126,8 @@ export class LaboratoireForm implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(messageErreur(err, "Une erreur est survenue lors de l'enregistrement."));
+        const global = appliquerErreursServeur(this.laboratoireForm, err?.error);
+        this.error.set(global ?? messageErreur(err, "Une erreur est survenue lors de l'enregistrement."));
       },
     });
   }

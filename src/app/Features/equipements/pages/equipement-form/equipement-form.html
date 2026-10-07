@@ -38,10 +38,11 @@
             </label>
 
             <input id="nom" pInputText type="text" formControlName="nom" placeholder="Ex : Spectrophotomètre UV-1800"
-              class="w-full" />
+              class="w-full" maxlength="100" [attr.aria-invalid]="isFieldInvalid('nom')"
+              [attr.aria-describedby]="isFieldInvalid('nom') ? 'nom-error' : null" />
 
             @if (isFieldInvalid('nom')) {
-            <small class="mt-1 block text-red-600">
+            <small id="nom-error" class="mt-1 block text-red-600">
               {{ getFieldError('nom') }}
             </small>
             }
@@ -53,9 +54,11 @@
               Numéro de série <span class="text-red-600">*</span>
             </label>
             <input id="numero_serie" pInputText type="text" formControlName="numero_serie"
-              placeholder="Ex : SH-UV1800-2024-001" class="w-full" />
+              placeholder="Ex : SH-UV1800-2024-001" class="w-full" maxlength="100"
+              [attr.aria-invalid]="isFieldInvalid('numero_serie')"
+              [attr.aria-describedby]="isFieldInvalid('numero_serie') ? 'numero_serie-error' : null" />
             @if (isFieldInvalid('numero_serie')) {
-            <small class="mt-1 block text-red-600">{{ getFieldError('numero_serie') }}</small>
+            <small id="numero_serie-error" class="mt-1 block text-red-600">{{ getFieldError('numero_serie') }}</small>
             }
           </div>
 
@@ -64,7 +67,7 @@
             <label for="marque" class="mb-2 block text-sm font-medium text-text"> Marque </label>
 
             <input id="marque" pInputText type="text" formControlName="marque" placeholder="Ex : Shimadzu"
-              class="w-full" />
+              class="w-full" maxlength="100" />
           </div>
 
           <!-- Modèle -->
@@ -72,7 +75,7 @@
             <label for="modele" class="mb-2 block text-sm font-medium text-text"> Modèle </label>
 
             <input id="modele" pInputText type="text" formControlName="modele" placeholder="Ex : UV-1800"
-              class="w-full" />
+              class="w-full" maxlength="100" />
           </div>
 
 
@@ -146,10 +149,12 @@
               Seuil d'heures avant maintenance <span class="text-red-600">*</span>
             </label>
             <input pInputText type="number" formControlName="seuil_heures_maintenance" placeholder="Ex : 200"
-              class="w-full" />
+              class="w-full" min="1" />
+            @if (isFieldInvalid('seuil_heures_maintenance')) {
             <small class="mt-1 block text-red-600">
               {{ getFieldError('seuil_heures_maintenance') }}
             </small>
+            }
           </div>
         </div>
 
@@ -159,11 +164,13 @@
             Description
           </label>
 
-          <textarea id="description" pTextarea formControlName="description" rows="4"
+          <textarea id="description" pTextarea formControlName="description" rows="4" maxlength="2000"
+            [attr.aria-invalid]="isFieldInvalid('description')"
+            [attr.aria-describedby]="isFieldInvalid('description') ? 'description-error' : null"
             placeholder="Ajoutez une description ou des notes sur cet équipement..." class="w-full"></textarea>
 
           @if (isFieldInvalid('description')) {
-          <small class="mt-1 block text-red-600">
+          <small id="description-error" class="mt-1 block text-red-600">
             {{ getFieldError('description') }}
           </small>
           }
@@ -187,15 +194,21 @@
         <div class="space-y-5">
           <div>
             <label class="mb-2 block text-sm font-medium text-text">Consignes de sécurité</label>
-            <textarea pTextarea formControlName="consignes_securite" rows="3"
+            <textarea pTextarea formControlName="consignes_securite" rows="3" maxlength="2000"
               placeholder="Ex. : Porter des gants avant manipulation. Ne jamais ouvrir l'appareil sous tension."
               class="w-full"></textarea>
+            @if (isFieldInvalid('consignes_securite')) {
+            <small class="mt-1 block text-red-600">{{ getFieldError('consignes_securite') }}</small>
+            }
           </div>
           <div>
             <label class="mb-2 block text-sm font-medium text-text">Instructions d'utilisation</label>
-            <textarea pTextarea formControlName="instructions_utilisation" rows="4"
+            <textarea pTextarea formControlName="instructions_utilisation" rows="4" maxlength="2000"
               placeholder="Ex. : 1. Allumer l'appareil. 2. Calibrer avant chaque série de mesures..."
               class="w-full"></textarea>
+            @if (isFieldInvalid('instructions_utilisation')) {
+            <small class="mt-1 block text-red-600">{{ getFieldError('instructions_utilisation') }}</small>
+            }
           </div>
 
           <div>

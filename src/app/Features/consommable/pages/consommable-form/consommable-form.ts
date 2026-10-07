@@ -12,6 +12,9 @@ import { ConsommableService } from '../../../../Core/services/consommable.servic
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 import { messageErreur } from '../../../../Shared/utils/message-erreur';
+import {
+  appliquerErreursServeur, dateNonPassee, messageErreurChamp, nomCommun, reference as referenceValidator,
+} from '../../../../Shared/validators/validators';
 
 @Component({
   standalone: true,
@@ -43,12 +46,12 @@ export class ConsommableForm implements OnInit {
 
   form = this.fb.group({
     laboratoireId: [null as number | null, Validators.required],
-    nom: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(150)]],
-    reference: ['', Validators.maxLength(100)],
+    nom: ['', [Validators.required, nomCommun()]],
+    reference: ['', referenceValidator()],
     unite: ['UNITE', Validators.required],
-    quantite_stock: [0, [Validators.required, Validators.min(0)]],
-    seuil_alerte: [1, [Validators.required, Validators.min(0)]],
-    date_peremption: [null as Date | null],
+    quantite_stock: [0, [Validators.required, Validators.min(0), Validators.max(1000000)]],
+    seuil_alerte: [1, [Validators.required, Validators.min(0), Validators.max(1000000)]],
+    date_peremption: [null as Date | null, dateNonPassee()],
   });
 
   ngOnInit(): void {
@@ -58,6 +61,9 @@ export class ConsommableForm implements OnInit {
     if (id) {
       this.isEditMode.set(true);
       this.consommableId = Number(id);
+      // En modification, une date de péremption déjà passée reste autorisée.
+      this.form.controls.date_peremption.clearValidators();
+      this.form.controls.date_peremption.updateValueAndValidity();
       this.chargerConsommable(this.consommableId);
     }
   }
@@ -87,6 +93,15 @@ export class ConsommableForm implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.form.get(fieldName);
     return !!(field && field.invalid && (field.touched || field.dirty));
+  }
+
+  getFieldError(fieldName: string): string {
+    return messageErreurChamp(this.form.get(fieldName));
+  }
+
+  // À la création, la péremption ne peut pas être dans le passé ; en modification, aucune borne.
+  get minPeremption(): Date | undefined {
+    return this.isEditMode() ? undefined : this.today;
   }
 
   onSubmit(): void {
@@ -127,7 +142,10 @@ export class ConsommableForm implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(messageErreur(err, "Une erreur est survenue lors de l'enregistrement."));
+        const global = appliquerErreursServeur(this.form, err?.error, {
+          laboratoire: 'laboratoireId', date_peremption: 'date_peremption',
+        });
+        this.error.set(global ?? messageErreur(err, "Une erreur est survenue lors de l'enregistrement."));
       },
     });
   }
