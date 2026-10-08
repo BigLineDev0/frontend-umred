@@ -1,36 +1,54 @@
 <app-site-header />
 
-<!-- HERO — image de fond unique, telle que fournie -->
-<section class="relative isolate min-h-[560px] sm:min-h-[620px] lg:min-h-[680px] bg-cover bg-center pt-16"
-  style="background-image: url('/images/hero-bg.png'); background-position: center right;">
+<!-- HERO
+     Écran large : photo en plein fond, le texte se pose sur sa partie
+     gauche, claire. Mobile et tablette : sur un écran étroit, le cadrage
+     plaçait la scène derrière le texte, illisible ; le texte a donc son
+     propre fond clair et la photo devient une vignette sous les boutons. -->
+<section class="relative isolate overflow-hidden pt-16 lg:min-h-[680px]">
+  <!-- Fond : dégradé clair (mobile/tablette), photo (écran large) -->
+  <div class="absolute inset-0 -z-10 bg-linear-to-b from-primary-tint via-white to-white lg:hidden" aria-hidden="true"></div>
+  <div class="absolute inset-0 -z-10 hidden bg-cover lg:block" aria-hidden="true"
+    style="background-image: url('/images/hero-bg.png'); background-position: center right;"></div>
 
-  <div class="max-w-7xl mx-auto px-5 sm:px-8 h-full">
-    <div class="max-w-2xl pt-16 mt-6 sm:pt-20">
-      <span class="hero-in inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/80 backdrop-blur px-3 py-1 text-xs font-medium text-primary shadow-sm">
+  <div class="mx-auto max-w-7xl px-5 pb-14 sm:px-8 lg:pb-0">
+    <div class="max-w-2xl pt-10 sm:pt-14 lg:pt-24">
+      <span class="hero-in inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/90 px-3 py-1 text-xs font-medium text-primary shadow-sm backdrop-blur">
         <span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary-tint"><i class="pi pi-sparkles text-[10px]"></i></span>
         Assistant IA connecté à vos données
       </span>
-      <h1 class="mt-5 text-4xl sm:text-5xl lg:text-[3.4rem] font-bold text-navy leading-[1.1] tracking-tight hero-in" style="animation-delay: .05s">
+      <h1 class="hero-in mt-5 text-[2.15rem] font-bold leading-[1.12] tracking-tight text-navy sm:text-5xl lg:text-[3.4rem] lg:leading-[1.1]" style="animation-delay: .05s">
         La gestion intelligente de votre
         <span class="relative whitespace-nowrap text-primary">
           laboratoire
-          <svg class="absolute -bottom-2 left-0 w-full h-3 text-primary-light" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none" aria-hidden="true">
+          <svg class="absolute -bottom-2 left-0 h-3 w-full text-primary-light" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none" aria-hidden="true">
             <path d="M2 9C40 3 120 1 198 7" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
           </svg>
         </span>
       </h1>
-      <p class="mt-5 text-text-secondary text-base leading-relaxed hero-in" style="animation-delay: .2s">
+      <p class="hero-in mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg lg:text-base" style="animation-delay: .2s">
         Centralisez les réservations, les équipements et la maintenance de votre laboratoire dans une plateforme unique, simple et intelligente.
       </p>
-      <div class="mt-8 flex flex-wrap gap-3 hero-in" style="animation-delay: .35s">
-        <p-button actions label="Accéder à la plateforme" icon="pi pi-arrow-right" iconPos="right" size="large" [routerLink]="routeAccueil()" />
-        <p-button actions label="Découvrir SenLab" [outlined]="true" size="large" routerLink="/a-propos" styleClass="!bg-white/70" />
+      <!-- Boutons en pleine largeur sur téléphone, côte à côte dès 640 px -->
+      <div class="hero-in mt-8 flex flex-col gap-3 sm:flex-row" style="animation-delay: .35s">
+        <p-button label="Accéder à la plateforme" icon="pi pi-arrow-right" iconPos="right" size="large"
+          [fluid]="true" styleClass="justify-center sm:w-auto" class="sm:w-auto" [routerLink]="routeAccueil()" />
+        <p-button label="Découvrir SenLab" [outlined]="true" size="large"
+          [fluid]="true" styleClass="justify-center !bg-white/80 sm:w-auto" class="sm:w-auto" routerLink="/a-propos" />
       </div>
-      <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-text-secondary hero-in" style="animation-delay: .5s">
-        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-primary text-xs"></i>Réservation en temps réel</li>
-        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-primary text-xs"></i>Maintenance suivie</li>
-        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-primary text-xs"></i>Multi-établissements</li>
+      <ul class="hero-in mt-8 grid grid-cols-1 gap-y-2 text-sm text-text-secondary min-[400px]:flex min-[400px]:flex-wrap min-[400px]:gap-x-6" style="animation-delay: .5s">
+        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-xs text-primary"></i>Réservation en temps réel</li>
+        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-xs text-primary"></i>Maintenance suivie</li>
+        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-xs text-primary"></i>Multi-établissements</li>
       </ul>
+    </div>
+
+    <!-- Mobile et tablette : la photo, recadrée sur la scène de laboratoire -->
+    <div class="hero-in relative mt-10 overflow-hidden rounded-2xl shadow-xl shadow-primary/10 ring-1 ring-border lg:hidden" style="animation-delay: .6s">
+      <!-- Version recadrée et allégée (80 Ko au lieu de 1,4 Mo) pour les connexions mobiles -->
+      <img src="/images/hero-mobile.jpg" alt="Chercheuse au travail dans un laboratoire équipé"
+        width="1000" height="876"
+        class="aspect-[4/3] w-full object-cover object-[center_35%] sm:aspect-[16/9]" />
     </div>
   </div>
 </section>

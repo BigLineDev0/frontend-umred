@@ -4,14 +4,16 @@
       <img src="images/logo-senlab.png" alt="SenLab" class="h-7 sm:h-8 w-auto" />
     </a>
 
-    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-text-secondary">
+    <!-- Navigation complète à partir de 1024 px : en dessous (tablette), elle
+         ne tenait pas sur une ligne et se chevauchait avec le logo. -->
+    <div class="hidden lg:flex items-center gap-8 whitespace-nowrap text-sm font-medium text-text-secondary">
       <a routerLink="/" [routerLinkActive]="lienActif" [routerLinkActiveOptions]="optionsExactes" [class]="lienDesktop">Accueil</a>
       <a routerLink="/a-propos" [routerLinkActive]="lienActif" [class]="lienDesktop">À propos</a>
       <a routerLink="/" fragment="fonctionnalites" [routerLinkActive]="lienActif" [routerLinkActiveOptions]="optionsExactes" [class]="lienDesktop">Fonctionnalités</a>
       <a routerLink="/contact" [routerLinkActive]="lienActif" [class]="lienDesktop">Contact</a>
     </div>
 
-    <div class="hidden md:flex items-center gap-3">
+    <div class="hidden lg:flex items-center gap-3">
       @if (estConnecte()) {
         <p-button label="Mon espace" icon="pi pi-th-large" [routerLink]="routeAccueil()" />
       } @else {
@@ -21,14 +23,14 @@
 
     </div>
 
-    <button type="button" (click)="toggleMobileMenu()" class="md:hidden flex h-10 w-10 items-center justify-center rounded-lg text-text hover:bg-background"
+    <button type="button" (click)="toggleMobileMenu()" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-lg text-text hover:bg-background"
       [attr.aria-expanded]="mobileMenuOpen()" aria-label="Menu">
       <i class="pi" [class.pi-bars]="!mobileMenuOpen()" [class.pi-times]="mobileMenuOpen()"></i>
     </button>
   </nav>
 
   @if (mobileMenuOpen()) {
-    <div class="md:hidden bg-white border-t border-border px-5 py-4 space-y-3">
+    <div class="lg:hidden bg-white border-t border-border px-5 py-4 space-y-3">
       <a routerLink="/" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [routerLinkActiveOptions]="optionsExactes" [class]="lienMobile">Accueil</a>
       <a routerLink="/a-propos" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [class]="lienMobile">À propos</a>
       <a routerLink="/" fragment="fonctionnalites" (click)="closeMobileMenu()" [routerLinkActive]="lienActifMobile" [routerLinkActiveOptions]="optionsExactes" [class]="lienMobile">Fonctionnalités</a>
