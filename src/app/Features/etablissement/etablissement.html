@@ -1,33 +1,34 @@
-<div class="space-y-6 animate-stagger">
+<div class="animate-stagger pb-24">
   <app-page-header
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Mon établissement' }]"
     title="Mon établissement"
-    subtitle="Identité visuelle et règles de réservation, appliquées à tous les utilisateurs de votre établissement.">
-    <p-button actions label="Enregistrer" icon="pi pi-check" [loading]="enregistrement()" (onClick)="enregistrer()" />
-  </app-page-header>
+    subtitle="Identité visuelle et règles de réservation, appliquées à tous les utilisateurs de votre établissement." />
 
   <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-    <section class="rounded-xl border border-border bg-white p-6">
+    <!-- Identité -->
+    <section class="rounded-xl border border-border bg-white p-5 sm:p-6">
       <h2 class="mb-5 text-base font-semibold text-text">Identité</h2>
       <div class="space-y-4">
         <div>
           <label for="nom" class="mb-2 block text-sm font-medium text-text">Nom de l'établissement</label>
-          <input id="nom" pInputText [(ngModel)]="form.nom" class="w-full" />
+          <input id="nom" pInputText [(ngModel)]="form.nom" class="w-full" maxlength="150" />
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label for="ville" class="mb-2 block text-sm font-medium text-text">Ville</label>
-            <input id="ville" pInputText [(ngModel)]="form.ville" class="w-full" />
+            <input id="ville" pInputText [(ngModel)]="form.ville" class="w-full" maxlength="100" />
           </div>
           <div>
             <label for="email" class="mb-2 block text-sm font-medium text-text">Email de contact</label>
-            <input id="email" type="email" pInputText [(ngModel)]="form.email_contact" class="w-full" />
+            <input id="email" type="email" pInputText [(ngModel)]="form.email_contact" class="w-full" maxlength="254" />
           </div>
         </div>
 
         <div>
           <p class="mb-2 text-sm font-medium text-text">Logo</p>
           <div class="flex items-center gap-4">
+            <!-- Fond clair derrière le logo : un logo blanc ou transparent
+                 reste visible ici (le menu latéral, lui, a un fond foncé). -->
             <div class="flex h-20 w-32 items-center justify-center rounded-lg border border-dashed border-border bg-background">
               @if (apercuLogo(); as logo) {
                 <img [src]="logo" alt="Logo de l'établissement" class="max-h-16 max-w-28 object-contain" />
@@ -40,10 +41,10 @@
               <input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" (change)="onLogo($event)" />
             </label>
           </div>
-          <small class="mt-1 block text-xs text-text-secondary">PNG, JPG ou WebP, 2 Mo maximum. Affiché dans le menu et sur les rapports PDF.</small>
+          <small class="mt-1 block text-xs text-text-secondary">PNG, JPG ou WebP, 2 Mo maximum. Affiché dans le menu et sur les rapports PDF. Préférez un logo clair ou transparent (le menu a un fond foncé).</small>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label for="primaire" class="mb-2 block text-sm font-medium text-text">Couleur principale</label>
             <div class="flex items-center gap-2">
@@ -66,20 +67,11 @@
       </div>
     </section>
 
-    <section class="rounded-xl border border-border bg-white p-6">
+    <!-- Règles de réservation -->
+    <section class="rounded-xl border border-border bg-white p-5 sm:p-6">
       <h2 class="mb-5 text-base font-semibold text-text">Règles de réservation</h2>
       <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="ouverture" class="mb-2 block text-sm font-medium text-text">Ouverture</label>
-            <input id="ouverture" type="time" pInputText [(ngModel)]="form.heure_ouverture" class="w-full" />
-          </div>
-          <div>
-            <label for="fermeture" class="mb-2 block text-sm font-medium text-text">Fermeture</label>
-            <input id="fermeture" type="time" pInputText [(ngModel)]="form.heure_fermeture" class="w-full" />
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label for="dureeMin" class="mb-2 block text-sm font-medium text-text">Durée minimale (min)</label>
             <p-inputNumber inputId="dureeMin" [(ngModel)]="form.duree_min_reservation" [min]="5" [max]="600" [step]="5" class="w-full" inputStyleClass="w-full" />
@@ -95,10 +87,46 @@
         </div>
         <div class="flex items-start gap-2 rounded-lg bg-primary-tint p-3 text-xs text-text-secondary">
           <i class="pi pi-info-circle mt-0.5 text-primary"></i>
-          <span>Ces règles s'appliquent aux nouvelles demandes et au calcul des créneaux proposés en cas de conflit.
-            Une durée minimale évite les réservations qui morcellent le planning (ex. 10h00–10h05).</span>
+          <span>Ces règles et les horaires ci-dessous s'appliquent aux nouvelles demandes et au calcul des créneaux proposés.</span>
         </div>
       </div>
     </section>
+
+    <!-- Horaires d'ouverture par jour -->
+    <section class="rounded-xl border border-border bg-white p-5 sm:p-6 xl:col-span-2">
+      <h2 class="mb-1 text-base font-semibold text-text">Horaires d'ouverture</h2>
+      <p class="mb-5 text-xs text-text-secondary">Définissez les horaires de chaque jour. Un jour « fermé » n'accepte aucune réservation.</p>
+
+      <div class="space-y-2">
+        @for (h of horaires; track h.jour) {
+          <div class="flex flex-col gap-3 rounded-lg border border-border px-3 py-2.5 sm:flex-row sm:items-center">
+            <span class="w-28 shrink-0 text-sm font-medium text-text">{{ jours[h.jour] }}</span>
+
+            <!-- Ouvert / Fermé -->
+            <label class="inline-flex cursor-pointer items-center gap-2 text-sm">
+              <input type="checkbox" [checked]="!h.ferme" (change)="h.ferme = !h.ferme"
+                class="h-4 w-4 accent-[var(--color-primary)]" [attr.aria-label]="'Ouvert le ' + jours[h.jour]" />
+              <span [class]="h.ferme ? 'text-text-secondary' : 'text-text'">{{ h.ferme ? 'Fermé' : 'Ouvert' }}</span>
+            </label>
+
+            @if (!h.ferme) {
+              <div class="flex items-center gap-2 sm:ml-auto">
+                <input type="time" pInputText [(ngModel)]="h.heure_ouverture" class="w-32" [attr.aria-label]="'Ouverture ' + jours[h.jour]" />
+                <span class="text-text-secondary">–</span>
+                <input type="time" pInputText [(ngModel)]="h.heure_fermeture" class="w-32" [attr.aria-label]="'Fermeture ' + jours[h.jour]" />
+              </div>
+            } @else {
+              <span class="text-sm text-text-secondary sm:ml-auto">Aucune réservation possible</span>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+
+  <!-- Barre d'action collée en bas -->
+  <div class="sticky bottom-0 -mx-4 mt-6 flex items-center justify-end gap-3 border-t border-border bg-white/95 px-4 py-3 backdrop-blur sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6"
+    style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom))">
+    <p-button label="Enregistrer les modifications" icon="pi pi-check" [loading]="enregistrement()" (onClick)="enregistrer()" />
   </div>
 </div>

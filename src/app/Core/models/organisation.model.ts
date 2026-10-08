@@ -1,3 +1,11 @@
+// Horaire d'ouverture d'un jour de la semaine (0 = lundi … 6 = dimanche).
+export interface HoraireJour {
+  jour: number;
+  ferme: boolean;
+  heure_ouverture: string; // HH:MM
+  heure_fermeture: string; // HH:MM
+}
+
 // Établissement client de la plateforme (unité d'isolation du SaaS).
 export interface Organisation {
   id: number;
@@ -13,6 +21,7 @@ export interface Organisation {
   duree_min_reservation: number;
   duree_max_reservation: number;
   delai_max_reservation_jours: number;
+  horaires: HoraireJour[];
   est_active: boolean;
   date_creation: string;
 }

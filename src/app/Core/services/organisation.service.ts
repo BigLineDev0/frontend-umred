@@ -14,6 +14,7 @@ const COULEURS_PAR_DEFAUT_HERITEES = ['#1848D9'];
 const SIDEBARS_PAR_DEFAUT_HERITEES = ['#0F172A', '#0F2158'];
 const VARIABLES_PRIMAIRES = [
   '--color-primary', '--color-primary-dark', '--color-primary-light', '--color-primary-soft', '--color-primary-tint',
+  '--color-secondary',
 ];
 
 
@@ -100,6 +101,9 @@ export class OrganisationService {
       racine.setProperty('--color-primary-light', nuances['300'] ?? primaire);
       racine.setProperty('--color-primary-soft', nuances['200'] ?? primaire);
       racine.setProperty('--color-primary-tint', nuances['50'] ?? primaire);
+      // L'accent secondaire (liens doux, badges, dégradés) suit aussi la
+      // couleur de l'établissement au lieu de rester sur le pervenche SenLab.
+      racine.setProperty('--color-secondary', nuances['400'] ?? nuances['300'] ?? primaire);
       updatePrimaryPalette(nuances);
     }
 

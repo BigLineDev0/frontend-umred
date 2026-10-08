@@ -12,9 +12,15 @@
     <a routerLink="/" (click)="closeSidebar()"
        title="Aller au site vitrine SenLab"
        class="flex items-center">
-      <img [src]="logo()"
-           [alt]="nomEtablissement() + ', retour au site vitrine'"
-           [class]="logoPersonnalise() ? 'max-h-20 max-w-[180px] object-contain' : 'h-7 w-auto'" />
+      <!-- Logo personnalisé : fond clair arrondi pour qu'un logo sombre ou
+           transparent reste visible sur le menu foncé. (error) : repli
+           automatique sur le logo SenLab si l'image ne se charge pas. -->
+      <span [class]="logoPersonnalise() ? 'inline-flex items-center rounded-md bg-white/95 px-2 py-1 shadow-sm' : ''">
+        <img [src]="logo()"
+             (error)="signalerLogoCasse()"
+             [alt]="nomEtablissement() + ', retour au site vitrine'"
+             [class]="logoPersonnalise() ? 'max-h-14 max-w-[160px] object-contain' : 'h-7 w-auto'" />
+      </span>
     </a>
   </div>
 

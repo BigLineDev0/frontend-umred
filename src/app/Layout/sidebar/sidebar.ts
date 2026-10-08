@@ -1,5 +1,5 @@
 import {
-  Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, inject, signal, viewChild,
+  Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, effect, inject, signal, viewChild,
 } from '@angular/core';
 import { AvatarModule } from 'primeng/avatar';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
@@ -48,13 +48,27 @@ export class Sidebar {
       this.destroyRef.onDestroy(() => observateur.disconnect());
       this.afficherLienActif();
     });
+
+    // Changement d'établissement : on retente d'afficher son logo.
+    effect(() => { this.organisationService.courante(); this.logoCasse.set(false); });
   }
 
   user = this.authService.currentUser;
 
-  // Logo de l'établissement s'il en a configuré un, sinon celui de la plateforme.
-  logoPersonnalise = computed(() => !!this.organisationService.courante()?.logo);
-  logo = computed(() => this.organisationService.courante()?.logo ?? 'images/logo-senlab-white.png');
+  readonly LOGO_DEFAUT = 'images/logo-senlab-white.png';
+  // Mis à true si le logo de l'établissement ne se charge pas (URL cassée,
+  // média indisponible) : on retombe alors sur le logo SenLab plutôt que
+  // d'afficher une image brisée.
+  private logoCasse = signal(false);
+
+  signalerLogoCasse(): void {
+    this.logoCasse.set(true);
+  }
+
+  // Logo de l'établissement s'il en a configuré un (et qu'il se charge),
+  // sinon celui de la plateforme.
+  logoPersonnalise = computed(() => !this.logoCasse() && !!this.organisationService.courante()?.logo);
+  logo = computed(() => (this.logoPersonnalise() ? this.organisationService.courante()!.logo : this.LOGO_DEFAUT) as string);
   nomEtablissement = computed(() => this.organisationService.courante()?.nom ?? 'SenLab');
 
   initials = computed(() => {
