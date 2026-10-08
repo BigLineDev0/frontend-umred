@@ -16,13 +16,14 @@ import { Laboratoire, StatutLaboratoire } from '../../../../Core/models/laborato
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { AuthService } from '../../../../Core/services/auth.service';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
+import { FilterBar } from '../../../../Shared/components/filter-bar/filter-bar';
 
 @Component({
   standalone: true,
   selector: 'app-laboratoires-list',
   templateUrl: './laboratoires-list.html',
   styleUrl: './laboratoires-list.css',
-  imports: [PageHeader, 
+  imports: [PageHeader, FilterBar,
     RouterLink, FormsModule, ButtonModule, TagModule, InputTextModule,
     SelectModule, IconFieldModule, InputIconModule, TooltipModule, ConfirmDialogModule,
   ],

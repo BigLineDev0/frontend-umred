@@ -10,37 +10,18 @@
     }
   </app-page-header>
 
-  <!-- Filtres -->
-  <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
-    <!-- Recherche -->
-    <div class="flex-1">
-      <p-iconfield class="w-full">
-        <p-inputicon class="pi pi-search" />
-
-        <input
-          pInputText
-          type="text"
-          placeholder="Rechercher un laboratoire..."
-          [ngModel]="search()"
-          (ngModelChange)="search.set($event)"
-          class="!h-11 w-full"
-        />
-      </p-iconfield>
-    </div>
-
-    <!-- Statut -->
-    <div class="w-full lg:w-auto">
-      <p-select
-        [options]="statusOptions"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Tous"
-        [ngModel]="selectedStatus()"
-        (ngModelChange)="selectedStatus.set($event)"
-        class="!h-11 w-full lg:min-w-44"
-      />
-    </div>
-  </div>
+  <!-- Filtres : barre de recherche partagée (même style que les autres listes) -->
+  <app-filter-bar searchPlaceholder="Rechercher un laboratoire..." (searchChange)="search.set($event)">
+    <p-select
+      [options]="statusOptions"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Tous"
+      [ngModel]="selectedStatus()"
+      (ngModelChange)="selectedStatus.set($event)"
+      class="w-full sm:w-auto sm:min-w-44"
+    />
+  </app-filter-bar>
 
   <!-- Chargement -->
   @if (loading()) {

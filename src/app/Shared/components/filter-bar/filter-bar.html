@@ -3,12 +3,19 @@
     <p-iconfield class="flex-1 min-w-[240px]">
       <p-inputicon class="pi pi-search" />
       <input
+        #champ
         pInputText
         type="text"
         [placeholder]="searchPlaceholder()"
-        (input)="searchChange.emit($any($event.target).value)"
-        class="w-full"
+        (input)="onInput($any($event.target).value)"
+        class="w-full pr-9"
       />
+      @if (valeur()) {
+        <button type="button" (click)="effacer(champ)" aria-label="Effacer la recherche"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text transition-colors">
+          <i class="pi pi-times text-xs"></i>
+        </button>
+      }
     </p-iconfield>
     <ng-content />
   </div>
