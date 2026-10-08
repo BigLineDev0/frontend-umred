@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "e2e": "playwright test",
+    "e2e:report": "playwright show-report e2e/report"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
@@ -29,6 +31,7 @@
   },
   "devDependencies": {
     "@angular/build": "^22.0.0",
+    "@playwright/test": "^1.49.0",
     "@angular/cli": "^22.0.0",
     "@angular/compiler-cli": "^22.0.0",
     "@tailwindcss/postcss": "^4.1.12",
