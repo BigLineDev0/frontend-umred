@@ -1,5 +1,8 @@
 export type StatutLaboratoire = 'DISPONIBLE' | 'INDISPONIBLE';
 
+// Affichée quand un laboratoire n'a pas (ou plus) de photo.
+export const PHOTO_LABORATOIRE_DEFAUT = 'images/laboratoire-defaut.jpg';
+
 export interface Laboratoire {
   id: number;
   nom: string;

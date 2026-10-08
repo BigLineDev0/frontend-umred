@@ -4,7 +4,7 @@
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Équipements', link: '/equipements' }, { label: isEditMode() ? 'Modifier' : 'Nouvel équipement' }]"
     [title]="pageTitle"
     [subtitle]="pageDescription">
-    <p-button actions label="Retour aux équipements" severity="secondary" [outlined]="true" icon="pi pi-arrow-left" routerLink="/equipements" />
+    <p-button actions [label]="libelleRetour()" severity="secondary" [outlined]="true" icon="pi pi-arrow-left" [routerLink]="lienRetour()" />
   </app-page-header>
 
   @if (error()) {
@@ -179,7 +179,7 @@
         <div class="flex items-center gap-3 mt-5">
           <p-checkbox formControlName="necessite_validation" [binary]="true" inputId="necessite_validation" />
           <label for="necessite_validation" class="text-sm text-text cursor-pointer">
-            Équipement sensible - nécessite toujours une validation, même pour un enseignant-chercheur ou un technicien
+            Équipement sensible - nécessite toujours une validation
           </label>
         </div>
       </section>
@@ -241,7 +241,7 @@
         </div>
 
         <div class="flex flex-col-reverse gap-3 sm:flex-row">
-          <a routerLink="/equipements" class="inline-flex">
+          <a [routerLink]="lienRetour()" class="inline-flex">
             <p-button type="button" label="Annuler" severity="secondary" [outlined]="true" [disabled]="loading()"
               (onClick)="annuler()" />
           </a>

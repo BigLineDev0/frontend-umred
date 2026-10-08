@@ -33,8 +33,11 @@
 
     <section>
       <h2 class="mb-4 text-lg font-semibold text-text">Informations du laboratoire</h2>
-      <div class="rounded-xl border border-border bg-white p-6">
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div class="overflow-hidden rounded-xl border border-border bg-white">
+        <img [src]="labo.photo || photoDefaut" [appImageRepli]="photoDefaut"
+          [alt]="'Photo du laboratoire ' + labo.nom"
+          class="h-48 w-full object-cover sm:h-64" />
+        <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-3">
           <div class="flex items-start gap-4">
             <div
               class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"
@@ -69,7 +72,7 @@
             </div>
             <div>
               <p class="font-semibold text-text">Responsable</p>
-              <p class="mt-1 text-sm text-text-secondary">{{ 'Non renseigné' }}</p>
+              <p class="mt-1 text-sm text-text-secondary">{{ labo.responsable_nom || 'Non renseigné' }}</p>
             </div>
           </div>
         </div>
@@ -77,19 +80,35 @@
     </section>
 
     <section>
-      <div class="mb-4 flex items-center gap-3">
-        <h2 class="text-lg font-semibold text-text">Équipements</h2>
-        <span
-          class="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/10 px-2 text-xs font-semibold text-primary"
-        >
-          {{ equipementsAffiches().length }}
-        </span>
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <h2 class="text-lg font-semibold text-text">Équipements</h2>
+          <span
+            class="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/10 px-2 text-xs font-semibold text-primary"
+          >
+            {{ equipementsAffiches().length }}
+          </span>
+        </div>
+        @if (peutAjouterEquipement()) {
+          <!-- Le laboratoire est pré-sélectionné dans le formulaire. -->
+          <p-button label="Ajouter un équipement" icon="pi pi-plus" size="small"
+            routerLink="/equipements/ajouter" [queryParams]="{ laboratoire: labo.id }" />
+        }
       </div>
 
       @if (equipementService.loading()) {
         <p class="text-sm text-text-secondary">Chargement des équipements...</p>
       } @else if (equipementsAffiches().length === 0) {
-        <p class="text-sm text-text-secondary">Aucun équipement enregistré pour ce laboratoire.</p>
+        <div class="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-white px-6 py-10 text-center">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <i class="pi pi-cog text-xl"></i>
+          </div>
+          <p class="text-sm text-text-secondary">Aucun équipement enregistré pour ce laboratoire.</p>
+          @if (peutAjouterEquipement()) {
+            <p-button label="Ajouter le premier équipement" icon="pi pi-plus" [outlined]="true"
+              routerLink="/equipements/ajouter" [queryParams]="{ laboratoire: labo.id }" />
+          }
+        </div>
       } @else {
         <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
           @for (equipement of equipementsAffiches(); track equipement.id) {
@@ -148,7 +167,7 @@
     }
 
     <p class="mt-5 text-xs leading-6 text-text-secondary">
-      Choisissez librement une date et une plage horaire lors de votre réservation — le système vérifie
+      Choisissez librement une date et une plage horaire lors de votre réservation, le système vérifie
       automatiquement les chevauchements avec les réservations confirmées.
     </p>
   </div>

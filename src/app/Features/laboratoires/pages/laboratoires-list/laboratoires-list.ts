@@ -12,18 +12,19 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
-import { Laboratoire, StatutLaboratoire } from '../../../../Core/models/laboratoire.model';
+import { Laboratoire, PHOTO_LABORATOIRE_DEFAUT, StatutLaboratoire } from '../../../../Core/models/laboratoire.model';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { AuthService } from '../../../../Core/services/auth.service';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 import { FilterBar } from '../../../../Shared/components/filter-bar/filter-bar';
+import { ImageRepliDirective } from '../../../../Shared/directives/image-repli.directive';
 
 @Component({
   standalone: true,
   selector: 'app-laboratoires-list',
   templateUrl: './laboratoires-list.html',
   styleUrl: './laboratoires-list.css',
-  imports: [PageHeader, FilterBar,
+  imports: [PageHeader, FilterBar, ImageRepliDirective,
     RouterLink, FormsModule, ButtonModule, TagModule, InputTextModule,
     SelectModule, IconFieldModule, InputIconModule, TooltipModule, ConfirmDialogModule,
   ],
@@ -41,6 +42,7 @@ export class LaboratoiresList implements OnInit {
   readonly error = this.laboratoireService.error;
 
   readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'ADMIN');
+  readonly photoDefaut = PHOTO_LABORATOIRE_DEFAUT;
 
   search = signal('');
   selectedStatus = signal<StatutLaboratoire | null>(null);
@@ -71,19 +73,6 @@ export class LaboratoiresList implements OnInit {
 
   getStatusSeverity(status: StatutLaboratoire) {
     return status === 'DISPONIBLE' ? 'success' : 'secondary';
-  }
-
-  // Icône décorative basée sur le nom — purement cosmétique, aucune donnée
-  // métier n'en dépend, donc pas grave si un labo au nom inhabituel retombe
-  // sur l'icône générique par défaut.
-  getLaboratoireIcon(laboratoire: Laboratoire): string {
-    const nom = laboratoire.nom.toLowerCase();
-    if (nom.includes('biochimie') || nom.includes('chimie')) return 'pi pi-cog';
-    if (nom.includes('microbiologie')) return 'pi pi-microchip';
-    if (nom.includes('moléculaire')) return 'pi pi-sitemap';
-    if (nom.includes('imagerie')) return 'pi pi-camera';
-    if (nom.includes('physique')) return 'pi pi-bolt';
-    return 'pi pi-building';
   }
 
   voirLaboratoire(laboratoire: Laboratoire): void {

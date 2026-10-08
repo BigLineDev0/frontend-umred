@@ -83,6 +83,14 @@ export class EquipementForm implements OnInit {
     seuil_heures_maintenance: [200, [Validators.required, Validators.min(1), Validators.max(100000)]],
   });
 
+  // Ouvert depuis la fiche d'un laboratoire (?laboratoire=ID) : ce
+  // laboratoire est pré-sélectionné et on y revient après l'enregistrement.
+  readonly laboratoireOrigine = signal<number | null>(null);
+  readonly lienRetour = computed(() =>
+    this.laboratoireOrigine() ? ['/laboratoires', this.laboratoireOrigine()!] : ['/equipements']);
+  readonly libelleRetour = computed(() =>
+    this.laboratoireOrigine() ? 'Retour au laboratoire' : 'Retour aux équipements');
+
   ngOnInit(): void {
     this.laboratoireService.charger();
 
@@ -91,6 +99,13 @@ export class EquipementForm implements OnInit {
       this.isEditMode.set(true);
       this.equipementId = Number(id);
       this.chargerEquipement(this.equipementId);
+      return;
+    }
+
+    const laboratoire = Number(this.route.snapshot.queryParamMap.get('laboratoire'));
+    if (Number.isInteger(laboratoire) && laboratoire > 0) {
+      this.laboratoireOrigine.set(laboratoire);
+      this.form.patchValue({ laboratoireId: laboratoire });
     }
   }
 
@@ -199,7 +214,7 @@ export class EquipementForm implements OnInit {
       summary: this.isEditMode() ? 'Équipement modifié' : 'Équipement ajouté',
       detail: `« ${nom} » a été enregistré avec succès.`,
     });
-    this.router.navigate(['/equipements']);
+    this.router.navigate(this.lienRetour());
   }
 
   private formatDate(date: Date): string {
@@ -222,6 +237,6 @@ export class EquipementForm implements OnInit {
   }
 
   annuler(): void {
-    this.router.navigate(['/equipements']);
+    this.router.navigate(this.lienRetour());
   }
 }

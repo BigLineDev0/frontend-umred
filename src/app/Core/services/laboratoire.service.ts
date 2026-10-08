@@ -44,6 +44,22 @@ export class LaboratoireService {
     );
   }
 
+  // La photo part à part, en multipart : le reste du laboratoire est
+  // envoyé en JSON par creer() / modifier().
+  televerserPhoto(id: number, fichier: File): Observable<Laboratoire> {
+    const donnees = new FormData();
+    donnees.append('photo', fichier);
+    return this.http.patch<Laboratoire>(`${this.baseUrl}/laboratoires/${id}/`, donnees).pipe(
+      tap(maj => this.laboratoires.update(list => list.map(l => l.id === id ? maj : l)))
+    );
+  }
+
+  retirerPhoto(id: number): Observable<Laboratoire> {
+    return this.http.patch<Laboratoire>(`${this.baseUrl}/laboratoires/${id}/`, { photo: null }).pipe(
+      tap(maj => this.laboratoires.update(list => list.map(l => l.id === id ? maj : l)))
+    );
+  }
+
   supprimer(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/laboratoires/${id}/`).pipe(
       tap(() => this.laboratoires.update(list => list.filter(l => l.id !== id)))

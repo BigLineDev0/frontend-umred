@@ -3,19 +3,21 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 
-import { Laboratoire, StatutLaboratoire } from '../../../../Core/models/laboratoire.model';
+import { Laboratoire, PHOTO_LABORATOIRE_DEFAUT, StatutLaboratoire } from '../../../../Core/models/laboratoire.model';
 import { LaboratoireService } from '../../../../Core/services/laboratoire.service';
 import { EquipementService } from '../../../../Core/services/equipement.service';
 import { ReservationService } from '../../../../Core/services/reservation.service';
 import { DatePipe } from '@angular/common';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
+import { ImageRepliDirective } from '../../../../Shared/directives/image-repli.directive';
+import { AuthService } from '../../../../Core/services/auth.service';
 
 @Component({
   standalone: true,
   selector: 'app-laboratoire-detail',
   templateUrl: './laboratoire-detail.html',
   styleUrl: './laboratoire-detail.css',
-  imports: [PageHeader, RouterLink, ButtonModule, TagModule, DatePipe],
+  imports: [PageHeader, RouterLink, ButtonModule, TagModule, DatePipe, ImageRepliDirective],
 })
 export class LaboratoireDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -23,6 +25,12 @@ export class LaboratoireDetail implements OnInit {
   private readonly laboratoireService = inject(LaboratoireService);
   readonly equipementService = inject(EquipementService);
   readonly reservationService = inject(ReservationService);
+  private readonly authService = inject(AuthService);
+
+  readonly photoDefaut = PHOTO_LABORATOIRE_DEFAUT;
+  // Mêmes rôles que le garde de la route /equipements/ajouter.
+  readonly peutAjouterEquipement = computed(() =>
+    ['ADMIN', 'TECHNICIEN'].includes(this.authService.currentUser()?.role ?? ''));
 
   laboratoire = signal<Laboratoire | null>(null);
   loading = signal(true);
