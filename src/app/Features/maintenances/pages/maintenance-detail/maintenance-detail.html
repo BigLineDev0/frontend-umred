@@ -15,7 +15,7 @@
       [subtitle]="'Intervention ' + (m.type === 'PREVENTIVE' ? 'préventive' : 'corrective') + ' sur l\'équipement « ' + m.equipement_nom + ' ».'">
       <p-tag badge [value]="getStatusLabel(m.statut)" [severity]="getStatusSeverity(m.statut)" [rounded]="true" />
       @if (canManage()) {
-        <div actions class="flex gap-2 shrink-0">
+        <div actions class="flex flex-wrap gap-2 shrink-0">
           @if (m.statut === 'PLANIFIEE' || m.statut === 'EN_COURS') {
             <p-button label="Clôturer" icon="pi pi-check-circle" severity="success" (onClick)="ouvrirCloture()" />
           }

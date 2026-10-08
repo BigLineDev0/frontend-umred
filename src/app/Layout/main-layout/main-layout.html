@@ -1,4 +1,4 @@
-<div class="flex h-screen overflow-hidden bg-background">
+<div class="flex h-[100dvh] overflow-hidden bg-background">
 
   <!-- Sidebar -->
   <app-sidebar />
@@ -11,11 +11,17 @@
 
     <!-- Sur téléphone, les toasts (25rem par défaut) dépassaient de l'écran. -->
     <p-toast position="top-right" [breakpoints]="{ '640px': { width: 'calc(100vw - 1rem)', right: '0.5rem', left: '0.5rem' } }" />
-    <!-- Contenu -->
-    <main class="flex-1 overflow-y-auto bg-background p-4 sm:p-5 lg:p-6">
-      <router-outlet />
 
-      <app-footer-dahsboard />
+    <!-- Contenu : le wrapper fait au moins toute la hauteur, le contenu
+         pousse (flex-1) et le pied de page reste collé en bas (mt-auto),
+         sans recouvrir le contenu quand il est long. -->
+    <main class="flex-1 overflow-y-auto bg-background">
+      <div class="flex min-h-full flex-col p-4 sm:p-5 lg:p-6">
+        <div class="flex-1">
+          <router-outlet />
+        </div>
+        <app-footer-dahsboard class="mt-auto block" />
+      </div>
     </main>
     <app-assistant-chat-app />
 

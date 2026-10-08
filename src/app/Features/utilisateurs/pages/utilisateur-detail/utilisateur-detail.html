@@ -10,7 +10,7 @@
       [title]="u.prenom + ' ' + u.nom"
       [subtitle]="roleLabel(u.role)">
       <app-status-badge badge [statut]="u.statut_compte" />
-      <div actions class="flex gap-2 shrink-0">
+      <div actions class="flex flex-wrap gap-2 shrink-0">
         <p-button label="Modifier" icon="pi pi-pencil" severity="secondary" [outlined]="true" (onClick)="ouvrirModification()" />
         <p-button [label]="statusAction() === 'desactiver' ? 'Désactiver le compte' : 'Activer le compte'"
           [icon]="statusAction() === 'desactiver' ? 'pi pi-power-off' : 'pi pi-check'"

@@ -1,11 +1,19 @@
-<!-- Bouton flottant -->
+<!-- Bouton flottant (respecte la barre d'accueil iOS via la safe-area) -->
 <button type="button" (click)="toggle()"
-  class="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-primary text-white shadow-lg shadow-primary/30 flex items-center justify-center">
+  [attr.aria-label]="ouvert() ? 'Fermer l\'assistant' : 'Ouvrir l\'assistant SenLab'"
+  [attr.aria-expanded]="ouvert()"
+  class="fixed right-6 z-40 w-14 h-14 rounded-full bg-primary text-white shadow-lg shadow-primary/30 flex items-center justify-center"
+  style="bottom: max(1.5rem, env(safe-area-inset-bottom))">
   <i class="pi text-xl" [class.pi-comments]="!ouvert()" [class.pi-times]="ouvert()"></i>
 </button>
 
 @if (ouvert()) {
-  <div class="fixed bottom-24 right-6 z-40 w-[380px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[75vh] bg-white rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden chat-panel-in">
+  <!-- Mobile : quasi plein écran en dvh (tient compte du clavier virtuel) ;
+       à partir de sm : panneau flottant ancré en bas à droite. -->
+  <div role="dialog" aria-label="Assistant SenLab"
+    class="fixed inset-3 z-40 w-auto h-auto max-h-[100dvh]
+           sm:inset-auto sm:bottom-24 sm:right-6 sm:w-[380px] sm:h-[560px] sm:max-h-[75dvh]
+           bg-white rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden chat-panel-in">
 
     <!-- En-tête -->
     <div class="bg-linear-to-r from-navy to-primary px-5 py-4 flex items-center justify-between shrink-0">
@@ -194,13 +202,17 @@
       </div>
     }
 
-    <!-- Zone de saisie -->
-    <div class="border-t border-border p-3 flex items-center gap-2 shrink-0 bg-white">
+    <!-- Zone de saisie (toujours visible ; safe-area iOS en bas) -->
+    <div class="border-t border-border p-3 flex items-center gap-2 shrink-0 bg-white"
+      style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom))">
+      <!-- min-w-0 : sans cela l'input garde sa largeur minimale et pousse le
+           bouton d'envoi hors du panneau. text-base (16px) : évite le zoom
+           automatique de Safari iOS au focus. -->
       <input type="text" [ngModel]="saisie()" (ngModelChange)="saisie.set($event)" (keyup.enter)="envoyer()"
-        placeholder="Écrivez votre demande..."
-        class="flex-1 text-sm border border-border rounded-full px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition-shadow" />
-      <button type="button" (click)="envoyer()" [disabled]="!saisie().trim()"
-        class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors"
+        placeholder="Écrivez votre demande..." aria-label="Votre message"
+        class="min-w-0 flex-1 text-base sm:text-sm border border-border rounded-full px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition-shadow" />
+      <button type="button" (click)="envoyer()" [disabled]="!saisie().trim()" aria-label="Envoyer le message"
+        class="w-11 h-11 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors"
         [class]="saisie().trim() ? 'bg-primary text-white hover:bg-primary-dark' : 'bg-background text-text-secondary/40 cursor-not-allowed'">
         <i class="pi pi-send text-sm"></i>
       </button>

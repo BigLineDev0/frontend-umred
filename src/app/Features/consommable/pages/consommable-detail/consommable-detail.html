@@ -10,7 +10,7 @@
       [title]="c.nom"
       [subtitle]="c.laboratoire_nom + (c.reference ? ' · Réf. ' + c.reference : '')">
       <app-status-badge badge [statut]="c.statut" />
-      <div actions class="flex gap-2">
+      <div actions class="flex flex-wrap gap-2">
         <p-button label="Déclarer une utilisation" icon="pi pi-minus-circle" severity="secondary" [outlined]="true" (onClick)="ouvrirModale('retirer')" />
         @if (canManage()) {
           <p-button label="Réapprovisionner" icon="pi pi-plus-circle" (onClick)="ouvrirModale('reapprovisionner')" />

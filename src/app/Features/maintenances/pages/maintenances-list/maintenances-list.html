@@ -2,7 +2,7 @@
 
   <app-page-header [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Maintenances' }]"
     title="Maintenances" subtitle="Planifiez, suivez et consultez les interventions de maintenance des équipements.">
-    <div actions class="flex gap-2">
+    <div actions class="flex flex-wrap gap-2">
       <p-button label="Équipements en panne" icon="pi pi-exclamation-triangle" severity="danger" [outlined]="true" routerLink="/maintenances/pannes" />
       <p-button label="Nouvelle maintenance" icon="pi pi-plus" (onClick)="formModalVisible.set(true)" />
     </div>
