@@ -204,9 +204,10 @@
                           <button type="button" (click)="selectionnerOption(opt)"
                             class="group flex w-full items-center gap-3 rounded-xl border border-border bg-white px-3.5 py-2.5 text-left transition-colors hover:border-primary/40 hover:bg-primary-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
                             <span class="min-w-0 flex-1">
-                              <span class="block truncate text-xs font-semibold text-text">{{ opt.label }}</span>
+                              <!-- 2 lignes max : sur mobile, couper le nom masquait l'information principale -->
+                              <span class="block line-clamp-2 text-xs font-semibold text-text">{{ opt.label }}</span>
                               @if (opt.description) {
-                                <span class="mt-0.5 block truncate text-[11px] text-text-secondary">{{ opt.description }}</span>
+                                <span class="mt-0.5 block line-clamp-2 text-[11px] text-text-secondary">{{ opt.description }}</span>
                               }
                             </span>
                             <i class="pi pi-chevron-right shrink-0 text-[10px] text-text-secondary transition-transform group-hover:translate-x-0.5 group-hover:text-primary"></i>

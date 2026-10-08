@@ -50,18 +50,19 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
     // pas du pipeline conversationnel — il se déclenche à l'ouverture,
     // pas en réponse à un message de l'utilisateur.
     this.assistantService.chargerAccueil().subscribe({
-      next: (res) => {
-        this.messages.set([{ role: 'assistant', texte: res.reponse, blocs: this.decouper(res.reponse), heure: this.heureActuelle() }]);
-        this.chargementAccueil.set(false);
-      },
-      error: () => {
-        // Filet de sécurité si FastAPI ou Django est momentanément
-        // indisponible : un message générique plutôt qu'un panneau vide.
-        const texte = this.messageAccueilGenerique();
-        this.messages.set([{ role: 'assistant', texte, blocs: this.decouper(texte), heure: this.heureActuelle() }]);
-        this.chargementAccueil.set(false);
-      },
+      next: (res) => this.afficherAccueil(res.reponse),
+      // Filet de sécurité si FastAPI ou Django est momentanément
+      // indisponible : un message générique plutôt qu'un panneau vide.
+      error: () => this.afficherAccueil(this.messageAccueilGenerique()),
     });
+  }
+
+  // L'accueil se place en tête SANS écraser la conversation : un utilisateur
+  // rapide a pu envoyer un message avant la réponse de /chat/accueil.
+  private afficherAccueil(texte: string): void {
+    const accueil: ChatMessage = { role: 'assistant', texte, blocs: this.decouper(texte), heure: this.heureActuelle() };
+    this.messages.update(m => [accueil, ...m]);
+    this.chargementAccueil.set(false);
   }
 
   private messageAccueilGenerique(): string {
