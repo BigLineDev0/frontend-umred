@@ -1,6 +1,19 @@
 export interface ChatOption {
   label: string;
   value: string;
+  // Détail affiché en sous-titre (laboratoire, disponibilité, date...).
+  description?: string | null;
+}
+
+// Présentation des options : Oui/Non côte à côte, pastilles pour les
+// libellés courts (créneaux, réponses rapides), cartes sinon.
+export type GenreOptions = 'confirmation' | 'pastilles' | 'cartes';
+
+// Texte d'une réponse découpé en blocs affichables.
+export interface BlocTexte {
+  type: 'texte' | 'liste' | 'numerotee' | 'info' | 'alerte';
+  lignes: string[];
+  critique?: boolean;
 }
 
 export interface DetailsConfirmation {
@@ -48,6 +61,8 @@ export interface ChatMessage {
   heure: string;
   type?: TypeReponse;
   options?: ChatOption[];
+  genreOptions?: GenreOptions;
+  blocs?: BlocTexte[];
   details_confirmation?: DetailsConfirmation;
   actions?: ChatAction[];
   reservations?: ReservationResume[];

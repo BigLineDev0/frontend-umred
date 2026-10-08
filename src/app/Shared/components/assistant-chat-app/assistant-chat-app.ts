@@ -5,17 +5,17 @@ import { RouterLink } from '@angular/router';
 import { AssistantService } from '../../../Core/services/assistant.service';
 import { AuthService } from '../../../Core/services/auth.service';
 import {
-  ChatMessage, ChatOption, ChatResponse, CreneauLibre, ReservationResume,
+  BlocTexte, ChatMessage, ChatOption, ChatResponse, CreneauLibre, ReservationResume,
 } from '../../../Core/models/assistant.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { messageErreur } from '../../utils/message-erreur';
 import { StatusBadge } from '../status-badge';
+import { decouperTexte, genreOptions } from './mise-en-forme';
 
 // Une route interne commence par un seul « / » : tout lien externe ou
 // « //domaine » est ignoré, même si le service IA en renvoyait un.
 const ROUTE_INTERNE = /^\/(?!\/)[A-Za-z0-9/_-]*$/;
 
-interface Segment { type: 'texte' | 'liste'; lignes: string[]; }
 
 @Component({
   selector: 'app-assistant-chat-app',
@@ -51,13 +51,14 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
     // pas en réponse à un message de l'utilisateur.
     this.assistantService.chargerAccueil().subscribe({
       next: (res) => {
-        this.messages.set([{ role: 'assistant', texte: res.reponse, heure: this.heureActuelle() }]);
+        this.messages.set([{ role: 'assistant', texte: res.reponse, blocs: this.decouper(res.reponse), heure: this.heureActuelle() }]);
         this.chargementAccueil.set(false);
       },
       error: () => {
         // Filet de sécurité si FastAPI ou Django est momentanément
         // indisponible : un message générique plutôt qu'un panneau vide.
-        this.messages.set([{ role: 'assistant', texte: this.messageAccueilGenerique(), heure: this.heureActuelle() }]);
+        const texte = this.messageAccueilGenerique();
+        this.messages.set([{ role: 'assistant', texte, blocs: this.decouper(texte), heure: this.heureActuelle() }]);
         this.chargementAccueil.set(false);
       },
     });
@@ -113,6 +114,7 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
         this.erreurConnexion.set(!tropDeMessages);
         this.ajouterReponse({
           role: 'assistant',
+          type: tropDeMessages ? 'message' : 'error',
           texte: tropDeMessages
             ? messageErreur(err)
             : "Désolé, je n'arrive pas à vous répondre pour le moment. Vous pouvez utiliser le formulaire classique en attendant.",
@@ -128,7 +130,8 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
     const data = res.data;
     return {
       role: 'assistant', texte: res.reponse, heure: this.heureActuelle(), type: res.type,
-      options: res.options, details_confirmation: res.details_confirmation,
+      blocs: decouperTexte(res.reponse),
+      options: res.options, genreOptions: genreOptions(res), details_confirmation: res.details_confirmation,
       actions: (res.actions ?? []).filter(a => a.type === 'navigate' && ROUTE_INTERNE.test(a.route)),
       reservations: res.type === 'reservations' && Array.isArray(data) ? data as ReservationResume[] : undefined,
       creneaux: res.type === 'availability' ? this.creneauxDe(data) : undefined,
@@ -172,26 +175,11 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
     this.scrollDemande = true;
   }
 
-  segments(texte: string): Segment[] {
-    const lignes = texte.split('\n');
-    const segments: Segment[] = [];
-    let listeCourante: string[] = [];
-
-    const flush = () => {
-      if (listeCourante.length) { segments.push({ type: 'liste', lignes: listeCourante }); listeCourante = []; }
-    };
-
-    for (const ligne of lignes) {
-      if (ligne.trim().startsWith('- ')) {
-        listeCourante.push(ligne.trim().slice(2));
-      } else {
-        flush();
-        if (ligne.trim()) segments.push({ type: 'texte', lignes: [ligne] });
-      }
-    }
-    flush();
-    return segments;
+  // Utilisée par le template pour les messages sans blocs pré-calculés.
+  decouper(texte: string): BlocTexte[] {
+    return decouperTexte(texte);
   }
+
 
   private heureActuelle(): string {
     return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
