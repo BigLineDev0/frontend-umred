@@ -3,10 +3,14 @@
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Rapports & statistiques' }]"
     title="Rapports & statistiques"
     subtitle="Analysez l'activité et l'utilisation des ressources du laboratoire.">
-    <div actions class="flex gap-2">
-      <p-button label="Exporter en PDF" icon="pi pi-file-pdf" severity="secondary" [outlined]="true" class="no-print"
+    <!-- Mobile : boutons empilés en pleine largeur (côte à côte, ils
+         dépassaient sur un écran de 360 px) ; 2 colonnes dès 400 px. -->
+    <div actions class="no-print grid w-full grid-cols-1 gap-2 min-[400px]:grid-cols-2 sm:flex sm:w-auto">
+      <p-button label="Exporter en PDF" icon="pi pi-file-pdf" severity="secondary" [outlined]="true"
+        [fluid]="true" styleClass="justify-center whitespace-nowrap"
         [loading]="exportEnCours() === 'pdf'" [disabled]="exportEnCours() !== null" (onClick)="exporterPdf()" />
-      <p-button label="Exporter en Excel" icon="pi pi-file-excel" class="no-print"
+      <p-button label="Exporter en Excel" icon="pi pi-file-excel"
+        [fluid]="true" styleClass="justify-center whitespace-nowrap"
         [loading]="exportEnCours() === 'xlsx'" [disabled]="exportEnCours() !== null" (onClick)="exporterExcel()" />
     </div>
   </app-page-header>
