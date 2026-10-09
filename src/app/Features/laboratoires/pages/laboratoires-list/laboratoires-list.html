@@ -58,7 +58,7 @@
     @if (filteredLaboratoires().length > 0) {
 
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 animate-stagger">
-        @for (laboratoire of filteredLaboratoires(); track laboratoire.id) {
+        @for (laboratoire of laboratoiresPage(); track laboratoire.id) {
           <article
             class="group flex flex-col overflow-hidden rounded-xl border border-border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
           >
@@ -161,9 +161,15 @@
       </div>
 
       <!-- Pagination -->
-      <p class="text-sm text-text-secondary border-t border-border pt-5">
-        {{ filteredLaboratoires().length }} laboratoire{{ filteredLaboratoires().length > 1 ? 's' : '' }}
-      </p>
+      <!-- Marge à droite : le bouton flottant de l'assistant ne doit pas masquer le choix du nombre par page. -->
+      <div class="flex flex-col items-center gap-3 border-t border-border pt-5 sm:flex-row sm:justify-between sm:pr-20">
+        <p class="text-sm text-text-secondary">{{ resumePage() }}</p>
+        @if (filteredLaboratoires().length > parPageOptions[0]) {
+          <p-paginator [first]="premier()" [rows]="parPage()" [totalRecords]="filteredLaboratoires().length"
+            [rowsPerPageOptions]="parPageOptions" [pageLinkSize]="3" (onPageChange)="changerPage($event)"
+            styleClass="!bg-transparent !p-0" />
+        }
+      </div>
     }
 
     <!-- Aucun résultat -->
