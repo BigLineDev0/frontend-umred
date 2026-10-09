@@ -3,7 +3,11 @@
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Utilisateurs' }]"
     title="Utilisateurs"
     subtitle="Gérez les comptes et les accès à la plateforme.">
-    <p-button actions label="Nouvel utilisateur" icon="pi pi-plus" (onClick)="ouvrirAjout()" />
+    <div actions class="flex flex-col gap-2 sm:flex-row">
+      <p-button label="Assigner un encadrant" icon="pi pi-users" severity="secondary" [outlined]="true"
+        (onClick)="ouvrirAssignationGroupee()" />
+      <p-button label="Nouvel utilisateur" icon="pi pi-plus" (onClick)="ouvrirAjout()" />
+    </div>
   </app-page-header>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-stagger">
@@ -19,8 +23,11 @@
         <i class="pi pi-user-plus"></i>
         {{ sansEncadrant() | accord: 'étudiant' }} sans encadrant : les demandes de réservation concernées sont traitées par les techniciens.
       </p>
-      <p-button [label]="filtreSansEncadrant() ? 'Afficher tout le monde' : 'Afficher ces étudiants'" size="small" [text]="true"
-        (onClick)="filtreSansEncadrant.set(!filtreSansEncadrant())" />
+      <div class="flex flex-wrap gap-2">
+        <p-button [label]="filtreSansEncadrant() ? 'Afficher tout le monde' : 'Afficher ces étudiants'" size="small" [text]="true"
+          (onClick)="filtreSansEncadrant.set(!filtreSansEncadrant())" />
+        <p-button label="Les assigner" icon="pi pi-user-plus" size="small" severity="warn" (onClick)="ouvrirAssignationGroupee(true)" />
+      </div>
     </div>
   }
 
@@ -83,6 +90,8 @@
 </div>
 
 <app-utilisateur-form-modal [(visible)]="formModalVisible" [utilisateurAModifier]="utilisateurAModifier()" />
+<app-assignation-groupee-modal [(visible)]="assignationGroupeeVisible" [encadrants]="encadrants()"
+  [sansEncadrantSeulement]="assignationSansEncadrant()" />
 
 <p-dialog [visible]="etudiantCible() !== null" (visibleChange)="!$event && etudiantCible.set(null)" [modal]="true"
   [draggable]="false" header="Encadrant de l'étudiant" [style]="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }">

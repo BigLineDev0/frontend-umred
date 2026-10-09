@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Utilisateur, UtilisateurPayload, Encadrant } from '../models/utilisateur.model';
+import { Utilisateur, UtilisateurPayload, Encadrant, ResultatAssignation } from '../models/utilisateur.model';
 
 @Injectable({ providedIn: 'root' })
 export class UtilisateurService {
@@ -50,6 +50,16 @@ export class UtilisateurService {
   assignerEncadrant(id: number, encadrant: number | null): Observable<Utilisateur> {
     return this.http.patch<Utilisateur>(`${this.baseUrl}/utilisateurs/${id}/`, { encadrant }).pipe(
       tap(maj => this.utilisateurs.update(list => list.map(u => u.id === id ? maj : u)))
+    );
+  }
+
+  // Plusieurs étudiants rattachés au même encadrant, en une seule opération.
+  assignerEncadrantGroupe(etudiants: number[], encadrant: number): Observable<ResultatAssignation> {
+    return this.http.post<ResultatAssignation>(`${this.baseUrl}/utilisateurs/assigner_encadrant/`, { etudiants, encadrant }).pipe(
+      tap(({ etudiants: majs }) => {
+        const parId = new Map(majs.map(u => [u.id, u]));
+        this.utilisateurs.update(list => list.map(u => parId.get(u.id) ?? u));
+      })
     );
   }
 

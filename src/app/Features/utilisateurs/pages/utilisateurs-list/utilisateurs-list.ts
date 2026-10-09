@@ -16,6 +16,7 @@ import { ColumnTemplateDirective } from '../../../../Shared/components/column-te
 import { StatusBadge } from '../../../../Shared/components/status-badge';
 import { UserStatusModal } from '../../../../Shared/components/user-status-modal/user-status-modal';
 import { UtilisateurFormModal } from '../utilisateur-form-modal/utilisateur-form-modal';
+import { AssignationGroupeeModal } from '../assignation-groupee-modal/assignation-groupee-modal';
 
 import { Encadrant, Utilisateur } from '../../../../Core/models/utilisateur.model';
 import { UtilisateurService } from '../../../../Core/services/utilisateur.service';
@@ -28,7 +29,7 @@ import { messageErreur } from '../../../../Shared/utils/message-erreur';
   imports: [AccordPipe, 
     FormsModule, ButtonModule, SelectModule, TooltipModule, DialogModule,
     PageHeader, MiniStatCard, FilterBar, DataTable, ColumnTemplateDirective, StatusBadge,
-    UserStatusModal, UtilisateurFormModal,
+    UserStatusModal, UtilisateurFormModal, AssignationGroupeeModal,
   ],
 })
 export class UtilisateursList implements OnInit {
@@ -59,6 +60,15 @@ export class UtilisateursList implements OnInit {
   etudiantCible = signal<Utilisateur | null>(null);
   encadrantChoisi: number | null = null;
   assignationEnCours = signal(false);
+
+  // Assignation groupée (plusieurs étudiants, un encadrant)
+  assignationGroupeeVisible = signal(false);
+  assignationSansEncadrant = signal(false);
+
+  ouvrirAssignationGroupee(sansEncadrantSeulement = false): void {
+    this.assignationSansEncadrant.set(sansEncadrantSeulement);
+    this.assignationGroupeeVisible.set(true);
+  }
 
   readonly statutsAcademiques: Record<string, string> = {
     DOCTORANT: 'Doctorant', MAITRE_DE_CONFERENCES: 'Maître de conférences', PROFESSEUR: 'Professeur',

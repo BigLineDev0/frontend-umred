@@ -32,3 +32,10 @@ export interface Encadrant {
   id: number;
   nom_complet: string;
 }
+
+// Réponse de l'assignation groupée : étudiants à jour et décompte.
+export interface ResultatAssignation {
+  modifies: number;
+  inchanges: number;
+  etudiants: Utilisateur[];
+}

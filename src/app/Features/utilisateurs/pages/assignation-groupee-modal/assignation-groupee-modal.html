@@ -1,0 +1,79 @@
+<p-dialog [(visible)]="visible" [modal]="true" [draggable]="false" [resizable]="false" header="Assigner un encadrant"
+  [style]="{ width: '36rem', maxWidth: 'calc(100vw - 2rem)' }">
+  <div class="space-y-5">
+    <div>
+      <label for="encadrant-groupe" class="mb-2 block text-sm font-medium text-text">Encadrant</label>
+      <p-select inputId="encadrant-groupe" [options]="encadrants()" optionLabel="nom_complet" optionValue="id"
+        [ngModel]="encadrantChoisi()" (ngModelChange)="encadrantChoisi.set($event)"
+        placeholder="Choisir un enseignant-chercheur" [filter]="true" filterBy="nom_complet" appendTo="body" class="w-full"
+        emptyMessage="Aucun enseignant-chercheur actif dans l'établissement" />
+      <p class="mt-1.5 text-xs text-text-secondary">
+        @if (encadrantChoisi() !== null) {
+          Encadre actuellement {{ dejaEncadres() | accord: 'étudiant' }}.
+        } @else {
+          Il recevra et validera les demandes de réservation des étudiants rattachés.
+        }
+      </p>
+    </div>
+
+    <div>
+      <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <span class="text-sm font-medium text-text">Étudiants</span>
+        <label class="flex cursor-pointer items-center gap-2 text-xs text-text-secondary">
+          <input type="checkbox" class="h-4 w-4 accent-primary" [checked]="filtreSansEncadrant()"
+            (change)="filtreSansEncadrant.set(!filtreSansEncadrant())" />
+          Sans encadrant uniquement
+        </label>
+      </div>
+
+      <p-iconfield class="mb-2 block">
+        <p-inputicon styleClass="pi pi-search" />
+        <input pInputText type="search" class="w-full" placeholder="Rechercher un étudiant..." aria-label="Rechercher un étudiant"
+          [ngModel]="recherche()" (ngModelChange)="recherche.set($event)" />
+      </p-iconfield>
+
+      <div class="overflow-hidden rounded-lg border border-border">
+        @if (etudiantsAffiches().length) {
+          <label class="flex cursor-pointer items-center gap-3 border-b border-border bg-background px-3 py-2.5 text-sm">
+            <input type="checkbox" class="h-4 w-4 accent-primary" [checked]="tousAffichesCoches()" (change)="basculerTous()" />
+            <span class="font-medium text-text">Tout sélectionner</span>
+            <span class="ml-auto text-xs text-text-secondary">{{ etudiantsAffiches().length | accord: 'étudiant' }}</span>
+          </label>
+          <ul class="max-h-72 divide-y divide-border overflow-y-auto">
+            @for (e of etudiantsAffiches(); track e.id) {
+              <li>
+                <label class="flex cursor-pointer items-center gap-3 px-3 py-2.5 hover:bg-primary-tint/50"
+                  [class.bg-primary-tint]="selection().has(e.id)">
+                  <input type="checkbox" class="h-4 w-4 shrink-0 accent-primary" [checked]="selection().has(e.id)" (change)="basculer(e)" />
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate text-sm font-medium text-text">{{ e.prenom }} {{ e.nom }}</span>
+                    <span class="block truncate text-xs text-text-secondary">{{ e.email }}</span>
+                  </span>
+                  @if (e.encadrant_nom) {
+                    <span class="hidden max-w-40 shrink-0 truncate text-xs text-text-secondary sm:block" [title]="e.encadrant_nom">{{ e.encadrant_nom }}</span>
+                  } @else if (!filtreSansEncadrant()) {
+                    <!-- Inutile de le répéter quand seuls les étudiants sans encadrant sont listés. -->
+                    <span class="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800">Sans encadrant</span>
+                  }
+                </label>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="px-3 py-8 text-center text-sm text-text-secondary">
+            {{ recherche() ? 'Aucun étudiant ne correspond à la recherche.' : 'Tous les étudiants ont déjà un encadrant.' }}
+          </p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
+      <p-button label="Annuler" severity="secondary" [outlined]="true" (onClick)="visible.set(false)" />
+      <p-button icon="pi pi-check" [loading]="envoi()" (onClick)="assigner()"
+        [label]="selection().size ? 'Assigner ' + (selection().size | accord: 'étudiant') : 'Assigner'"
+        [disabled]="encadrantChoisi() === null || selection().size === 0" />
+    </div>
+  </ng-template>
+</p-dialog>
