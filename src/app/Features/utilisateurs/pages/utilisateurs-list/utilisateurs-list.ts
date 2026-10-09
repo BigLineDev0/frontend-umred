@@ -8,6 +8,7 @@ import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
 
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
+import { AccordPipe } from '../../../../Shared/pipes/accord.pipe';
 import { MiniStatCard } from '../../../../Shared/components/mini-stat-card/mini-stat-card';
 import { FilterBar } from '../../../../Shared/components/filter-bar/filter-bar';
 import { DataTable, TableColumn } from '../../../../Shared/components/data-table/data-table';
@@ -24,7 +25,7 @@ import { messageErreur } from '../../../../Shared/utils/message-erreur';
   standalone: true,
   selector: 'app-utilisateurs-list',
   templateUrl: './utilisateurs-list.html',
-  imports: [
+  imports: [AccordPipe, 
     FormsModule, ButtonModule, SelectModule, TooltipModule, DialogModule,
     PageHeader, MiniStatCard, FilterBar, DataTable, ColumnTemplateDirective, StatusBadge,
     UserStatusModal, UtilisateurFormModal,

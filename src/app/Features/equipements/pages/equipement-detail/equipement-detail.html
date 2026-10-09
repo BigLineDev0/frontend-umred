@@ -63,7 +63,7 @@
           </p>
           <p class="text-sm text-text-secondary">{{ alerte.message }}</p>
           <p class="text-xs text-text-secondary mt-2">
-            {{ alerte.heures_cumulees }}h utilisées sur {{ alerte.seuil }}h · {{ alerte.pannes_recentes }} panne(s) sur 90 jours
+            {{ alerte.heures_cumulees }}h utilisées sur {{ alerte.seuil }}h · {{ alerte.pannes_recentes | accord: 'panne' }} sur 90 jours
           </p>
         </div>
         @if (e.statut !== 'EN_PANNE' && e.statut !== 'HORS_SERVICE') {
@@ -114,12 +114,12 @@
         <div class="rounded-lg bg-background p-3" pTooltip="Temps moyen entre deux pannes (Mean Time Between Failures).">
           <p class="text-xs text-text-secondary">MTBF</p>
           <p class="text-xl font-semibold text-text">{{ st.fiabilite.mtbf_jours !== null ? st.fiabilite.mtbf_jours + ' j' : '-' }}</p>
-          <p class="text-xs text-text-secondary">{{ st.fiabilite.pannes_total }} panne(s) au total</p>
+          <p class="text-xs text-text-secondary">{{ st.fiabilite.pannes_total | accord: 'panne' }} au total</p>
         </div>
         <div class="rounded-lg bg-background p-3" pTooltip="Temps moyen de réparation après un signalement (Mean Time To Repair).">
           <p class="text-xs text-text-secondary">MTTR</p>
           <p class="text-xl font-semibold text-text">{{ st.fiabilite.mttr_heures !== null ? st.fiabilite.mttr_heures + ' h' : '-' }}</p>
-          <p class="text-xs text-text-secondary">{{ st.fiabilite.pannes_90_jours }} panne(s) sur 90 j</p>
+          <p class="text-xs text-text-secondary">{{ st.fiabilite.pannes_90_jours | accord: 'panne' }} sur 90 jours</p>
         </div>
         <div class="rounded-lg bg-background p-3">
           <p class="text-xs text-text-secondary">Dernière maintenance</p>
@@ -134,7 +134,7 @@
 
       @if (st.prevision.maintenance_estimee; as prev) {
         <div class="mt-4 flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
-          <i class="pi pi-sparkles mt-0.5 text-primary"></i>
+          <i class="pi pi-calendar-clock mt-0.5 text-primary"></i>
           <div>
             <p class="text-sm font-semibold text-text">Prévision de maintenance</p>
             <p class="text-sm text-text-secondary">{{ prev.message }}</p>

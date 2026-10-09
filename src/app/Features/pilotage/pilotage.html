@@ -59,7 +59,7 @@
             Rédigée par le modèle de langage à partir des seuls indicateurs ci-dessous ; chaque chiffre est vérifié avant affichage.
           </p>
         </div>
-        <p-button [label]="synthese() ? 'Régénérer' : 'Rédiger la synthèse'" icon="pi pi-sparkles" size="small"
+        <p-button [label]="synthese() ? 'Régénérer' : 'Rédiger la synthèse'" icon="pi pi-file-edit" size="small"
           [loading]="syntheseEnCours()" (onClick)="genererSynthese()" />
       </div>
       @if (synthese(); as s) {
@@ -78,7 +78,7 @@
 
     <!-- Recommandations -->
     <section class="rounded-xl border border-border bg-white p-5">
-      <h2 class="mb-1 flex items-center gap-2 text-base font-semibold text-text"><i class="pi pi-sparkles text-primary"></i> Recommandations</h2>
+      <h2 class="mb-1 flex items-center gap-2 text-base font-semibold text-text"><i class="pi pi-lightbulb text-primary"></i> Recommandations</h2>
       <p class="mb-4 text-xs text-text-secondary">Chaque recommandation cite les chiffres qui la justifient.</p>
       <div class="space-y-3">
         @for (r of ind.recommandations; track r.titre) {
@@ -149,7 +149,7 @@
                 @for (v of ligne.valeurs; track $index) {
                   <td class="h-8 min-w-9 rounded text-center" [style.background]="intensite(v)"
                     [class.text-white]="v / maxChaleur() > 0.55" [class.text-text]="v / maxChaleur() <= 0.55"
-                    [title]="v + ' réservation(s)'">{{ v || '' }}</td>
+                    [title]="v | accord: 'réservation'">{{ v || '' }}</td>
                 }
               </tr>
             }

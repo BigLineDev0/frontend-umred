@@ -100,7 +100,7 @@ export class Sidebar {
   };
 
   private pilotageItem: NavItem = {
-    label: 'Aide à la décision', icon: 'pi pi-sparkles', route: '/pilotage',
+    label: 'Aide à la décision', icon: 'pi pi-lightbulb', route: '/pilotage',
   };
 
   private reservationsAValiderItem: NavItem = {

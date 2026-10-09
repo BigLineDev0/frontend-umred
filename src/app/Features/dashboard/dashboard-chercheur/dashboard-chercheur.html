@@ -25,7 +25,7 @@
         <h2 class="text-base font-semibold text-text">Mes étudiants</h2>
         @if (etudiants().length) {
           <p class="text-sm text-text-secondary">
-            {{ etudiants().length }} étudiant(s) encadré(s) :
+            {{ etudiants().length | accord: 'étudiant encadré' : 'étudiants encadrés' }} :
             {{ etudiants().slice(0, 4).map(e => e.prenom + ' ' + e.nom).join(', ') }}{{ etudiants().length > 4 ? '…' : '' }}
           </p>
         } @else {
@@ -34,7 +34,7 @@
       </div>
     </div>
     @if (demandesEtudiants().length) {
-      <p-button [label]="demandesEtudiants().length + ' demande(s) à traiter'" icon="pi pi-arrow-right" iconPos="right"
+      <p-button [label]="(demandesEtudiants().length | accord: 'demande') + ' à traiter'" icon="pi pi-arrow-right" iconPos="right"
         severity="warn" routerLink="/reservations/a-valider" />
     }
   </div>

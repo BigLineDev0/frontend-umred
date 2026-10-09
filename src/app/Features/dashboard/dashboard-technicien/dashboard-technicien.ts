@@ -18,6 +18,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { DemandeEnAttente } from '../../../Core/models/reservation.model';
 import { ConsommableService } from '../../../Core/services/consommable.service';
 import { messageErreur } from '../../../Shared/utils/message-erreur';
+import { accord } from '../../../Shared/utils/accord';
 
 @Component({
   selector: 'app-dashboard-technicien',
@@ -149,7 +150,7 @@ export class DashboardTechnicien implements OnInit {
     this.confirmationService.confirm({
       header: 'Valider la demande',
       message: `Valider la demande de ${demande.demandeur_nom} ?`
-        + (demande.analyse.concurrentes ? ` ${demande.analyse.concurrentes} demande(s) concurrente(s) seront refusées automatiquement.` : ''),
+        + (demande.analyse.concurrentes ? ` ${accord(demande.analyse.concurrentes, 'demande concurrente sera refusée', 'demandes concurrentes seront refusées')} automatiquement.` : ''),
       acceptLabel: 'Valider', rejectLabel: 'Retour',
       acceptButtonProps: { severity: 'success' }, rejectButtonProps: { severity: 'secondary', outlined: true },
       accept: () => this.decider(demande, this.reservationService.valider(demande.id), 'Demande validée'),

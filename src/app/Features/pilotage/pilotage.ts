@@ -9,6 +9,7 @@ import { IndicateursPilotage, NiveauRecommandation, SynthesePilotage } from '../
 import { PilotageService } from '../../Core/services/pilotage.service';
 import { LaboratoireService } from '../../Core/services/laboratoire.service';
 import { PageHeader } from '../../Shared/components/page-header/page-header';
+import { AccordPipe } from '../../Shared/pipes/accord.pipe';
 import { couleurTheme } from '../../Shared/utils/couleur-theme';
 
 /**
@@ -21,7 +22,7 @@ import { couleurTheme } from '../../Shared/utils/couleur-theme';
   standalone: true,
   selector: 'app-pilotage',
   templateUrl: './pilotage.html',
-  imports: [DatePipe, FormsModule, ButtonModule, ChartModule, SelectModule, PageHeader],
+  imports: [AccordPipe, DatePipe, FormsModule, ButtonModule, ChartModule, SelectModule, PageHeader],
 })
 export class Pilotage implements OnInit {
   private pilotageService = inject(PilotageService);

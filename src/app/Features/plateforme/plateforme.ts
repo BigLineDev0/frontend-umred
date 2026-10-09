@@ -12,6 +12,7 @@ import {
 } from '../../Core/models/organisation.model';
 import { OrganisationService } from '../../Core/services/organisation.service';
 import { PageHeader } from '../../Shared/components/page-header/page-header';
+import { AccordPipe } from '../../Shared/pipes/accord.pipe';
 import { messageErreur } from '../../Shared/utils/message-erreur';
 
 /**
@@ -25,7 +26,7 @@ import { messageErreur } from '../../Shared/utils/message-erreur';
   selector: 'app-plateforme',
   templateUrl: './plateforme.html',
   providers: [ConfirmationService],
-  imports: [DatePipe, FormsModule, ButtonModule, DialogModule, InputTextModule, ConfirmDialogModule, PageHeader],
+  imports: [AccordPipe, DatePipe, FormsModule, ButtonModule, DialogModule, InputTextModule, ConfirmDialogModule, PageHeader],
 })
 export class Plateforme implements OnInit {
   private organisationService = inject(OrganisationService);

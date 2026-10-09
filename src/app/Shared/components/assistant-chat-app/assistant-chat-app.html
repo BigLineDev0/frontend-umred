@@ -16,10 +16,10 @@
            bg-white rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden chat-panel-in">
 
     <!-- En-tête -->
-    <div class="bg-linear-to-r from-navy to-primary px-5 py-4 flex items-center justify-between shrink-0">
+    <div class="bg-navy px-5 py-4 flex items-center justify-between shrink-0">
       <div class="flex items-center gap-3 min-w-0">
         <div class="relative w-10 h-10 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-          <i class="pi pi-sparkles text-primary-soft text-lg"></i>
+          <i class="pi pi-comments text-primary-soft text-lg"></i>
         </div>
         <div class="min-w-0">
           <p class="text-white font-semibold text-sm truncate">Assistant SenLab</p>
@@ -49,7 +49,7 @@
 
             @if (m.role === 'assistant') {
               <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mb-0.5">
-                <i class="pi pi-sparkles text-primary text-[10px]"></i>
+                <i class="pi pi-comments text-primary text-[10px]"></i>
               </div>
             }
 
@@ -241,7 +241,7 @@
         @if (enTrainDecrire()) {
           <div class="flex gap-2 items-end">
             <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <i class="pi pi-sparkles text-primary text-[10px]"></i>
+              <i class="pi pi-comments text-primary text-[10px]"></i>
             </div>
             <div class="bg-white border border-border rounded-2xl rounded-bl-md px-4 py-3 flex gap-1 shadow-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-text-secondary typing-dot"></span>
@@ -258,8 +258,8 @@
       <div class="px-4 pb-3 flex flex-wrap gap-2 shrink-0">
         @for (s of suggestions; track s) {
           <button type="button" (click)="envoyerSuggestion(s)"
-            class="text-xs bg-white border border-border rounded-full px-3 py-1.5 hover:border-primary hover:text-primary transition-colors flex items-center gap-1.5">
-            <i class="pi pi-bolt text-[9px] opacity-50"></i>{{ s }}
+            class="text-xs bg-white border border-border rounded-full px-3 py-1.5 hover:border-primary hover:text-primary transition-colors">
+            {{ s }}
           </button>
         }
       </div>

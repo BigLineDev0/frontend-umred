@@ -68,8 +68,8 @@ export class AssistantChatApp implements OnInit, AfterViewChecked {
   private messageAccueilGenerique(): string {
     const prenom = this.authService.currentUser()?.prenom;
     return prenom
-      ? `Bonjour ${prenom} 👋 Je peux vous aider à réserver un équipement, consulter vos réservations ou suivre une maintenance.`
-      : "Bonjour 👋 Je peux vous aider à réserver un équipement, consulter vos réservations ou suivre une maintenance.";
+      ? `Bonjour ${prenom}. Je peux vous aider à réserver un équipement, consulter vos réservations ou suivre une maintenance.`
+      : "Bonjour. Je peux vous aider à réserver un équipement, consulter vos réservations ou suivre une maintenance.";
   }
 
   toggle(): void { this.ouvert.update(v => !v); }

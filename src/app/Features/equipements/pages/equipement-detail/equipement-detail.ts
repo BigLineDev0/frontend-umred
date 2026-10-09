@@ -16,13 +16,14 @@ import { AuthService } from '../../../../Core/services/auth.service';
 
 import QRCode from 'qrcode';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
+import { AccordPipe } from '../../../../Shared/pipes/accord.pipe';
 import { SignalerPanneModal } from '../../../maintenances/pages/signaler-panne-modal/signaler-panne-modal';
 import { couleurTheme } from '../../../../Shared/utils/couleur-theme';
 @Component({
   standalone: true,
   selector: 'app-equipement-detail',
   templateUrl: './equipement-detail.html',
-  imports: [PageHeader, RouterLink, ButtonModule, TagModule, TableModule, TooltipModule, ConfirmDialogModule, ChartModule, SignalerPanneModal],
+  imports: [AccordPipe, PageHeader, RouterLink, ButtonModule, TagModule, TableModule, TooltipModule, ConfirmDialogModule, ChartModule, SignalerPanneModal],
   providers: [ConfirmationService],
 })
 export class EquipementDetail implements OnInit {
