@@ -84,7 +84,7 @@
               Date <span class="text-red-600" aria-hidden="true">*</span>
             </label>
             <p-datepicker inputId="date" formControlName="date" dateFormat="dd/mm/yy" placeholder="jj/mm/aaaa"
-              [showIcon]="true" [minDate]="today" class="w-full" inputStyleClass="w-full" />
+              [showIcon]="true" [minDate]="today" [disabledDays]="regles().joursFermes" class="w-full" inputStyleClass="w-full" />
             @if (isFieldInvalid('date')) {
               <small class="mt-1 block text-red-600">La date est obligatoire.</small>
             }
@@ -111,14 +111,22 @@
           </div>
         </div>
 
-        <div class="mt-4 flex items-start gap-2 text-xs text-text-secondary">
-          <i class="pi pi-info-circle mt-0.5 text-primary"></i>
-          <span>
-            Réservations possibles de {{ regles().ouverture }} à {{ regles().fermeture }}, pour une durée d'au moins
-            {{ regles().dureeMin }} minutes. La disponibilité est vérifiée à l'étape suivante, avec des créneaux
-            alternatifs si besoin.
-          </span>
-        </div>
+        @if (horairesDuJour(); as h) {
+          @if (h.ferme) {
+            <p class="mt-4 flex items-start gap-2 text-sm text-red-700" role="alert">
+              <i class="pi pi-ban mt-0.5"></i>
+              <span>L'établissement est fermé le {{ h.jour }}. Choisissez un autre jour.</span>
+            </p>
+          } @else {
+            <p class="mt-4 flex items-start gap-2 text-xs text-text-secondary">
+              <i class="pi pi-info-circle mt-0.5 text-primary"></i>
+              <span>
+                Le {{ h.jour }}, réservations possibles de {{ h.ouverture }} à {{ h.fermeture }}, pour
+                {{ regles().dureeMin }} minutes au moins. La disponibilité est vérifiée à l'étape suivante.
+              </span>
+            </p>
+          }
+        }
       </section>
 
       <!-- Équipements -->
@@ -130,7 +138,7 @@
             </div>
             <div>
               <h2 class="text-base font-semibold text-text">Équipements</h2>
-              <p class="mt-0.5 text-xs text-text-secondary">Optionnel laissez vide pour réserver la salle seule.</p>
+              <p class="mt-0.5 text-xs text-text-secondary">Facultatif : sans équipement, seule la salle est réservée.</p>
             </div>
           </div>
           @if (selectedEquipementsCount > 0) {
@@ -217,9 +225,40 @@
 
   <!-- Récapitulatif avant envoi, enrichi de l'analyse du serveur -->
   <p-dialog [(visible)]="showConfirmation" [modal]="true" [draggable]="false" [resizable]="false"
-    [style]="{ width: '600px', maxWidth: 'calc(100vw - 2rem)' }" header="Vérifier votre réservation">
+    [style]="{ width: '600px', maxWidth: 'calc(100vw - 2rem)' }"
+    [header]="suite() ? 'Réservation enregistrée' : 'Vérifier votre réservation'" (onHide)="onConfirmationFermee()">
+    @if (suite(); as s) {
+      <!-- Réservation partielle enregistrée : créneaux pour les équipements restants -->
+      <div class="space-y-4">
+        <div class="rounded-xl border border-green-200 bg-green-50 p-4">
+          <p class="flex items-center gap-2 text-sm font-semibold text-green-800">
+            <i class="pi pi-check-circle"></i> {{ s.reserves }}
+          </p>
+          <p class="mt-1 text-sm text-green-800/80">{{ s.quand }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-text">Il reste {{ noms(s.restants.equipements) }} à réserver</p>
+          @if (s.restants.creneaux.length) {
+            <p class="mb-3 mt-0.5 text-xs text-text-secondary">Prochains créneaux libres, même durée :</p>
+            <div class="space-y-2">
+              @for (alt of s.restants.creneaux; track alt.date + alt.heure_debut) {
+                <button type="button" class="creneau" (click)="appliquerAlternative(alt)">
+                  <span>
+                    <span class="block text-sm font-medium text-text">{{ alt.heure_debut }} – {{ alt.heure_fin }}</span>
+                    <span class="block text-xs text-text-secondary first-letter:uppercase">{{ alt.date | date: 'EEEE d MMMM' }}</span>
+                  </span>
+                  <span class="shrink-0 text-xs font-medium text-primary">Choisir</span>
+                </button>
+              }
+            </div>
+          } @else {
+            <p class="mt-1 text-sm text-text-secondary">Aucun créneau libre dans les prochains jours. Choisissez un autre horaire.</p>
+          }
+        </div>
+      </div>
+    } @else {
     <div class="space-y-4">
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 [&_p]:break-words">
         <div>
           <p class="mb-1 text-xs text-text-secondary">Laboratoire</p>
           <p class="font-semibold text-text">{{ getLaboratoireName() }}</p>
@@ -272,19 +311,23 @@
                 <li>{{ c.equipement }} est déjà réservé de {{ c.heure_debut }} à {{ c.heure_fin }}.</li>
               }
             </ul>
+            @if (v.alternatives?.reservation_partielle; as p) {
+              <p class="mt-2 flex items-center gap-1.5 text-sm text-text">
+                <i class="pi pi-check text-xs text-green-700"></i>
+                {{ noms(p.libres) }} {{ p.libres.length > 1 ? 'sont libres' : 'est libre' }} sur ce créneau.
+              </p>
+            }
           </div>
 
-          @if (v.alternatives?.creneaux?.length) {
+          @if (v.alternatives?.equipements_equivalents?.length) {
             <div>
-              <p class="mb-2 text-sm font-medium text-text">Créneaux proposés</p>
+              <p class="mb-2 text-sm font-medium text-text">Même créneau, équipement équivalent</p>
               <div class="space-y-2">
-                @for (alt of v.alternatives!.creneaux; track alt.date + alt.heure_debut) {
-                  <button type="button"
-                    class="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-white px-3 py-2.5 text-left transition-colors hover:border-primary"
-                    (click)="appliquerAlternative(alt)">
+                @for (equiv of v.alternatives!.equipements_equivalents; track equiv.id) {
+                  <button type="button" class="creneau" (click)="appliquerEquipementEquivalent(equiv)">
                     <span>
-                      <span class="block text-sm font-medium text-text">{{ alt.message }}</span>
-                      <span class="text-xs text-text-secondary">{{ alt.date | date: 'EEEE d MMMM' }} · {{ alt.heure_debut }}–{{ alt.heure_fin }}</span>
+                      <span class="block text-sm font-medium text-text">{{ equiv.nom }}</span>
+                      <span class="text-xs text-text-secondary">À la place de {{ equiv.remplace_nom }}</span>
                     </span>
                     <span class="shrink-0 text-xs font-medium text-primary">Choisir</span>
                   </button>
@@ -293,19 +336,35 @@
             </div>
           }
 
-          @if (v.alternatives?.equipements_equivalents?.length) {
+          @if (v.alternatives?.creneaux?.length) {
             <div>
-              <p class="mb-2 text-sm font-medium text-text">Même créneau, équipement équivalent</p>
-              <div class="flex flex-wrap gap-2">
-                @for (equiv of v.alternatives!.equipements_equivalents; track equiv.id) {
-                  <button type="button"
-                    class="rounded-lg border border-border bg-white px-3 py-2 text-sm transition-colors hover:border-primary hover:text-primary"
-                    (click)="appliquerEquipementEquivalent(equiv)">
-                    <i class="pi pi-sync mr-1.5"></i>{{ equiv.nom }}
-                    <span class="text-xs text-text-secondary">au lieu de {{ equiv.remplace_nom }}</span>
+              <p class="mb-2 text-sm font-medium text-text">
+                {{ v.alternatives?.reservation_partielle ? 'Tous les équipements, autre créneau' : 'Autres créneaux' }}
+              </p>
+              <div class="space-y-2">
+                @for (alt of v.alternatives!.creneaux; track alt.date + alt.heure_debut) {
+                  <button type="button" class="creneau" (click)="appliquerAlternative(alt)">
+                    <span>
+                      <span class="block text-sm font-medium text-text">{{ alt.heure_debut }} – {{ alt.heure_fin }}</span>
+                      <span class="block text-xs text-text-secondary first-letter:uppercase">{{ alt.date | date: 'EEEE d MMMM' }}</span>
+                    </span>
+                    <span class="shrink-0 text-xs font-medium text-primary">Choisir</span>
                   </button>
                 }
               </div>
+            </div>
+          }
+
+          @if (v.alternatives?.reservation_partielle; as p) {
+            <div>
+              <p class="mb-2 text-sm font-medium text-text">Réserver séparément</p>
+              <button type="button" class="creneau" (click)="reserverSeulementLibres(p)">
+                <span>
+                  <span class="block text-sm font-medium text-text">Réserver seulement {{ noms(p.libres) }}</span>
+                  <span class="text-xs text-text-secondary">{{ getHoraire() }}, puis un autre créneau pour {{ noms(p.occupes) }}</span>
+                </span>
+                <span class="shrink-0 text-xs font-medium text-primary">Choisir</span>
+              </button>
             </div>
           }
 
@@ -321,15 +380,27 @@
       }
     </div>
 
+    }
+
     <ng-template pTemplate="footer">
+      @if (suite()) {
+        <div class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <p-button type="button" label="Autre horaire" severity="secondary" [outlined]="true" (onClick)="choisirAutreHoraire()" />
+          <p-button type="button" label="Terminer" (onClick)="terminer()" />
+        </div>
+      } @else {
       <div class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <p-button type="button" label="Modifier" severity="secondary" [outlined]="true"
           [disabled]="loading()" (onClick)="annulerConfirmation()" />
-        <p-button type="button"
-          [label]="verification()?.statut_prevu === 'EN_ATTENTE' ? 'Envoyer la demande' : 'Confirmer la réservation'"
-          icon="pi pi-check" [loading]="loading() || verificationEnCours()"
-          [disabled]="loading() || verificationEnCours() || !verification()?.disponible" (onClick)="confirmerReservation()" />
+        <!-- Créneau pris : seules les options proposées (ou « Modifier ») permettent d'avancer. -->
+        @if (verification()?.disponible !== false) {
+          <p-button type="button"
+            [label]="verification()?.statut_prevu === 'EN_ATTENTE' ? 'Envoyer la demande' : 'Confirmer la réservation'"
+            icon="pi pi-check" [loading]="loading() || verificationEnCours()"
+            [disabled]="loading() || verificationEnCours() || !verification()?.disponible" (onClick)="confirmerReservation()" />
+        }
       </div>
+      }
     </ng-template>
   </p-dialog>
 </div>

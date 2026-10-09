@@ -67,9 +67,24 @@ export interface ConflitCreneau {
   heure_fin: string;
 }
 
+export interface EquipementResume {
+  id: number;
+  nom: string;
+}
+
+// Conflit partiel : une partie des équipements demandés est libre sur le
+// créneau. Ils peuvent être réservés seuls, les autres sur leurs propres
+// créneaux (creneaux_occupes). Jamais appliqué d'office.
+export interface ReservationPartielle {
+  libres: EquipementResume[];
+  occupes: EquipementResume[];
+  creneaux_occupes: AlternativeCreneau[];
+}
+
 export interface Alternatives {
   creneaux: AlternativeCreneau[];
   equipements_equivalents: EquipementEquivalent[];
+  reservation_partielle?: ReservationPartielle | null;
 }
 
 export interface ReponseConflit {
