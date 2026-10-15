@@ -17,7 +17,7 @@
       @if (canManage()) {
         <div actions class="flex flex-wrap gap-2 shrink-0">
           @if (m.statut === 'PLANIFIEE' || m.statut === 'EN_COURS') {
-            <p-button label="Clôturer" icon="pi pi-check-circle" severity="success" (onClick)="ouvrirCloture()" />
+            <p-button label="Clôturer" icon="pi pi-check-circle" (onClick)="ouvrirCloture()" />
           }
           <p-button label="Supprimer" icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="supprimer()" />
         </div>

@@ -1,57 +1,191 @@
 <div>
-  <div class="flex items-center justify-between mb-4">
-    <button type="button" (click)="moisPrecedent()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background text-text-secondary">
-      <i class="pi pi-chevron-left text-xs"></i>
-    </button>
-    <div class="flex items-center gap-2">
-      <p class="text-sm font-semibold text-text capitalize">{{ libelleMois() }}</p>
-      <button type="button" (click)="aujourdHui()" class="text-xs text-primary font-medium hover:underline">Aujourd'hui</button>
+  <!-- En-tête : période, navigation, choix de la vue -->
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <div class="flex items-center gap-1">
+      <button type="button" (click)="moisPrecedent()" aria-label="Mois précédent"
+        class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-background text-text-secondary">
+        <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+      </button>
+      <p class="min-w-32 text-center text-sm font-semibold text-text capitalize" aria-live="polite">{{ libelleMois() }}</p>
+      <button type="button" (click)="moisSuivant()" aria-label="Mois suivant"
+        class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-background text-text-secondary">
+        <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
+      </button>
+      <button type="button" (click)="aujourdHui()"
+        class="ml-1 px-2.5 h-9 rounded-lg text-xs text-primary font-medium hover:bg-primary-tint">Aujourd'hui</button>
     </div>
-    <button type="button" (click)="moisSuivant()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background text-text-secondary">
-      <i class="pi pi-chevron-right text-xs"></i>
-    </button>
+
+    <div class="inline-flex rounded-lg border border-border p-0.5" role="group" aria-label="Affichage du calendrier">
+      <button type="button" (click)="changerVue('mois')" [attr.aria-pressed]="vue() === 'mois'"
+        class="px-3 h-8 rounded-md text-xs font-medium transition-colors"
+        [class]="vue() === 'mois' ? 'bg-primary text-white' : 'text-text-secondary hover:bg-background'">
+        <i class="pi pi-calendar mr-1 text-[11px]" aria-hidden="true"></i>Mois
+      </button>
+      <button type="button" (click)="changerVue('agenda')" [attr.aria-pressed]="vue() === 'agenda'"
+        class="px-3 h-8 rounded-md text-xs font-medium transition-colors"
+        [class]="vue() === 'agenda' ? 'bg-primary text-white' : 'text-text-secondary hover:bg-background'">
+        <i class="pi pi-list mr-1 text-[11px]" aria-hidden="true"></i>Agenda
+      </button>
+    </div>
   </div>
 
-  <div class="grid grid-cols-7 gap-1 mb-1">
-    @for (j of joursSemaine; track j) {
-      <div class="text-center text-[11px] font-medium text-text-secondary py-1">{{ j }}</div>
+  <!-- Légende : chaque statut est aussi un filtre (couleur + icône + libellé) -->
+  <div class="flex flex-wrap items-center gap-1.5 mb-4" role="group" aria-label="Filtrer par statut">
+    @for (s of statuts; track s.cle) {
+      <button type="button" (click)="basculerStatut(s.cle)" [attr.aria-pressed]="statutVisible(s.cle)"
+        class="inline-flex items-center gap-1.5 px-2.5 h-7 rounded-full border text-xs transition-colors"
+        [class]="statutVisible(s.cle) ? 'border-border text-text bg-white' : 'border-dashed border-border text-text-secondary/70 line-through bg-background'">
+        <span class="w-2 h-2 rounded-full shrink-0" [class]="s.pastille" aria-hidden="true"></span>
+        <i [class]="s.icone + ' text-[10px]'" aria-hidden="true"></i>
+        {{ s.libelle }}
+      </button>
     }
-  </div>
-
-  <div class="grid grid-cols-7 gap-1">
-    @for (jour of jours(); track jour.key) {
-      <button type="button" (click)="selectionnerJour(jour)" [class]="dayClasses(jour)">
-        <span>{{ jour.jour }}</span>
-        @if (jour.reservations.length > 0) {
-          <span class="flex gap-0.5">
-            @for (r of jour.reservations.slice(0, 3); track r.id) {
-              <span class="w-1.5 h-1.5 rounded-full" [class]="jour.key === selectedDate() ? 'bg-white' : dotColor(r.statut)"></span>
-            }
-          </span>
-        } @else {
-          <span class="h-1.5"></span>
+    @if (aTraiter().length) {
+      <span class="inline-flex items-center gap-1.5 px-2.5 h-7 rounded-full border border-primary/30 bg-primary-tint text-xs text-primary">
+        <span class="w-2 h-2 rounded-full ring-2 ring-primary bg-white" aria-hidden="true"></span>
+        À traiter (vos étudiants)
+      </span>
+    }
+    @if (equipementsDisponibles().length > 1) {
+      <label class="sr-only" for="filtre-equipement">Filtrer par équipement</label>
+      <select id="filtre-equipement" [value]="equipementFiltre()" (change)="choisirEquipement($any($event.target).value)"
+        class="h-7 max-w-48 rounded-full border border-border bg-white px-2.5 text-xs text-text">
+        <option value="">Tous les équipements</option>
+        @for (nom of equipementsDisponibles(); track nom) {
+          <option [value]="nom">{{ nom }}</option>
         }
+      </select>
+    }
+    @if (filtreActif()) {
+      <button type="button" (click)="reinitialiserFiltres()" class="text-xs text-primary font-medium hover:underline ml-1">
+        Tout afficher
       </button>
     }
   </div>
 
-  <div class="mt-5 pt-5 border-t border-border">
-    <p class="text-sm font-semibold text-text capitalize mb-3">{{ dateSelectionneeLabel() }}</p>
-
-    @if (reservationsDuJourSelectionne().length === 0) {
-      <p class="text-sm text-text-secondary">Aucune réservation ce jour-là.</p>
-    } @else {
-      <div class="space-y-2">
-        @for (r of reservationsDuJourSelectionne(); track r.id) {
-          <div class="flex items-center justify-between gap-3 bg-background rounded-lg px-3 py-2">
-            <div class="min-w-0">
-              <p class="text-sm font-medium text-text truncate">{{ r.laboratoire_nom }}</p>
-              <p class="text-xs text-text-secondary">{{ r.heure_debut.slice(0,5) }}-{{ r.heure_fin.slice(0,5) }} · {{ r.demandeur_nom }}</p>
-            </div>
-            <span class="w-2 h-2 rounded-full shrink-0" [class]="dotColor(r.statut)"></span>
+  @if (erreur(); as message) {
+    <div class="flex flex-col items-center gap-3 rounded-lg border border-danger/20 bg-danger/5 px-4 py-6 text-center" role="alert">
+      <i class="pi pi-exclamation-triangle text-danger" aria-hidden="true"></i>
+      <p class="text-sm text-text">{{ message }}</p>
+      <p class="text-xs text-text-secondary">Le calendrier ne peut pas être affiché : les créneaux ne sont pas vérifiés.</p>
+      <button type="button" (click)="reessayer.emit()"
+        class="inline-flex items-center gap-1.5 px-3 h-8 rounded-lg bg-primary text-white text-xs font-medium hover:bg-primary-dark">
+        <i class="pi pi-refresh text-[11px]" aria-hidden="true"></i>Réessayer
+      </button>
+    </div>
+  } @else if (chargement() && reservations().length === 0) {
+    <div class="space-y-2" aria-busy="true" aria-live="polite">
+      <span class="sr-only">Chargement des réservations…</span>
+      <div class="grid grid-cols-7 gap-1">
+        @for (i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]; track i) {
+          <div class="aspect-square max-w-11 w-full mx-auto rounded-lg bg-background animate-pulse"></div>
+        }
+      </div>
+    </div>
+  } @else if (vue() === 'mois') {
+    <!-- Vue mensuelle : grille de dates navigable au clavier -->
+    <div role="grid" [attr.aria-label]="'Réservations, ' + libelleMois()" (keydown)="surTouche($event)">
+      <div class="grid grid-cols-7 gap-1 mb-1" role="row">
+        @for (j of joursSemaine; track j) {
+          <div class="text-center text-[11px] font-medium text-text-secondary py-1" role="columnheader">{{ j }}</div>
+        }
+      </div>
+      @for (semaine of semaines(); track semaine[0].key) {
+      <div class="grid grid-cols-7 gap-1 mb-1" role="row">
+        @for (jour of semaine; track jour.key) {
+          <div role="gridcell" [attr.aria-selected]="jour.key === selectedDate()">
+            <button type="button" (click)="selectionnerJour(jour)" [class]="dayClasses(jour)"
+              [attr.data-cle]="jour.key"
+              [attr.tabindex]="jour.key === cleFocalisable() ? 0 : -1"
+              [attr.aria-current]="jour.estAujourdhui ? 'date' : null"
+              [attr.aria-label]="libelleAccessibleJour(jour)">
+              <span aria-hidden="true">{{ jour.jour }}</span>
+              @if (jour.evenements.length > 0) {
+                <span class="flex items-center gap-0.5 h-1.5" aria-hidden="true">
+                  @for (e of pastilles(jour); track e.reservation.id + '-' + e.aTraiter) {
+                    <span class="w-1.5 h-1.5 rounded-full"
+                      [class]="jour.key === selectedDate() ? 'bg-white' : (e.aTraiter ? 'ring-1 ring-primary bg-white' : statut(e).pastille)"></span>
+                  }
+                  @if (surplus(jour)) {
+                    <span class="text-[9px] leading-none" [class]="jour.key === selectedDate() ? 'text-white' : 'text-text-secondary'">+{{ surplus(jour) }}</span>
+                  }
+                </span>
+              } @else {
+                <span class="h-1.5" aria-hidden="true"></span>
+              }
+            </button>
           </div>
         }
       </div>
+      }
+    </div>
+    <p class="sr-only">Utilisez les flèches pour changer de jour, Page précédente et Page suivante pour changer de mois.</p>
+
+    <!-- Détail du jour sélectionné -->
+    <div class="mt-5 pt-5 border-t border-border">
+      <p class="text-sm font-semibold text-text capitalize mb-3">{{ dateSelectionneeLabel() }}</p>
+      @if (evenementsDuJourSelectionne().length === 0) {
+        <p class="text-sm text-text-secondary">
+          {{ filtreActif() ? 'Aucune réservation ne correspond aux filtres ce jour-là.' : 'Aucune réservation ce jour-là.' }}
+        </p>
+      } @else {
+        <ul class="space-y-2">
+          @for (e of evenementsDuJourSelectionne(); track e.reservation.id + '-' + e.aTraiter) {
+            <li>
+              <ng-container [ngTemplateOutlet]="ligne" [ngTemplateOutletContext]="{ $implicit: e }" />
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  } @else {
+    <!-- Vue agenda : liste du mois, plus lisible sur mobile -->
+    <p class="text-xs text-text-secondary mb-3" aria-live="polite">{{ resumeDuMois() }}</p>
+    @if (agendaDuMois().length === 0) {
+      <p class="text-sm text-text-secondary py-4 text-center">
+        {{ filtreActif() ? 'Aucune réservation ne correspond aux filtres ce mois-ci.' : 'Aucune réservation ce mois-ci.' }}
+      </p>
+    } @else {
+      <div class="space-y-4">
+        @for (jour of agendaDuMois(); track jour.cle) {
+          <section [attr.aria-label]="jour.libelle">
+            <h3 class="text-xs font-semibold uppercase tracking-wide mb-2"
+              [class]="jour.cle === selectedDate() ? 'text-primary' : 'text-text-secondary'">{{ jour.libelle }}</h3>
+            <ul class="space-y-2">
+              @for (e of jour.evenements; track e.reservation.id + '-' + e.aTraiter) {
+                <li>
+                  <ng-container [ngTemplateOutlet]="ligne" [ngTemplateOutletContext]="{ $implicit: e }" />
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      </div>
     }
-  </div>
+  }
 </div>
+
+<!-- Une réservation (ou demande à traiter) : bouton ouvrant le détail -->
+<ng-template #ligne let-e>
+  <button type="button" (click)="ouvrir.emit(e.reservation)" [attr.aria-label]="libelleAccessibleEvenement(e)"
+    class="w-full flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-primary-tint"
+    [class]="e.aTraiter ? 'border border-primary/30 bg-primary-tint/50' : 'bg-background'"
+    [class.opacity-70]="!statut(e).active">
+    <div class="min-w-0">
+      <p class="text-sm font-medium text-text truncate" [class.line-through]="!statut(e).active">{{ quoi(e.reservation) }}</p>
+      <p class="text-xs text-text-secondary truncate">
+        <span [class.line-through]="!statut(e).active">{{ horaire(e.reservation) }}</span>
+        · {{ e.reservation.laboratoire_nom }}
+        @if (e.aTraiter) { · {{ e.reservation.demandeur_nom }} }
+      </p>
+    </div>
+    <span class="shrink-0 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium border border-border bg-white text-text">
+      @if (e.aTraiter) {
+        <i class="pi pi-inbox text-[10px] text-primary" aria-hidden="true"></i>À traiter
+      } @else {
+        <span class="w-1.5 h-1.5 rounded-full" [class]="statut(e).pastille" aria-hidden="true"></span>
+        <i [class]="statut(e).icone + ' text-[10px]'" aria-hidden="true"></i>{{ statut(e).libelle }}
+      }
+    </span>
+  </button>
+</ng-template>

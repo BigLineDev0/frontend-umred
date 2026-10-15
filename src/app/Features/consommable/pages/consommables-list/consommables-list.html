@@ -40,8 +40,11 @@
         <ng-template appColumnTemplate="statut" let-row><app-status-badge [statut]="row.statut" /></ng-template>
         <ng-template appColumnTemplate="actions" let-row>
           <div class="flex gap-1">
-            <p-button icon="pi pi-eye" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="voirDetail(row)" pTooltip="Déclarer une utilisation" />
-            <p-button icon="pi pi-minus-circle" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="ouvrirModale(row, 'retirer')" pTooltip="Déclarer une utilisation" />
+            <p-button icon="pi pi-eye" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="voirDetail(row)" pTooltip="Voir le détail" ariaLabel="Voir le détail" />
+            <p-button icon="pi pi-minus-circle" [text]="true" [rounded]="true" severity="secondary" size="small"
+              [disabled]="row.statut === 'PERIME' || row.statut === 'EPUISE'" (onClick)="ouvrirModale(row, 'retirer')"
+              [pTooltip]="row.statut === 'PERIME' ? 'Produit périmé : utilisation impossible' : row.statut === 'EPUISE' ? 'Stock épuisé' : 'Déclarer une utilisation'"
+              tooltipPosition="left" ariaLabel="Déclarer une utilisation" />
             @if (canManage()) {
               <p-button icon="pi pi-plus-circle" [text]="true" [rounded]="true" severity="success" size="small" (onClick)="ouvrirModale(row, 'reapprovisionner')" pTooltip="Réapprovisionner" />
               <a [routerLink]="['/consommables', row.id, 'modifier']">

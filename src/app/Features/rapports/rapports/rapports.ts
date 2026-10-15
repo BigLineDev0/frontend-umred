@@ -184,9 +184,8 @@ export class Rapports implements OnInit {
   // Export en cours : 'pdf', 'xlsx' ou null (désactive les boutons).
   exportEnCours = signal<'pdf' | 'xlsx' | null>(null);
 
-  // Le PDF est généré par le serveur à partir des données (indicateurs,
-  // recommandations, occupation, prévision, détail), aux couleurs de
-  // l'établissement : ce n'est plus une impression de la page.
+  // Le PDF est généré par le serveur à partir des données, aux couleurs de
+  // l'établissement.
   exporterPdf(): void {
     this.telecharger('rapports/export-pdf/', 'pdf');
   }

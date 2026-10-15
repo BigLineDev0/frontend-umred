@@ -89,7 +89,7 @@ export const routes: Routes = [
     ]
   },
 
-  // Page 404 : une URL inconnue n'est plus redirigée en silence vers l'accueil.
+  // Toute URL inconnue affiche la page 404.
   {
     path: '**',
     title: 'Page introuvable',

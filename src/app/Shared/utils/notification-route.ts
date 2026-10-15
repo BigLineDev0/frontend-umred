@@ -12,9 +12,8 @@ const ROLES_VALIDATEURS: UserRole[] = ['ADMIN', 'TECHNICIEN', 'CHERCHEUR'];
 const ROLES_MAINTENANCE: UserRole[] = ['ADMIN', 'TECHNICIEN'];
 
 /**
- * Page vers laquelle mène une notification. Partagée par le popup du
- * topbar et la page Notifications : une seule source de vérité, pour que
- * les deux ne divergent plus (le popup pointait vers des URL inexistantes).
+ * Page vers laquelle mène une notification. Partagée par le panneau de la
+ * barre supérieure et la page Notifications.
  * Toute destination est une route existante accessible au rôle ; à défaut,
  * la liste des notifications.
  */

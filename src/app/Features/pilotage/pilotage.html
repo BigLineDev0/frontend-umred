@@ -3,11 +3,12 @@
     [breadcrumbs]="[{ label: 'Accueil', link: '/' }, { label: 'Aide à la décision' }]"
     title="Aide à la décision"
     subtitle="Tensions, capacités inutilisées, prévisions et recommandations calculées à partir de votre activité.">
-    <div actions class="flex flex-wrap gap-2">
+    <div actions class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-nowrap sm:items-center">
       <p-select [options]="periodeOptions" optionLabel="label" optionValue="value" [ngModel]="jours()"
-        (ngModelChange)="jours.set($event); charger()" />
+        (ngModelChange)="jours.set($event); charger()" ariaLabel="Période" styleClass="w-full sm:w-52" />
       <p-select [options]="laboratoireOptions()" optionLabel="label" optionValue="value" [ngModel]="laboratoire()"
-        (ngModelChange)="laboratoire.set($event); charger()" placeholder="Tous les laboratoires" />
+        (ngModelChange)="laboratoire.set($event); charger()" placeholder="Tous les laboratoires"
+        ariaLabel="Laboratoire" styleClass="w-full sm:w-56" />
     </div>
   </app-page-header>
 

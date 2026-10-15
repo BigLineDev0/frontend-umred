@@ -61,6 +61,14 @@
             }
           </div>
 
+          <!-- Champ piège : masqué aux humains et aux lecteurs d'écran. -->
+          <input type="text" formControlName="site_web" name="site_web" tabindex="-1" autocomplete="off"
+                 aria-hidden="true" class="absolute -left-[9999px] h-0 w-0 opacity-0" />
+
+          @if (erreur()) {
+            <p class="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger" role="alert">{{ erreur() }}</p>
+          }
+
           <p-button type="submit" label="Envoyer le message" [loading]="envoiEnCours()" />
         </form>
       }

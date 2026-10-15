@@ -1,18 +1,21 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Notification, NotificationPage } from '../models/notification.model';
+import { AuthService } from './auth.service';
 
 export interface NotificationFilters {
   type?: string; lu?: boolean; page?: number; pageSize?: number;
 }
 
-// const POLLING_MS = 30000;
+// Rafraîchissement du compteur de la cloche, uniquement onglet visible.
+const INTERVALLE_COMPTEUR_MS = 60_000;
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private http = inject(HttpClient);
+  private auth = inject(AuthService);
   private baseUrl = environment.apiUrl;
 
   // Aperçu léger pour le panneau du topbar — jamais toute la liste.
@@ -26,14 +29,16 @@ export class NotificationService {
 
   constructor() {
     this.rafraichirCompteur();
-    // Sondage périodique léger plutôt qu'un vrai flux temps réel — une
-    // vraie solution (WebSocket / Django Channels) serait l'évolution
-    // naturelle, mais un polling à 30s suffit largement à l'usage d'un
+    // Sondage léger plutôt qu'un flux WebSocket : suffisant pour un
     // laboratoire, sans infrastructure supplémentaire côté backend.
-    // setInterval(() => this.rafraichirCompteur(), POLLING_MS);
+    const minuterie = setInterval(() => {
+      if (document.visibilityState === 'visible') this.rafraichirCompteur();
+    }, INTERVALLE_COMPTEUR_MS);
+    inject(DestroyRef).onDestroy(() => clearInterval(minuterie));
   }
 
   rafraichirCompteur(): void {
+    if (!this.auth.isAuthenticated()) return;
     this.http.get<{ count: number }>(`${this.baseUrl}/notifications/non_lues_count/`).subscribe({
       next: (res) => this.unreadCount.set(res.count),
       error: () => {},

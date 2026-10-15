@@ -65,7 +65,22 @@
             placeholder="Aucun projet associé"
             [showClear]="true"
             class="w-full"
-          />
+          >
+            <ng-template #item let-p>
+              <div class="flex w-full items-center justify-between gap-3">
+                <span class="truncate">{{ p.nom }}</span>
+                <span class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium" [class]="classesPriorite(p.niveau_priorite)">
+                  Priorité {{ libellePriorite(p.niveau_priorite).toLowerCase() }}
+                </span>
+              </div>
+            </ng-template>
+          </p-select>
+          @if (projetSelectionne(); as p) {
+            <p class="mt-2 text-xs text-text-secondary">
+              Priorité <span class="font-medium text-text">{{ libellePriorite(p.niveau_priorite).toLowerCase() }}</span> :
+              elle départage les demandes concurrentes sur un même créneau. Seul un administrateur peut la modifier.
+            </p>
+          }
         </div>
       </section>
 
@@ -275,6 +290,19 @@
           <p class="mb-1 text-xs text-text-secondary">Horaire</p>
           <p class="font-semibold text-text">{{ getHoraire() }}</p>
         </div>
+      </div>
+      <div>
+        <p class="mb-1 text-xs text-text-secondary">Projet</p>
+        @if (projetSelectionne(); as p) {
+          <p class="flex flex-wrap items-center gap-2 text-sm font-semibold text-text">
+            {{ p.nom }}
+            <span class="rounded-full px-2 py-0.5 text-xs font-medium" [class]="classesPriorite(p.niveau_priorite)">
+              Priorité {{ libellePriorite(p.niveau_priorite).toLowerCase() }}
+            </span>
+          </p>
+        } @else {
+          <p class="text-sm text-text-secondary">Aucun projet associé</p>
+        }
       </div>
       <div>
         <p class="mb-1 text-xs text-text-secondary">Motif</p>

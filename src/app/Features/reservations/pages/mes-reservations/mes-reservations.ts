@@ -19,6 +19,7 @@ import { LaboratoireService } from '../../../../Core/services/laboratoire.servic
 import { AuthService } from '../../../../Core/services/auth.service';
 import { ReservationDetailModal } from '../../components/reservation-detail-modal/reservation-detail-modal';
 import { messageErreur } from '../../../../Shared/utils/message-erreur';
+import { classesPriorite, libellePriorite } from '../../../../Shared/utils/priorite';
 
 interface ReservationFilterValues {
   search: string;
@@ -50,6 +51,9 @@ interface ReservationFilterValues {
   ],
 })
 export class MesReservations implements OnInit {
+  readonly libellePriorite = libellePriorite;
+  readonly classesPriorite = classesPriorite;
+
   readonly reservationService = inject(ReservationService);
   readonly laboratoireService = inject(LaboratoireService);
   private confirmationService = inject(ConfirmationService);

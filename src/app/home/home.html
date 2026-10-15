@@ -29,7 +29,7 @@
           [fluid]="true" styleClass="justify-center !bg-white/80 sm:w-auto" class="sm:w-auto" routerLink="/a-propos" />
       </div>
       <ul class="hero-in mt-8 grid grid-cols-1 gap-y-2 text-sm text-text-secondary min-[400px]:flex min-[400px]:flex-wrap min-[400px]:gap-x-6" style="animation-delay: .5s">
-        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-xs text-primary"></i>Réservation en temps réel</li>
+        <li class="flex items-center gap-2"><i class="pi pi-check-circle text-xs text-primary"></i>Disponibilités vérifiées à la réservation</li>
         <li class="flex items-center gap-2"><i class="pi pi-check-circle text-xs text-primary"></i>Maintenance suivie</li>
         <li class="flex items-center gap-2"><i class="pi pi-check-circle text-xs text-primary"></i>Multi-établissements</li>
       </ul>
@@ -51,12 +51,12 @@
     <div class="text-center mb-10" appReveal>
       <h2 class="text-3xl font-bold text-navy">Comment ça marche</h2>
       <p class="mt-4 text-text-secondary max-w-2xl mx-auto leading-relaxed">
-        Connectez-vous, réservez un équipement en quelques clics et suivez vos demandes en temps réel : découvrez SenLab en moins de deux minutes.
+        Connectez-vous, réservez un équipement en quelques clics et suivez l'avancement de vos demandes : découvrez SenLab en moins de deux minutes.
       </p>
     </div>
 
     <div class="rounded-2xl overflow-hidden bg-navy shadow-xl shadow-navy/15 ring-1 ring-border" appReveal>
-      <video src="videos/SenLab_presentation.mp4" controls playsinline preload="metadata"
+      <video #video src="videos/SenLab_presentation.mp4" controls autoplay loop playsinline preload="auto" [muted]="true"
         class="block w-full aspect-video" aria-label="Vidéo de présentation : comment fonctionne SenLab">
         Votre navigateur ne peut pas lire cette vidéo.
       </video>
@@ -73,7 +73,7 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       @for (f of [
-        { icon: 'pi-calendar', titre: 'Réservation temps réel', texte: 'Consultez la disponibilité et réservez un équipement en quelques secondes depuis n\'importe quel appareil.', dark: false },
+        { icon: 'pi-calendar', titre: 'Réservation contrôlée', texte: 'Consultez la disponibilité et réservez un équipement en quelques secondes depuis n\'importe quel appareil.', dark: false },
         { icon: 'pi-wrench', titre: 'Maintenance suivie', texte: 'Déclarez un incident, suivez chaque intervention et recevez une confirmation de résolution automatique.', dark: false },
         { icon: 'pi-users', titre: 'Accès multi-rôles', texte: 'Chercheurs, techniciens, enseignants et étudiants chaque profil dispose de droits adaptés à sa fonction.', dark: false },
         { icon: 'pi-comments', titre: 'Assistant intelligent connecté à vos données', texte: 'Posez vos questions en langage naturel. L\'assistant analyse les données réelles du laboratoire pour vous répondre.', dark: true },

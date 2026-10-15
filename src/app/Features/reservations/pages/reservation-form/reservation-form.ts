@@ -24,6 +24,7 @@ import { ProjetService } from '../../../../Core/services/projet.service';
 import { ProjetFormModal } from '../../../../Shared/components/projet-form-modal/projet-form-modal';
 import { PageHeader } from '../../../../Shared/components/page-header/page-header';
 import { messageErreur } from '../../../../Shared/utils/message-erreur';
+import { classesPriorite, libellePriorite } from '../../../../Shared/utils/priorite';
 
 const JOURS = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 
@@ -150,6 +151,16 @@ export class ReservationForm {
   readonly error = signal<string | null>(null);
 
   readonly laboratoires = computed(() => this.laboratoireService.laboratoires());
+
+  readonly libellePriorite = libellePriorite;
+  readonly classesPriorite = classesPriorite;
+  private readonly projetId = toSignal(this.reservationForm.controls.projetId.valueChanges, {
+    initialValue: this.reservationForm.controls.projetId.value,
+  });
+  readonly projetSelectionne = computed(() => {
+    const id = this.projetId();
+    return id ? this.projetService.projets().find(p => p.id === id) ?? null : null;
+  });
 
   readonly equipementsDuLaboratoire = computed(() =>
     this.equipementService.equipements().map((e) => ({

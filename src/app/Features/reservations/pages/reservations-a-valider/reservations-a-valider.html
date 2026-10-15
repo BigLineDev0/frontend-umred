@@ -56,7 +56,11 @@
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
                 <span class="font-medium text-text">{{ d.demandeur_nom }}</span>
-                <span class="text-xs text-text-secondary">{{ d.analyse.profil_demandeur }} · projet {{ d.analyse.priorite_projet.toLowerCase() }}</span>
+                <span class="text-xs text-text-secondary">{{ d.analyse.profil_demandeur }}</span>
+                <span class="rounded-full px-2 py-0.5 text-xs font-medium" [class]="classesPriorite(d.projet ? d.projet_priorite : 'NORMALE')"
+                      [title]="d.projet_nom ? 'Projet : ' + d.projet_nom : 'Aucun projet : priorité normale par défaut'">
+                  {{ d.projet_nom ? d.projet_nom + ' · ' : 'Sans projet · ' }}priorité {{ d.analyse.priorite_projet.toLowerCase() }}
+                </span>
                 @if (d.analyse.concurrentes > 0) {
                   <span class="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                     Rang {{ d.analyse.rang }} / {{ d.analyse.concurrentes + 1 }}

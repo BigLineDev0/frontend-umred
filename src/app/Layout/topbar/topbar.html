@@ -122,7 +122,8 @@
 
   <!-- Profil -->
   <div class="relative shrink-0">
-    <button type="button" (click)="toggleProfileMenu()" class="flex items-center gap-2 cursor-pointer rounded-full pr-2 hover:bg-background transition-colors">
+    <button type="button" (click)="toggleProfileMenu()" aria-label="Menu du profil" aria-haspopup="menu"
+      [attr.aria-expanded]="profileMenuOpen()" class="flex items-center gap-2 cursor-pointer rounded-full pr-2 hover:bg-background transition-colors">
       <p-avatar [label]="initials()" shape="circle" class="!bg-primary-tint !text-primary !font-semibold ring-2 ring-white shadow-sm" size="large" />
       <span class="hidden md:block text-sm font-medium text-text">{{ user()?.prenom }}</span>
       <i class="pi pi-chevron-down hidden md:block text-xs text-text-secondary transition-transform" [class.rotate-180]="profileMenuOpen()"></i>

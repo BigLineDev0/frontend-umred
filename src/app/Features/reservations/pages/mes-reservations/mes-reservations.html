@@ -12,7 +12,7 @@
     />
   </app-page-header>
 
-  <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 animate-stagger">
+  <div class="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 animate-stagger">
     <app-mini-stat-card
       icon="pi pi-calendar"
       color="primary"
@@ -85,7 +85,15 @@
     <div class="bg-white border border-border rounded-xl overflow-hidden">
       <app-data-table [columns]="columns" [data]="filteredReservations()" [rows]="10">
         <ng-template appColumnTemplate="laboratoire_nom" let-row>
-          {{ row.laboratoire_nom }}
+          <span class="block">{{ row.laboratoire_nom }}</span>
+          @if (row.projet_nom) {
+            <span class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-text-secondary">
+              <i class="pi pi-bookmark text-[10px]" aria-hidden="true"></i>{{ row.projet_nom }}
+              <span class="rounded-full px-1.5 py-0.5 font-medium" [class]="classesPriorite(row.projet_priorite)">
+                {{ libellePriorite(row.projet_priorite) }}
+              </span>
+            </span>
+          }
         </ng-template>
 
         <ng-template appColumnTemplate="equipements_noms" let-row>

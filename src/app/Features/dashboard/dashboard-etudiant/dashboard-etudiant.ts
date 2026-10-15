@@ -8,17 +8,20 @@ import { PageHeader } from '../../../Shared/components/page-header/page-header';
 import { SignalerPanneModal } from '../../maintenances/pages/signaler-panne-modal/signaler-panne-modal';
 import { MiniStatCard } from '../../../Shared/components/mini-stat-card/mini-stat-card';
 import { ReservationsCalendar } from '../../../Shared/components/reservations-calendar/reservations-calendar';
+import { ReservationDetailModal } from '../../reservations/components/reservation-detail-modal/reservation-detail-modal';
+import { libelleStatut, severiteStatut } from '../../../Shared/utils/statut-reservation';
 
 import { LaboratoireService } from '../../../Core/services/laboratoire.service';
 import { NotificationService } from '../../../Core/services/notification.service';
 import { ReservationService } from '../../../Core/services/reservation.service';
 import { UtilisateurService } from '../../../Core/services/utilisateur.service';
 import { isoDate } from '../../../Shared/utils/date-range';
+import { Reservation } from '../../../Core/models/reservation.model';
 
 @Component({
   selector: 'app-dashboard-etudiant',
   standalone: true,
-  imports: [DatePipe, RouterLink, TagModule, ButtonModule, PageHeader, MiniStatCard, ReservationsCalendar, SignalerPanneModal],
+  imports: [DatePipe, RouterLink, TagModule, ButtonModule, PageHeader, MiniStatCard, ReservationsCalendar, ReservationDetailModal, SignalerPanneModal],
   templateUrl: './dashboard-etudiant.html',
 })
 export class DashboardEtudiant implements OnInit {
@@ -56,8 +59,18 @@ export class DashboardEtudiant implements OnInit {
     this.utilisateurService.chargerMonProfil().subscribe({ next: (moi) => this.encadrant.set(moi.encadrant_nom) });
   }
 
-  statusLabel(s: string) { return { EN_ATTENTE: 'En attente', VALIDEE: 'Validée', REFUSEE: 'Refusée', ANNULEE: 'Annulée', TERMINEE: 'Terminée' }[s] ?? s; }
-  statusSeverity(s: string) { return ({ EN_ATTENTE: 'warn', VALIDEE: 'success', REFUSEE: 'danger', ANNULEE: 'secondary', TERMINEE: 'info' } as const)[s] ?? 'info'; }
+  readonly statusLabel = libelleStatut;
+  readonly statusSeverity = severiteStatut;
+
+  // Détail d'une réservation choisie dans le calendrier (modal existant :
+  // statut, équipements, chronologie lue dans le journal d'audit).
+  readonly detailVisible = signal(false);
+  readonly reservationDetail = signal<Reservation | null>(null);
+
+  ouvrirDetail(reservation: Reservation): void {
+    this.reservationDetail.set(reservation);
+    this.detailVisible.set(true);
+  }
 
   tempsEcoule(dateIso: string): string {
     const heures = Math.floor((Date.now() - new Date(dateIso).getTime()) / 3600000);

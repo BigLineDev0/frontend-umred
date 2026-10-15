@@ -5,7 +5,7 @@
     ]" title="Tableau de bord" subtitle="Voici un aperçu de vos activités techniques du jour.">
   </app-page-header>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-stagger">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 animate-stagger">
     <app-mini-stat-card icon="pi pi-cog" color="primary" [value]="equipementsDisponibles()" label="Équipements dispo" />
     <app-mini-stat-card icon="pi pi-wrench" color="accent" [value]="equipementsEnMaintenance()"
       label="En maintenance" />

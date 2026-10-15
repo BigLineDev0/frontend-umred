@@ -20,8 +20,8 @@ export class DataTable<T extends Record<string, any>> implements AfterContentIni
   columns = input.required<TableColumn<T>[]>();
   data = input.required<T[]>();
 
-  // Pensé pour l'API dès maintenant : en mode lazy, p-table ne pagine plus
-  // lui-même, il délègue chaque changement de page à l'événement lazyLoad.
+  // En mode lazy, p-table délègue la pagination à l'événement lazyLoad
+  // (pagination côté serveur).
   lazy = input(false);
   rows = input(5);
   totalRecords = input<number>();

@@ -28,6 +28,7 @@ export interface Reservation {
   demandeur_role?: string;
   projet?: number | null;
   projet_nom?: string | null;
+  projet_priorite?: string | null;
   date_creation: string;
   date_validation: string | null;
   est_archivee: boolean;

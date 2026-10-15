@@ -209,9 +209,8 @@ export class EquipementDetail implements OnInit {
     lien.click();
   }
 
-  // Corrigé : l'ancien bouton menait vers /maintenances, page réservée aux
-  // techniciens et admins ; chercheurs et étudiants ne pouvaient donc pas
-  // signaler une panne. Le signalement se fait désormais ici, pour tous.
+  // Signalement ouvert à tous les rôles depuis la fiche (la page
+  // /maintenances est réservée aux techniciens et administrateurs).
   signalerPanne(): void {
     this.panneModalVisible.set(true);
   }

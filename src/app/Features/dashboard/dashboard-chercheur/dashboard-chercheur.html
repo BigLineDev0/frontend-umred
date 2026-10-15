@@ -10,7 +10,7 @@
     </div>
   </app-page-header>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-stagger">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 animate-stagger">
     <app-mini-stat-card icon="pi pi-check-circle" color="success" [value]="validees()" label="Réservations validées" />
     <app-mini-stat-card icon="pi pi-ban" color="accent" [value]="annulees()" label="Annulées" />
     <app-mini-stat-card icon="pi pi-check" color="primary" [value]="terminees()" label="Terminées" />
@@ -18,26 +18,72 @@
   </div>
 
   <!-- Encadrement -->
-  <div class="mb-6 flex flex-col gap-4 rounded-xl border border-border bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
-    <div class="flex items-start gap-3">
-      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><i class="pi pi-users"></i></div>
-      <div>
-        <h2 class="text-base font-semibold text-text">Mes étudiants</h2>
-        @if (etudiants().length) {
+  <section class="mb-6 rounded-xl border border-border bg-white p-5" aria-labelledby="titre-etudiants">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><i class="pi pi-users"></i></div>
+        <div>
+          <h2 id="titre-etudiants" class="text-base font-semibold text-text">Mes étudiants</h2>
           <p class="text-sm text-text-secondary">
-            {{ etudiants().length | accord: 'étudiant encadré' : 'étudiants encadrés' }} :
-            {{ etudiants().slice(0, 4).map(e => e.prenom + ' ' + e.nom).join(', ') }}{{ etudiants().length > 4 ? '…' : '' }}
+            @if (etudiants().length) {
+              {{ etudiants().length | accord: 'étudiant encadré' : 'étudiants encadrés' }}
+            } @else {
+              Aucun étudiant ne vous est rattaché. L'administrateur les assigne depuis la page Utilisateurs.
+            }
           </p>
-        } @else {
-          <p class="text-sm text-text-secondary">Aucun étudiant ne vous est rattaché. L'administrateur les assigne depuis la page Utilisateurs.</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        @if (demandesEtudiants().length) {
+          <p-button [label]="(demandesEtudiants().length | accord: 'demande') + ' à traiter'" icon="pi pi-arrow-right" iconPos="right"
+            severity="warn" size="small" routerLink="/reservations/a-valider" />
+        }
+        @if (etudiants().length) {
+          <p-button label="Voir la liste" icon="pi pi-list" severity="secondary" [outlined]="true" size="small"
+            (onClick)="listeEtudiantsVisible.set(true)" />
         }
       </div>
     </div>
-    @if (demandesEtudiants().length) {
-      <p-button [label]="(demandesEtudiants().length | accord: 'demande') + ' à traiter'" icon="pi pi-arrow-right" iconPos="right"
-        severity="warn" routerLink="/reservations/a-valider" />
+
+    @if (etudiants().length) {
+      <div class="mt-4 flex items-center">
+        <div class="flex -space-x-2">
+          @for (e of etudiants().slice(0, 6); track e.id) {
+            <span class="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-primary/10 text-xs font-semibold text-primary"
+                  [title]="e.prenom + ' ' + e.nom">{{ initiales(e) }}</span>
+          }
+        </div>
+        @if (etudiants().length > 6) {
+          <span class="ml-3 text-sm text-text-secondary">+{{ etudiants().length - 6 }}</span>
+        }
+      </div>
     }
-  </div>
+  </section>
+
+  <p-dialog header="Mes étudiants" [(visible)]="listeEtudiantsVisible" [modal]="true" [draggable]="false"
+            [style]="{ width: '40rem' }" [breakpoints]="{ '640px': '95vw' }" [dismissableMask]="true">
+    <input pInputText type="search" class="mb-3 w-full" placeholder="Rechercher un étudiant (nom, e-mail)…"
+           aria-label="Rechercher un étudiant" [value]="rechercheEtudiant()" (input)="rechercheEtudiant.set($any($event.target).value)" />
+    <p class="mb-2 text-xs text-text-secondary">{{ etudiantsFiltres().length }} sur {{ etudiants().length }}</p>
+    <ul class="max-h-[60vh] divide-y divide-border overflow-y-auto">
+      @for (e of etudiantsFiltres(); track e.id) {
+        <li class="flex items-center gap-3 py-3">
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{{ initiales(e) }}</span>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-medium text-text">{{ e.prenom }} {{ e.nom }}</p>
+            <a class="truncate text-xs text-text-secondary hover:text-primary" [href]="'mailto:' + e.email">{{ e.email }}</a>
+          </div>
+          @if (demandesParEtudiant().get(e.id); as n) {
+            <a routerLink="/reservations/a-valider" class="shrink-0 rounded-full bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent">
+              {{ n | accord: 'demande' }} en attente
+            </a>
+          }
+        </li>
+      } @empty {
+        <li class="py-6 text-center text-sm text-text-secondary">Aucun étudiant ne correspond à cette recherche.</li>
+      }
+    </ul>
+  </p-dialog>
 
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-7">
 
@@ -52,7 +98,13 @@
         </a>
       </div>
 
-      @if (prochainesReservations().length === 0) {
+      @if (reservationService.error(); as erreur) {
+        <p class="text-sm text-danger py-4" role="alert">{{ erreur }}
+          <button type="button" class="ml-1 font-medium text-primary hover:underline" (click)="reservationService.charger()">Réessayer</button>
+        </p>
+      } @else if (reservationService.loading() && prochainesReservations().length === 0) {
+        <p class="text-sm text-text-secondary py-4" aria-busy="true">Chargement de vos réservations…</p>
+      } @else if (prochainesReservations().length === 0) {
         <p class="text-sm text-text-secondary py-4">Aucune réservation confirmée à venir.</p>
       } @else {
         <div class="divide-y divide-border">
@@ -108,7 +160,10 @@
 
     <div class="bg-white border border-border rounded-xl p-5 sm:p-6">
       <h2 class="text-lg font-semibold text-text mb-5">Calendrier des réservations</h2>
-      <app-reservations-calendar [reservations]="reservations()" />
+      <app-reservations-calendar [reservations]="reservations()"
+        [aTraiter]="demandesEtudiants()"
+        [chargement]="reservationService.loading()" [erreur]="reservationService.error()"
+        (reessayer)="reservationService.charger()" (ouvrir)="ouvrirDetail($event)" />
     </div>
 
   </div>
@@ -134,3 +189,4 @@
 </div>
 
 <app-signaler-panne-modal [(visible)]="panneModalVisible" />
+<app-reservation-detail-modal [(visible)]="detailVisible" [reservation]="reservationDetail()" />

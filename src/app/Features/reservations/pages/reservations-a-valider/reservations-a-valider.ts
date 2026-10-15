@@ -23,6 +23,7 @@ import { RowActions } from '../../../../Shared/components/row-actions';
 import { ReservationDetailModal } from '../../components/reservation-detail-modal/reservation-detail-modal';
 import { ReservationService } from '../../../../Core/services/reservation.service';
 import { messageErreur } from '../../../../Shared/utils/message-erreur';
+import { classesPriorite, libellePriorite } from '../../../../Shared/utils/priorite';
 
 interface FilterValues {
   search: string;
@@ -61,6 +62,9 @@ const AUTOMATIQUE = '__auto__';
   ],
 })
 export class ReservationsAValider implements OnInit {
+  readonly libellePriorite = libellePriorite;
+  readonly classesPriorite = classesPriorite;
+
   readonly reservationService = inject(ReservationService);
   readonly laboratoireService = inject(LaboratoireService);
   private readonly authService = inject(AuthService);
